@@ -9,6 +9,12 @@ import { BrowserProvider } from 'ethers';
 import { Eip1193Provider } from 'ethers';
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { AccountDropdown } from './account-dropdown';
+
+
+export const truncateAddress = (addr: string) => {
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+};
 
 type AuthStep = 'disconnected' | 'connected' | 'signing' | 'verified';
 
@@ -26,15 +32,10 @@ const WalletAuth = () => {
 
 
   useEffect(() => {
-    if (status == "authenticated" && address){
-      //voy a tener que setear el display address o algo asi, la conexión es persistente_ creo que si
-
-
-
-
+    if (status == "authenticated" && address) {
       setAuthStep('verified');
     }
-  }, [status])
+  }, [status, address])
 
 
   // Sincronizar estado con conexión de wallet
@@ -46,9 +47,7 @@ const WalletAuth = () => {
     }
   }, [isConnected, address]);
 
-  const truncateAddress = (addr: string) => {
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  };
+
 
   const handleOpenAuth = () => {
     setShowAuthModal(true);
@@ -165,24 +164,31 @@ const WalletAuth = () => {
 
   return (
     <>
-      <button
-        onClick={handleOpenAuth}
-        className={`
+      {authStep == "verified" && address ? (
+        <AccountDropdown address={address} />
+
+      ) : (
+        <button
+          onClick={handleOpenAuth}
+          className={`
           px-4 py-2 rounded-lg font-medium transition-all duration-300 min-w-[140px]
           flex items-center justify-center gap-2
           ${getButtonVariant() === 'success'
-            ? 'bg-success text-white hover:bg-success-accent'
-            : getButtonVariant() === 'loading'
-              ? 'bg-violet-400 text-white cursor-not-allowed'
-              : getButtonVariant() === 'primary'
-                ? 'bg-secondary text-white hover:bg-secondary-accent'
-                : 'bg-secondary text-gray-50 hover:bg-secondary-accent'
-          }
+              ? 'bg-success text-white hover:bg-success-accent'
+              : getButtonVariant() === 'loading'
+                ? 'bg-violet-400 text-white cursor-not-allowed'
+                : getButtonVariant() === 'primary'
+                  ? 'bg-secondary text-white hover:bg-secondary-accent'
+                  : 'bg-secondary text-gray-50 hover:bg-secondary-accent'
+            }
         `}
-        disabled={authStep === 'signing'}
-      >
-        {getButtonContent()}
-      </button>
+          disabled={authStep === 'signing'}
+        >
+          {getButtonContent()}
+        </button>
+      )}
+
+
 
       <AuthModal
         isOpen={showAuthModal}
@@ -199,3 +205,5 @@ const WalletAuth = () => {
 };
 
 export default WalletAuth;
+
+

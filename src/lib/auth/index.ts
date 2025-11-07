@@ -22,6 +22,11 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
+      name: string;
+      address: string;
+      email: string;
+      infoCid?: string;
+      avatar: string;
       roles?: Role[];
     } & DefaultSession["user"];
   }
@@ -70,12 +75,12 @@ export const authOptions = {
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
-  
+
       if (token?.id && session?.user) {
         session.user.address = token.address;
         session.user.email = token.email;
         session.user.roles = token.roles;
-      
+
       }
 
       return session;
