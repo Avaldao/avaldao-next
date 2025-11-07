@@ -60,17 +60,22 @@ export const authOptions = {
   },
   callbacks: {
     async jwt({ token, user }: { token: any; user?: any }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        token.address = user.address;
+        token.email = user.email;
+        token.roles = user.roles;
+      }
+
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
-      if (token?.id && session?.user) {/* 
-        const usersService = new UserService();
-        const authorizationService = new AuthorizationService();
-
-        session.user.id = token.id;
-        const roles = await authorizationService.getRoles(session.user.id);
-        session.user.roles = roles; */
+  
+      if (token?.id && session?.user) {
+        session.user.address = token.address;
+        session.user.email = token.email;
+        session.user.roles = token.roles;
+      
       }
 
       return session;

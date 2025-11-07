@@ -7,12 +7,14 @@ import { AuthModal } from './auth-modal';
 import { Wallet, Loader2, CheckCircle2 } from 'lucide-react';
 import { BrowserProvider } from 'ethers';
 import { Eip1193Provider } from 'ethers';
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 type AuthStep = 'disconnected' | 'connected' | 'signing' | 'verified';
 
 const WalletAuth = () => {
+  const { data: session, status } = useSession();
+
   const [authStep, setAuthStep] = useState<AuthStep>('disconnected');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { open } = useAppKit();
@@ -20,6 +22,20 @@ const WalletAuth = () => {
   const { isConnected, address } = useAppKitAccount();
   const { disconnect } = useDisconnect();
   const router = useRouter();
+
+
+
+  useEffect(() => {
+    if (status == "authenticated" && address){
+      //voy a tener que setear el display address o algo asi, la conexión es persistente_ creo que si
+
+
+
+
+      setAuthStep('verified');
+    }
+  }, [status])
+
 
   // Sincronizar estado con conexión de wallet
   useEffect(() => {
@@ -63,34 +79,23 @@ const WalletAuth = () => {
     try {
       setAuthStep('signing');
 
-      //get message from backend. to endpoint
-
-      // /challenges/?connected addr, 
       const message = await getMessage();
       const ethersProvider = new BrowserProvider(walletProvider);
       const signer = await ethersProvider.getSigner();
       const signature = await signer.signMessage(message);
 
-      //send signature to backend
-      console.log("Signature:", signature);
-
-
-      //Post request
       const response = await signIn("message-signature", {
         redirect: false,
         message,
         signature,
       });
 
-      
       if (response?.error != undefined) {
         console.log("handle errors", response.error)
       } else if (response?.ok) {
         console.log("refresh page with curren session");
         router.refresh();
       }
-
-
 
       // Una vez firmado exitosamente
       setAuthStep('verified');
