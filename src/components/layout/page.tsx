@@ -10,7 +10,7 @@ export default function Page({ children }: { children: ReactNode }) {
       </div>
 
       <div className="row-start-2 bg-white">
-        <div className="container mx-auto p-4 max-w-6xl h-full">
+        <div className="container mx-auto p-4 max-w-6xl h-full text-slate-700">
           {children}
         </div>
       </div>

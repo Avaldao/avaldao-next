@@ -33,7 +33,7 @@ const getStatusText = (status: number) => {
 };
 
 // Función para acortar dirección de wallet
-const shortenAddress = (address: string) => {
+export const shortenAddress = (address: string) => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
