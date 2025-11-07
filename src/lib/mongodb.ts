@@ -5,8 +5,6 @@ const uri = process.env.MONGO_DB_USERS!;
 
 const options = {};
 
-console.log(uri)
-
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
@@ -27,10 +25,9 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 
-const getDb = async () => {
+const getDb = async (db?: string) => {
   const client = await clientPromise;
-  const db = await client.db();
-  return db;
+  return client.db(db);
 }
 
 export default getDb;

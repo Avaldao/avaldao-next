@@ -13,6 +13,7 @@
     "@reown/appkit": "^1.8.13",
     "@reown/appkit-adapter-ethers": "^1.8.13",
     "@types/jsonwebtoken": "^9.0.10",
+    "clsx": "^2.1.1",
     "ethers": "^6.15.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.552.0",
