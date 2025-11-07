@@ -5,9 +5,10 @@ import { useState, useEffect } from 'react';
 import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect } from '@reown/appkit/react';
 import { AuthModal } from './auth-modal';
 import { Wallet, Loader2, CheckCircle2 } from 'lucide-react';
-import { Provider } from 'ethers';
 import { BrowserProvider } from 'ethers';
 import { Eip1193Provider } from 'ethers';
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type AuthStep = 'disconnected' | 'connected' | 'signing' | 'verified';
 
@@ -18,6 +19,7 @@ const WalletAuth = () => {
   const { walletProvider } = useAppKitProvider<Eip1193Provider>("eip155");
   const { isConnected, address } = useAppKitAccount();
   const { disconnect } = useDisconnect();
+  const router = useRouter();
 
   // Sincronizar estado con conexión de wallet
   useEffect(() => {
@@ -74,18 +76,19 @@ const WalletAuth = () => {
 
 
       //Post request
-      const response = await fetch("/api/sign-in", {
-        method: "POST",
-        body: JSON.stringify({
-          message,
-          signature
-        })
+      const response = await signIn("message-signature", {
+        redirect: false,
+        message,
+        signature,
       });
 
-      const data = await response.json();
-      console.log(data.user);
-
-
+      
+      if (response?.error != undefined) {
+        console.log("handle errors", response.error)
+      } else if (response?.ok) {
+        console.log("refresh page with curren session");
+        router.refresh();
+      }
 
 
 
