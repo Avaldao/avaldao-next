@@ -5,7 +5,9 @@
   --foreground: #171717;
   --primary: #292A6D;
   --secondary: #7868E5;
-
+  --secondary-accent: #6959d8;
+  --success: #10b981;
+  --success-accent: #0da271;
   --font-inter: 'Inter', sans-serif;
   --font-manrope: 'Manrope', sans-serif;
 }
@@ -17,7 +19,11 @@
   --font-mono: var(--font-geist-mono);
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
+  --color-secondary-accent: var(--secondary-accent);
 
+  --color-success: var(--success);
+  --color-success-accent: var(--success-accent);
+  
   --font-sans: var(--font-inter);
   --font-heading: var(--font-manrope);
 }

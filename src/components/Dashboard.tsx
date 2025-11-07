@@ -3,7 +3,7 @@ export default function Dashboard() {
     <section id="dashboard" className="py-20 bg-primary text-white">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold text-center font-heading mb-12">Dashboard</h2>
-        <p className="text-lg text-gray-100 text-center mb-12 max-w-3xl mx-auto">
+        <p className="text-lg text-gray-100 text-center mb-12 max-w-lg mx-auto">
           AvalDAO es transparente. Puedes conocer el estado de su economía interna en tiempo real.
 
         </p>

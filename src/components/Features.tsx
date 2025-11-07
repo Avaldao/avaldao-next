@@ -36,7 +36,7 @@ export default function Features() {
         {/* Qué es AvalDAO */}
         <div id="que-es" className="text-center mb-16">
           <h2 className="font-heading text-4xl font-bold text-primary mb-6">Qué es AvalDAO</h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-loose">
+          <p className="text-lg text-gray-600 mb-8 max-w-xl mx-auto leading-loose">
             AvalDAO es la primera Sociedad de Garantía Recíproca (SGR) descentralizada. Una solución WEB3 que otorga garantías a los individuos y microempresas no bancarizadas o sin historial crediticio, para que puedan acceder a créditos comerciales convenientes.
           </p>
           <div className="bg-secondary inline-block px-6 py-3 rounded-full font-bold text-white text-lg shadow-md">

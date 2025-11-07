@@ -13,7 +13,7 @@ export default function Hero() {
         <p className="font-heading text-4xl text-primary mb-4 font-bold leading-11">
           Sumate a la comunidad AvalDAO
         </p>
-        <p className="text-lg text-slate-700 mb-12 max-w-2xl">
+        <p className="text-lg text-slate-700 mb-12 max-w-xl">
           Únete a un nuevo tipo de empresa, más abierta y transparente, donde el control lo tienen quienes la usan y contribuyen.
         </p>
         <button className="bg-secondary text-white inline-block px-5 py-2 rounded-full font-medium text-lg select-none cursor-pointer text-heading">
