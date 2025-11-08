@@ -1,4 +1,4 @@
-import { shortenAddress } from "@/app/avales/[id]/page";
+import { shortenAddress } from "@/utils";
 import Page from "@/components/layout/page";
 import UsersService from "@/services/users-service";
 import { AlertCircle, ChevronRight } from "lucide-react";

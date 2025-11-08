@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Manrope } from "next/font/google";
 
 import "./globals.css";
-import UsersService from "@/services/users-service";
-
 
 const inter = Inter({
   subsets: ['latin'],
@@ -39,7 +37,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  new UsersService().getUserByAddress("0x8b8099bB67EAC696148cBa04575828635Ba7Cee6") 
+  
   return (
     <html lang="en">
       <body

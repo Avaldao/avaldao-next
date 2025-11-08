@@ -4,6 +4,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, DollarSign, Users, Target, FileText, UserCheck, Store, Shield } from "lucide-react";
+import { shortenAddress } from "@/utils";
 
 interface AvalDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -32,10 +33,6 @@ const getStatusText = (status: number) => {
   return statusMap[status] || { text: "Desconocido", variant: "outline" };
 };
 
-// Función para acortar dirección de wallet
-export const shortenAddress = (address: string) => {
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-};
 
 export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) {
   const { id } = await params;

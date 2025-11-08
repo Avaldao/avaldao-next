@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-r
 import clsx from "clsx";
 import Link from "next/link";
 import { Aval } from "@/types";
+import { AvalStatusChip } from "./aval-status-chip";
 
 interface TableProps<T extends { _id: string }> {
   columns: ReactNode[];
@@ -122,14 +123,14 @@ export const Td = ({ className, children, colspan }: { className?: string, colsp
 }
 
 // Componente para mostrar los avatares de los actores
-const ActorAvatars = ({ 
-  solicitante, 
-  comerciante, 
-  avalado 
-}: { 
-  solicitante: string; 
-  comerciante: string; 
-  avalado: string; 
+const ActorAvatars = ({
+  solicitante,
+  comerciante,
+  avalado
+}: {
+  solicitante: string;
+  comerciante: string;
+  avalado: string;
 }) => {
   const getInitials = (address: string) => {
     return address.slice(2, 6).toUpperCase(); // Toma los primeros 4 caracteres después de "0x"
@@ -137,7 +138,7 @@ const ActorAvatars = ({
 
   const getColor = (address: string) => {
     const colors = [
-      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 
+      'bg-blue-500', 'bg-green-500', 'bg-purple-500',
       'bg-orange-500', 'bg-pink-500', 'bg-indigo-500'
     ];
     const index = parseInt(address.slice(2, 4), 16) % colors.length;
@@ -185,10 +186,12 @@ const Actions = ({ id }: { id: string }) => {
 export const AvalTable = ({ avales }: { avales: Aval[] }) => {
   const columns = [
     <Th key="createdAt">Fecha Creación</Th>,
+    /* <Th key="beneficiario">Beneficiario</Th>, */
     <Th key="proyecto">Proyecto</Th>,
-    
-    <Th key="monto">Monto</Th>,
+
     <Th key="actores">Actores</Th>,
+    <Th key="monto">Monto</Th>,
+    <Th key="estado">Estado</Th>,
     <Th key="actions" className="text-center">Acciones</Th>,
   ];
 
@@ -196,16 +199,14 @@ export const AvalTable = ({ avales }: { avales: Aval[] }) => {
     <Td key="createdAt">
       {new Date(aval.createdAt).toLocaleDateString('es-ES')}
     </Td>,
-    <Td key="proyecto" className="max-w-xl truncate">
+ /*    <Td key="beneficiario" className="border border-red-500 min-w-80 truncate">
+      <UserByAddress address={aval.avaladoAddress}/>
+    </Td>, */
+    <Td key="proyecto" className="max-w-lg truncate">
       {aval.proyecto}
       <div className="line-clamp-2" title={aval.objetivo}>
         {aval.objetivo}
       </div>
-    </Td>,
-    <Td key="monto">
-      <span className="font-semibold text-slate-600">
-        ${aval.montoFiat.toLocaleString('es-ES')}
-      </span>
     </Td>,
     <Td key="actores">
       <ActorAvatars
@@ -213,6 +214,20 @@ export const AvalTable = ({ avales }: { avales: Aval[] }) => {
         comerciante={aval.comercianteAddress}
         avalado={aval.avaladoAddress}
       />
+    </Td>,
+    <Td key="monto" className="text-right">
+      <span className="font-semibold text-slate-600 ">
+        ${aval.montoFiat.toLocaleString('es-ES')}
+      </span>
+    </Td>,
+    <Td key="estado">
+
+      <AvalStatusChip
+        status={aval.status}
+        variant="compact"
+        className="w-full"
+      />
+
     </Td>,
     <Td key="actions">
       <Actions id={aval._id} />

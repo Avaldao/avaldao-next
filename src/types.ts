@@ -21,3 +21,14 @@ export interface Aval {
   comercianteSignature?: string;
   avaldaoSignature?: string;
 }
+
+
+export interface UserInfo {
+  id: string;
+  address: string;
+  email: string;
+  infoCid?: string;
+  name: string;
+  avatar: string;
+  roles: string[];
+}
