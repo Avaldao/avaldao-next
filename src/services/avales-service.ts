@@ -21,7 +21,7 @@ export default class AvalesService {
   async getAll(): Promise<Aval[]> {
     const db = await this.getDb();
     const avales = await db.collection<Aval>("avales").find({}).toArray();
-    return avales;
+    return avales.map(a => ({...a, _id: a._id.toString(),}));
   }
 
 
