@@ -1,3 +1,6 @@
+import AnimatedCounter from "./animated-counter";
+import GuaranteeFund from "./GuaranteeFund";
+
 export default function Dashboard() {
   return (
     <section id="dashboard" className="py-20 bg-primary text-white">
@@ -8,11 +11,7 @@ export default function Dashboard() {
 
         </p>
 
-        {/* Fondo de Garantía */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 rounded-2xl shadow-lg text-center mb-12 max-w-md mx-auto">
-          <h3 className="text-2xl font-bold mb-4 font-heading">Fondo de Garantía</h3>
-          <div className="text-4xl font-bold font-heading">416.19 USD</div>
-        </div>
+        <GuaranteeFund />
 
         {/* Tablas */}
         <div className="grid md:grid-cols-2 gap-8 mb-12">
@@ -39,7 +38,7 @@ export default function Dashboard() {
               <div className="bg-white rounded-lg shadow">
                 <div className="font-bold text-slate-600">Inversores</div>
               </div>
-            
+
             </div>
           </div>
         </div>
