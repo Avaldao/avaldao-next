@@ -43,12 +43,28 @@ class UsersService {
   //TODO: CRITICAL make it available only to admin users
   async getUser(id: string): Promise<UserInfo | null> {
     const db = await getDb();
-    return db.collection<UserInfo>("users").findOne({ "_id": new ObjectId(id) });
+    const user = await db.collection<UserInfo>("users").findOne({ "_id": new ObjectId(id) });
+    if (user) {
+      user.roles = roles; //TODO: read from smart contract
+      user.id = user._id.toString();
+      user.website = user.url ?? user.website;
+      //populate avatar
+    }
+
+    return user;
   }
   //TODO: CRITICAL make it available only to admin users
   async getUserByAddress(address: string): Promise<UserInfo | null> {
     const db = await getDb();
-    return db.collection<UserInfo>("users").findOne({ "address": address });
+    const user = await db.collection<UserInfo>("users").findOne({ "address": address });
+    if (user) {
+      user.roles = roles; //TODO: read from smart contract
+      user.id = user._id.toString();
+      user.website = user.url ?? user.website;
+      //populate avatar
+    }
+
+    return user;
   }
 
 
@@ -84,7 +100,7 @@ class UsersService {
 
     const db = await getDb();
 
-    const update: Record<string,any> = {
+    const update: Record<string, any> = {
       email: data.email,
       name: data.name,
       url: data.website,
@@ -101,9 +117,14 @@ class UsersService {
     const user = await db.collection<UserInfo>("users")
       .findOneAndUpdate(
         { _id: new ObjectId(data.id) },
-        { $set: update }
+        { $set: update },
+        { returnDocument: "after" }
       );
-    console.log(user)
+
+    return {
+      avatar: update.avatar,
+      ...user
+    }
 
   }
 }

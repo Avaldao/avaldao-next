@@ -64,15 +64,22 @@ export const authOptions = {
     signIn: "/auth/signin",
   },
   callbacks: {
-    async jwt({ token, user }: { token: any; user?: any }) {
+    async jwt({ token, user, trigger }: { token: any; user?: any, trigger?: any }) {
+
+      if (trigger == "update") {
+        const updated = await new UserService().getUser(token.id);
+        user = updated;
+      }
+
       if (user) {
         token.id = user.id;
+        token.name = user.name;
         token.address = user.address;
         token.email = user.email;
         token.website = user.website;
         token.avatar = user.avatar;
         token.roles = user.roles;
-      }
+      } 
 
       return token;
     },
@@ -80,6 +87,7 @@ export const authOptions = {
 
       if (token?.id && session?.user) {
         session.user.id = token.id;
+        session.user.name = token.name;
         session.user.address = token.address;
         session.user.email = token.email;
         session.user.roles = token.roles;

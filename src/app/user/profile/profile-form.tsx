@@ -105,15 +105,10 @@ export default function ProfileForm({ user, update }: { user?: User, update?: (d
 
       if (response.ok) {
         toast.success("Perfil actualizado exitosamente");
-        /* if (update) {
+         if (update) {
           await update();
           console.log("Updated was called")
-        } */
-
-        setTimeout(() => {
-          router.replace("/");
-          
-        },1000)
+        }
       }
 
 
