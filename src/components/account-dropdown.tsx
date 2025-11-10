@@ -6,6 +6,7 @@ import { useAppKit, useAppKitAccount, useWalletInfo } from "@reown/appkit/react"
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
 import Link from "next/link";
+import { div } from "framer-motion/client";
 
 interface AccountDropdownProps {
   address: string;
@@ -45,8 +46,8 @@ export function AccountDropdown({ address }: { address: string }) {
         </>
       </MenuButton>
 
-      <MenuItems 
-        anchor="bottom end" 
+      <MenuItems
+        anchor="bottom end"
         className={`
           bg-white min-w-80 rounded-md shadow-xl border border-gray-200 z-50 
           overflow-hidden mt-2
@@ -55,9 +56,20 @@ export function AccountDropdown({ address }: { address: string }) {
         {/* User Info Section */}
         <div className="border-b border-gray-100 pb-3 p-4 mb-1 bg-gray-50">
           <div className="flex items-center space-x-3">
-            <div className="flex bg-emerald-500 rounded-full w-10 h-10 text-white justify-center items-center font-bold text-sm">
-              {userInitial}
-            </div>
+            {session?.user.avatar ? (
+              <Image
+                width={150}
+                height={150}
+                src={session?.user.avatar}
+                alt=""
+                className="rounded-full shadow-sm w-15 h-15 aspect-square object-cover"
+              />
+
+            ) : (
+              <div className="flex bg-emerald-500 rounded-full w-15 h-15 text-white justify-center items-center font-bold text-xl">
+                {userInitial}
+              </div>
+            )}
             <div className="flex flex-col">
               <div className="text-sm font-semibold text-gray-900">
                 {session?.user?.name || 'User'}
@@ -77,8 +89,8 @@ export function AccountDropdown({ address }: { address: string }) {
         {/* Navigation Links */}
         {pathname !== "/dashboard" && (
           <MenuItem>
-            <Link 
-              href="/dashboard" 
+            <Link
+              href="/dashboard"
               className="flex items-center hover:bg-emerald-400 hover:text-white transition duration-300 ease-in-out p-3 cursor-pointer text-sm text-gray-700"
             >
               <LayoutDashboard className="w-4 h-4 mr-3" />
@@ -88,8 +100,8 @@ export function AccountDropdown({ address }: { address: string }) {
         )}
 
         <MenuItem>
-          <Link 
-            href="/user/profile" 
+          <Link
+            href="/user/profile"
             className="flex items-center hover:bg-emerald-400 hover:text-white transition duration-300 ease-in-out p-3 cursor-pointer text-sm text-gray-700"
           >
             <UserIcon className="w-4 h-4 mr-3" />
@@ -98,8 +110,8 @@ export function AccountDropdown({ address }: { address: string }) {
         </MenuItem>
 
         <MenuItem>
-          <Link 
-            href="/settings" 
+          <Link
+            href="/settings"
             className="flex items-center hover:bg-emerald-400 hover:text-white transition duration-300 ease-in-out p-3 cursor-pointer text-sm text-gray-700"
           >
             <Settings className="w-4 h-4 mr-3" />
@@ -107,14 +119,14 @@ export function AccountDropdown({ address }: { address: string }) {
           </Link>
         </MenuItem>
 
-    
+
 
         {/* Divider */}
         <div className="border-t border-gray-100 my-1" />
 
         {/* Sign Out */}
         <MenuItem>
-          <button 
+          <button
             onClick={handleSignOut}
             className="flex items-center w-full hover:bg-emerald-400 hover:text-white transition duration-300 ease-in-out p-3 cursor-pointer text-sm text-gray-700"
           >

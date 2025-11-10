@@ -240,10 +240,13 @@ export default function AvalForm() {
           Cancelar
         </button>
 
+          
+
+
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-secondary hover:bg-blue-700 text-white rounded-md transition disabled:opacity-50"
+          className="px-4 py-2 bg-secondary hover:bg-secondary-accent text-white rounded-md transition disabled:opacity-50"
         >
           {loading ? "Enviando..." : "Enviar Aval"}
         </button>

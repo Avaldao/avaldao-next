@@ -92,7 +92,6 @@ const WalletAuth = () => {
       if (response?.error != undefined) {
         console.log("handle errors", response.error)
       } else if (response?.ok) {
-        console.log("refresh page with curren session");
         router.refresh();
       }
 

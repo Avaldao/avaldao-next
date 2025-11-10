@@ -15,7 +15,7 @@ declare module "next-auth" {
     address: string;
     email: string;
     infoCid?: string;
-    avatar: string;
+    avatar?: string;
     roles: string[];
   }
 
@@ -26,7 +26,7 @@ declare module "next-auth" {
       address: string;
       email: string;
       infoCid?: string;
-      avatar: string;
+      avatar?: string;
       roles?: string[];
     } & DefaultSession["user"];
   }
@@ -69,6 +69,8 @@ export const authOptions = {
         token.id = user.id;
         token.address = user.address;
         token.email = user.email;
+        token.website = user.website;
+        token.avatar = user.avatar;
         token.roles = user.roles;
       }
 
@@ -77,9 +79,13 @@ export const authOptions = {
     async session({ session, token }: { session: any; token: any }) {
 
       if (token?.id && session?.user) {
+        session.user.id = token.id;
         session.user.address = token.address;
         session.user.email = token.email;
         session.user.roles = token.roles;
+        session.user.avatar = token.avatar;
+        session.user.website = token.website;
+
 
       }
 

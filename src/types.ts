@@ -31,4 +31,15 @@ export interface UserInfo {
   name: string;
   avatar: string;
   roles: string[];
+  url?: string; //deprecated
+  website?: string;
+}
+
+export interface UserUpsert {
+  id: string,
+  address: string,
+  name: string,
+  email :string,
+  website?: string
+  avatar?: File
 }

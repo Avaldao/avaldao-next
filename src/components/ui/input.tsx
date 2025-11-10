@@ -6,17 +6,17 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   trailing?: ReactNode,
 }
 
+const highlightColor = "secondary"
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, trailing, error, ...props }, ref) => (
     <>
-
       <div className="relative">
         <input
           type="text"
           ref={ref}
           className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 
-          focus:ring-1 focus:ring-[#292A6D] focus:border-[#292A6D]
-          focus-visible:ring-1 focus-visible:ring-[#292A6D] focus-visible:border-[#292A6D]
+          focus:ring-1 focus:ring-${highlightColor} focus:border-${highlightColor}
+          focus-visible:ring-1 focus-visible:ring-${highlightColor} focus-visible:border-${highlightColor}
           focus-visible:outline-none ${className ?? ""}`}
           {...props}
         />
