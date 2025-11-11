@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import Header from "../Header";
 import Footer from "../Footer";
 
-export default function Page({ children }: { children: ReactNode }) {
+export default function Page({ children }: { children?: ReactNode }) {
   return (
     <div className="min-h-screen grid grid-rows-[auto_1fr_auto]">
       <div className="row-start-1">

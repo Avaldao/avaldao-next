@@ -34,7 +34,14 @@ const roles = [ {
     app: avaldaoContractAddress
   }]
 
-export default roles.map(r => r.value);
+export default roles;
+
+export type Role =
+  | "ADMIN_ROLE"
+  | "AVALDAO_ROLE"
+  | "SOLICITANTE_ROLE"
+  | "COMERCIANTE_ROLE"
+  | "AVALADO_ROLE";
 
 
 /* 
