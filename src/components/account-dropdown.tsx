@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { div } from "framer-motion/client";
+import roles from "@/roles";
 
 interface AccountDropdownProps {
   address: string;
@@ -78,8 +79,10 @@ export function AccountDropdown({ address }: { address: string }) {
                 {session?.user?.email || `${formatHash(address)}@wallet`}
               </div>
               {session?.user?.roles && session.user.roles.length > 0 && (
-                <div className="text-xs text-emerald-600 font-medium mt-1 max-w-xs">
-                  {session.user.roles.map(role => role).join(', ')}
+                <div className="text-xs text-emerald-600 font-medium mt-1 max-w-xs flex gap-x-1 gap-y-1 flex-wrap">
+                  {session.user.roles.map(role => (
+                    <div className="text-primary px-1 py-1 rounded-2xl select-none">{role.split("_")[0]}</div>
+                  ))}
                 </div>
               )}
             </div>
