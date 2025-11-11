@@ -1,6 +1,8 @@
 import getDb from "@/lib/mongodb";
-import { Aval } from "@/types";
+import { Aval, AvalRequest } from "@/types";
 import { ObjectId } from "mongodb";
+
+
 
 export default class AvalesService {
   constructor() {
@@ -12,6 +14,14 @@ export default class AvalesService {
     return db;
   }
 
+  async saveAval(avalData: AvalRequest) {
+    console.log(`Avales service, save aval:`)
+    console.log(avalData)
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+
+  }
 
   async getAval(id: string): Promise<Aval | null> {
     const db = await this.getDb();

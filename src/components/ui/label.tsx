@@ -1,11 +1,13 @@
 import React from "react";
 
-export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> { }
+export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> { 
+  required?: boolean
+}
 
 export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
-  ({ children, className, ...props }, ref) => (
+  ({ children, className, required = false ,...props }, ref) => (
     <label className={`${className ?? ""} block mb-1 text-sm font-medium text-gray-900`} {...props}>
-      {children}
+      {children}{required && "*"}
     </label>
   )
 );

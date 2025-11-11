@@ -7,6 +7,23 @@ import { TextArea } from "@/components/ui/textarea";
 import { useSession } from "next-auth/react";
 import { UserInfo } from "@/types";
 import Spinner from "@/components/ui/spinner";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+
+interface FieldErrors {
+  proyecto?: string;
+  objetivo?: string;
+  adquisicion?: string;
+  beneficiarios?: string;
+  montoFiat?: string;
+  cuotasCantidad?: string;
+  fechaInicio?: string;
+  duracionCuotaDias?: string;
+  solicitanteAddress?: string;
+  avaldaoAddress?: string;
+  comercianteAddress?: string;
+  avaladoAddress?: string;
+}
 
 
 export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string }) {
@@ -33,8 +50,32 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
   const [comerciante, setComerciante] = useState<UserInfo | null>();
   const [avalado, setAvalado] = useState<UserInfo | null>();
-  const [loadingComerciante, setLoadingComerciante] = useState(true);
+  const [loadingComerciante, setLoadingComerciante] = useState(false);
   const [loadingAvalado, setLoadingAvalado] = useState(false);
+
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  const setFieldError = (field: string, value: string) => {
+    setFieldErrors(prevs => ({
+      ...prevs,
+      [field]: value
+    })
+    )
+  };
+
+  const clearFieldError = (field: string) => {
+    setFieldErrors(prevs => ({
+      ...prevs,
+      [field]: undefined
+    })
+    )
+  };
+
+
+  const clearFormErrors = () => {
+    setFieldErrors({});
+  }
+
 
 
   useEffect(() => {
@@ -47,9 +88,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
 
   const loadComercianteData = async () => {
-    console.log(form.comercianteAddress) //TODO: check valid address
-
-    if (form.comercianteAddress) {
+    if (form.comercianteAddress && /^0x[a-fA-F0-9]{40}$/.test(form.comercianteAddress)) {
       setLoadingComerciante(true);
       try {
         const comerciante_ = await getUserByAddress(form.comercianteAddress);
@@ -64,7 +103,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
   }
   const loadAvaladoData = async () => {
-    if (form.avaladoAddress) {
+    if (form.avaladoAddress && /^0x[a-fA-F0-9]{40}$/.test(form.avaladoAddress)) {
       setLoadingAvalado(true);
       try {
         const avalado_ = await getUserByAddress(form.avaladoAddress);
@@ -82,6 +121,12 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    if (name == "comercianteAddress") {
+      clearFieldError("comercianteAddress");
+    };
+    if (name == "avaladoAddress") {
+      clearFieldError("avaladoAddress");
+    };
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -89,22 +134,37 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
     const response = await fetch(`/api/users?address=${address}`);
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
       return data;
-
     } else {
-      console.log(response.status); //not found?
       return null;
+    }
+  }
+
+  const validateForm = () => {
+    if (!/^0x[a-fA-F0-9]{40}$/.test(form.comercianteAddress)) {
+      setFieldError("comercianteAddress", "Por favor ingresa un address válido");
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(form.avaladoAddress)) {
+      setFieldError("avaladoAddress", "Por favor ingresa un address válido");
     }
 
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (loading) return;
+
+    clearFormErrors();
+    validateForm();
+
+    if (Object.keys(fieldErrors).length > 0) {
+      return;
+    }
+
     setSuccess(false);
 
     try {
+      setLoading(true);
       const res = await fetch("/api/avales", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,20 +173,6 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
       if (res.ok) {
         setSuccess(true);
-        setForm({
-          proyecto: "",
-          objetivo: "",
-          adquisicion: "",
-          beneficiarios: "",
-          montoFiat: 1000,
-          cuotasCantidad: 6,
-          fechaInicio: "",
-          duracionCuotaDias: 30,
-          solicitanteAddress: "",
-          avaldaoAddress: "",
-          comercianteAddress: "",
-          avaladoAddress: "",
-        });
       } else {
         console.error("Error al enviar los datos");
       }
@@ -141,40 +187,44 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
     <form onSubmit={handleSubmit} className="space-y-2">
       {/* Proyecto */}
       <div>
-        <label className="block text-sm font-medium text-gray-700">Proyecto</label>
+        <Label required>Proyecto</Label>
         <Input
           name="proyecto"
           value={form.proyecto}
           onChange={handleChange}
+          required
         />
       </div>
 
       {/* Objetivo */}
       <div>
-        <label className="block text-sm font-medium text-gray-700">Objetivo</label>
+        <Label required>Objetivo</Label>
         <TextArea
           name="objetivo"
           value={form.objetivo}
           onChange={handleChange}
+          required
         />
       </div>
 
       {/* Row: Adquisición / Beneficiarios */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Adquisición</label>
+          <Label required>Adquisición</Label>
           <Input
             name="adquisicion"
             value={form.adquisicion}
             onChange={handleChange}
+            required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Beneficiarios</label>
+          <Label required>Beneficiarios</Label>
           <Input
             name="beneficiarios"
             value={form.beneficiarios}
             onChange={handleChange}
+            required
           />
         </div>
       </div>
@@ -182,27 +232,29 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       {/* Row: Monto, Cuotas, Fecha, Duración */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Monto (USD)</label>
+          <Label required>Monto (USD)</Label>
           <Input
             type="number"
             name="montoFiat"
             value={form.montoFiat}
             onChange={handleChange}
+            required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Cuotas</label>
+          <Label required>Cuotas</Label>
           <Input
             type="number"
             name="cuotasCantidad"
             value={form.cuotasCantidad}
             onChange={handleChange}
+            required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Fecha inicio</label>
+          <Label >Fecha inicio</Label>
           <div className="relative">
             <CalendarDays className="absolute left-3 top-2.5 text-gray-400 h-5 w-5" />
             <Input
@@ -210,18 +262,19 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
               name="fechaInicio"
               value={form.fechaInicio}
               onChange={handleChange}
-              className="w-full pl-10 mt-1 "
+              className="w-full pl-10"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Duración (días)</label>
+          <Label required>Duración (días)</Label>
           <Input
             type="number"
             name="duracionCuotaDias"
             value={form.duracionCuotaDias}
             onChange={handleChange}
+            required
           />
         </div>
       </div>
@@ -229,7 +282,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       {/* Row: Direcciones */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Solicitante</label>
+          <Label >Solicitante</Label>
           <div className="relative">
             <Wallet className="absolute left-3 top-2.5 text-slate-700 h-5 w-5 z-1" />
             <Input
@@ -244,7 +297,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">AvalDAO</label>
+          <Label >AvalDAO</Label>
           <div className="relative">
             <Wallet className="absolute left-3 top-2.5 text-slate-800 z-1 h-5 w-5" />
             <Input
@@ -260,7 +313,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Comerciante</label>
+          <Label >Comerciante</Label>
           <div className="relative">
             <Wallet className="absolute left-3 top-2.5 text-slate-800 z-1 h-5 w-5" />
             <Input
@@ -269,12 +322,13 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
               onChange={handleChange}
               placeholder="0x..."
               className="w-full pl-10 mt-1 "
+              error={fieldErrors.comercianteAddress}
             />
-            
-            {loadingComerciante?
+
+            {loadingComerciante ?
               (<div className="-mt-4 text-sm text-gray-400 italic">
-                <Spinner variant="sm"/> Loading...</div>)
-              : comerciante && (
+                <Spinner variant="sm" /> Loading...</div>)
+              : comerciante && !fieldErrors.comercianteAddress && (
                 <div className="-mt-4 text-primary italic text-sm">
                   {comerciante?.name} &lt;{comerciante.email}&gt;
                 </div>
@@ -284,7 +338,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Avalado</label>
+          <Label >Avalado</Label>
           <div className="relative">
             <Wallet className="absolute left-3 top-2.5 text-slate-800 z-1 h-5 w-5" />
             <Input
@@ -293,23 +347,25 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
               onChange={handleChange}
               placeholder="0x..."
               className="w-full pl-10 mt-1 "
+              error={fieldErrors.avaladoAddress}
             />
 
-             {loadingAvalado?
+            {loadingAvalado ?
               (<div className="-mt-4 text-sm text-gray-400 italic">
-                <Spinner variant="sm"/> Loading...</div>)
-              : avalado && (
+                <Spinner variant="sm" /> Loading...</div>)
+              : avalado && !fieldErrors.avaladoAddress && (
                 <div className="-mt-4 text-primary italic text-sm">
                   {avalado?.name} &lt;{avalado.email}&gt;
                 </div>
               )}
 
-           
+
           </div>
         </div>
       </div>
 
       {/* Buttons */}
+
       <div className="flex justify-end gap-3 pt-4">
         <button
           type="button"
@@ -332,20 +388,20 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
           Cancelar
         </button>
 
-
-
-
-        <button
+        <Button
           type="submit"
-          disabled={loading}
-          className="px-4 py-2 bg-secondary hover:bg-secondary-accent text-white rounded-md transition disabled:opacity-50"
+          loading={loading}
+          disabled={loading || success}
         >
+          {loading && <Spinner />}
           {loading ? "Creando..." : "Crear Aval"}
-        </button>
+        </Button>
       </div>
 
+
+
       {success && (
-        <p className="text-green-600 text-sm mt-3">✅ Aval registrado correctamente.</p>
+        <p className="text-green-600 text-lg mt-7 text-center">✅ Aval registrado correctamente.</p>
       )}
     </form>
 

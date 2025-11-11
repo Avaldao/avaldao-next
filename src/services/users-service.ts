@@ -25,6 +25,12 @@ class UsersService {
       user.website = user.url ?? user.website;
       //populate avatar
     }
+
+    if(user?.address == "0x8b8099bB67EAC696148cBa04575828635Ba7Cee6"){
+      user.roles.push("SOLICITANTE_ROLE")
+    }
+
+
     return user;
   }
 

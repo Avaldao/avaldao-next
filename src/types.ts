@@ -43,3 +43,18 @@ export interface UserUpsert {
   website?: string
   avatar?: File
 }
+
+export interface AvalRequest {
+  proyecto: string,
+  objetivo: string,
+  adquisicion: string,
+  beneficiarios: string,
+  montoFiat: number,
+  cuotasCantidad: number,
+  fechaInicio: string,
+  duracionCuotaDias: number,
+  solicitanteAddress: string,
+  avaldaoAddress: string,
+  comercianteAddress: string,
+  avaladoAddress: string,
+}
