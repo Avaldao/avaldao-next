@@ -1,9 +1,15 @@
-export default function Spinner({ className = "", srOnly }: { className?: string, srOnly?: string }) {
+export default function Spinner({ className = "", srOnly, variant = "default" }: { className?: string, srOnly?: string, variant?: string }) {
+
+    let size = "w-6 h-6";
+    if (variant == "sm") {
+        size = "w-4 h-4"
+    }
+
     return (
-        <div role="status" className="">
+        <div role="status" className="inline">
             <svg
                 aria-hidden="true"
-                className={`inline w-6 h-6 text-white-100 animate-spin fill-secondary ${className}`}
+                className={`inline ${size} text-white-100 animate-spin fill-secondary ${className}`}
                 viewBox="0 0 100 101"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"

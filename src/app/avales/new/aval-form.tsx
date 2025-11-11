@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarDays, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textarea";
+import { useSession } from "next-auth/react";
+import { UserInfo } from "@/types";
+import Spinner from "@/components/ui/spinner";
 
-export default function AvalForm() {
+
+export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string }) {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   const [form, setForm] = useState({
     proyecto: "",
     objetivo: "",
@@ -15,8 +22,8 @@ export default function AvalForm() {
     cuotasCantidad: 6,
     fechaInicio: "",
     duracionCuotaDias: 30,
-    solicitanteAddress: "",
-    avaldaoAddress: "",
+    solicitanteAddress: user?.address,
+    avaldaoAddress: avaldaoAddress,
     comercianteAddress: "",
     avaladoAddress: "",
   });
@@ -24,10 +31,73 @@ export default function AvalForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const [comerciante, setComerciante] = useState<UserInfo | null>();
+  const [avalado, setAvalado] = useState<UserInfo | null>();
+  const [loadingComerciante, setLoadingComerciante] = useState(true);
+  const [loadingAvalado, setLoadingAvalado] = useState(false);
+
+
+  useEffect(() => {
+    loadComercianteData();
+  }, [form.comercianteAddress])
+
+  useEffect(() => {
+    loadAvaladoData();
+  }, [form.avaladoAddress])
+
+
+  const loadComercianteData = async () => {
+    console.log(form.comercianteAddress) //TODO: check valid address
+
+    if (form.comercianteAddress) {
+      setLoadingComerciante(true);
+      try {
+        const comerciante_ = await getUserByAddress(form.comercianteAddress);
+        setComerciante(comerciante_);
+        setLoadingComerciante(false);
+      } catch (err) {
+        setLoadingComerciante(false);
+      }
+    } else {
+      setComerciante(null);
+    }
+
+  }
+  const loadAvaladoData = async () => {
+    if (form.avaladoAddress) {
+      setLoadingAvalado(true);
+      try {
+        const avalado_ = await getUserByAddress(form.avaladoAddress);
+        setAvalado(avalado_);
+        setLoadingAvalado(false);
+      } catch (err) {
+        console.log(err)
+        setLoadingAvalado(false);
+      }
+    } else {
+      setAvalado(null);
+    }
+  }
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
+
+  async function getUserByAddress(address: string) {
+    const response = await fetch(`/api/users?address=${address}`);
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      return data;
+
+    } else {
+      console.log(response.status); //not found?
+      return null;
+    }
+
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,7 +210,7 @@ export default function AvalForm() {
               name="fechaInicio"
               value={form.fechaInicio}
               onChange={handleChange}
-              className="w-full pl-10 mt-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 mt-1 "
             />
           </div>
         </div>
@@ -167,7 +237,8 @@ export default function AvalForm() {
               value={form.solicitanteAddress}
               onChange={handleChange}
               placeholder="0x..."
-              className="w-full pl-10 mt-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 mt-1 "
+              readOnly
             />
           </div>
         </div>
@@ -179,9 +250,9 @@ export default function AvalForm() {
             <Input
               name="avaldaoAddress"
               value={form.avaldaoAddress}
-              onChange={handleChange}
+              readOnly
               placeholder="0x..."
-              className="w-full pl-10 mt-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 mt-1 "
             />
           </div>
         </div>
@@ -197,8 +268,18 @@ export default function AvalForm() {
               value={form.comercianteAddress}
               onChange={handleChange}
               placeholder="0x..."
-              className="w-full pl-10 mt-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 mt-1 "
             />
+            
+            {loadingComerciante?
+              (<div className="-mt-4 text-sm text-gray-400 italic">
+                <Spinner variant="sm"/> Loading...</div>)
+              : comerciante && (
+                <div className="-mt-4 text-primary italic text-sm">
+                  {comerciante?.name} &lt;{comerciante.email}&gt;
+                </div>
+              )}
+
           </div>
         </div>
 
@@ -211,8 +292,19 @@ export default function AvalForm() {
               value={form.avaladoAddress}
               onChange={handleChange}
               placeholder="0x..."
-              className="w-full pl-10 mt-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 mt-1 "
             />
+
+             {loadingAvalado?
+              (<div className="-mt-4 text-sm text-gray-400 italic">
+                <Spinner variant="sm"/> Loading...</div>)
+              : avalado && (
+                <div className="-mt-4 text-primary italic text-sm">
+                  {avalado?.name} &lt;{avalado.email}&gt;
+                </div>
+              )}
+
+           
           </div>
         </div>
       </div>
@@ -240,7 +332,7 @@ export default function AvalForm() {
           Cancelar
         </button>
 
-          
+
 
 
         <button
@@ -248,12 +340,12 @@ export default function AvalForm() {
           disabled={loading}
           className="px-4 py-2 bg-secondary hover:bg-secondary-accent text-white rounded-md transition disabled:opacity-50"
         >
-          {loading ? "Enviando..." : "Enviar Aval"}
+          {loading ? "Creando..." : "Crear Aval"}
         </button>
       </div>
 
       {success && (
-        <p className="text-green-600 text-sm mt-3">✅ Aval enviado correctamente.</p>
+        <p className="text-green-600 text-sm mt-3">✅ Aval registrado correctamente.</p>
       )}
     </form>
 

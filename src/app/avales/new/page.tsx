@@ -1,6 +1,6 @@
 import Page from "@/components/layout/page";
-import AvalesService from "@/services/avales-service";
-import AvalForm from "./aval-form";
+import AvalFormWrapper from "./aval-form-wrapper";
+
 export const dynamic = 'force-dynamic';
 
 export default async function AvalesPage() {
@@ -10,9 +10,7 @@ export default async function AvalesPage() {
       <div className="text-2xl text-slate-800 text-heading mt-1  mb-6 flex space-between">
         Nuevo Aval
       </div>
-      <div className="mb-15">
-        <AvalForm />
-      </div>
+      <AvalFormWrapper avaldaoAddress={process.env.USER_AVALDAO_ADDRESS!} />
 
     </Page>
   );
