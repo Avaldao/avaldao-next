@@ -138,7 +138,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-2">
       {/* Proyecto */}
       <div>
         <label className="block text-sm font-medium text-gray-700">Proyecto</label>
