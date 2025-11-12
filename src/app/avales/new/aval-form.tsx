@@ -159,36 +159,40 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
   }
 
   const validateForm = () => {
+    const fieldErrors_ = [];
     if (!/^0x[a-fA-F0-9]{40}$/.test(form.comercianteAddress)) {
       setFieldError("comercianteAddress", "Por favor ingresa un address válido");
+      fieldErrors_.push("comercianteAddress");
     }
     if (!/^0x[a-fA-F0-9]{40}$/.test(form.avaladoAddress)) {
       setFieldError("avaladoAddress", "Por favor ingresa un address válido");
+      fieldErrors_.push("avaladoAddress");
     }
+
+    return fieldErrors_;
 
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
-
     clearFormErrors();
-    validateForm();
 
-    if (Object.keys(fieldErrors).length > 0) {
+    const fieldErrors_ = validateForm();
+    if (fieldErrors_.length > 0) {
       return;
     }
 
     setSuccess(false);
 
-    if(form.fechaInicio instanceof Date){
-      form.fechaInicio = form.fechaInicio.toISOString();
-    }
-    
-    const data = JSON.stringify(form);
-
     try {
       setLoading(true);
+
+      if (form.fechaInicio instanceof Date) {
+        form.fechaInicio = form.fechaInicio.toISOString();
+      }
+      const data = JSON.stringify(form);
+
       const res = await fetch("/api/avales", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
