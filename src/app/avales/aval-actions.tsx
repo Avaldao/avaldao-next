@@ -11,6 +11,7 @@ import { rootstock, AppKitNetwork } from "@reown/appkit/networks";
 import { Wrench } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { ROOTSTOCK_NETWORKS } from "@/config";
+import toast from "react-hot-toast";
 
 const targetChainId = process.env.NEXT_PUBLIC_CHAIN_ID!;
 
@@ -105,12 +106,14 @@ export default function AvalActions({ aval }: { aval: Aval }) {
     } catch (err) {
       console.log(err)
       if (isError(err, "CALL_EXCEPTION")) {
-       console.log("Error is call exception")
-        console.log(err.action);
-        console.log(err.cause);
-        console.log(err.error);
-        console.log(err.reason);
+        if(err.reason == "APP_AUTH_FAILED"){
+          toast.error("Permisos insuficientes para enviar la transacción")
+        }
+        
         return;
+      } else {
+        toast.error("Error enviando transaccion");
+
       }
     }
 
