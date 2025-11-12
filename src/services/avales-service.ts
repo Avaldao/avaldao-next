@@ -23,6 +23,7 @@ export default class AvalesService {
   async saveAval(avalData: AvalRequest) {
     avalData.fechaInicio = new Date(avalData.fechaInicio);
     avalData.duracionCuotaSeconds = avalData.duracionCuotaDias * 24 * 60 * 60;
+    avalData.montoFiat = avalData.montoFiat * 100; //lo guarda con 2 decimales
 
     const aval = new AvalModel({
       ...avalData
@@ -40,7 +41,10 @@ export default class AvalesService {
   async getAll(): Promise<Aval[]> {
     const db = await this.getDb();
     const avales = await db.collection<Aval>("avales").find({}).sort({ createdAt: -1 }).toArray();
-    return avales.map(a => ({ ...a, _id: a._id.toString(), }));
+    return avales.map(a => ({
+       ...a, _id: a._id.toString(), 
+      montoFiat: a.montoFiat/100 //se guarda con 2 decimales
+      }));
   }
 
 
