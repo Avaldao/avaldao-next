@@ -15,7 +15,7 @@ export default class AvalesService {
     return db;
   }
 
-  async getAvales(){
+  async getAvales() {
     return AvalModel.find({})
   }
 
@@ -29,22 +29,30 @@ export default class AvalesService {
       ...avalData
     });
 
-    const result = await aval.save(); 
+    const result = await aval.save();
     return result;
   }
 
   async getAval(id: string): Promise<Aval | null> {
-    const db = await this.getDb();
-    return db.collection<Aval>("avales").findOne({ "_id": new ObjectId(id) });
+    const aval = await AvalModel.findOne({ _id: id });
+    const serializedAval = {
+      ...aval.toObject(), // Convert Mongoose document to plain object
+      _id: aval._id.toString(),
+      createdAt: aval.createdAt.toISOString(),
+      updatedAt: aval.updatedAt.toISOString(),
+    };
+    
+    return serializedAval;
   }
 
   async getAll(): Promise<Aval[]> {
     const db = await this.getDb();
     const avales = await db.collection<Aval>("avales").find({}).sort({ createdAt: -1 }).toArray();
     return avales.map(a => ({
-       ...a, _id: a._id.toString(), 
-      montoFiat: a.montoFiat/100 //se guarda con 2 decimales
-      }));
+      ...a,
+      _id: a._id.toString(),
+      montoFiat: a.montoFiat / 100 //se guarda con 2 decimales
+    }));
   }
 
 

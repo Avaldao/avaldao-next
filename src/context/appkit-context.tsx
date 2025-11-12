@@ -1,6 +1,7 @@
 'use client'
 
 import {  projectId, networks } from '@/config'
+import { rootstock } from '@reown/appkit/networks'
 import { createAppKit } from '@reown/appkit/react'
 import React, { type ReactNode } from 'react'
 
@@ -10,9 +11,9 @@ if (!projectId) {
 
 // Set up metadata
 const metadata = {
-  name: 'next-reown-appkit',
-  description: 'next-reown-appkit',
-  url: 'https://github.com/0xonerb/next-reown-appkit-ssr', // origin must match your domain & subdomain
+  name: 'Avaldao Dapp',
+  description: 'Avaldao Dapp - Garantias descentralizadas',
+  url: 'https://dapp.avaldao.com', // origin must match your domain & subdomain
   icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
 
@@ -21,6 +22,7 @@ export const modal = createAppKit({
   adapters: [],
   projectId,
   networks: networks,
+  defaultNetwork: rootstock,
   metadata,
   themeMode: 'light',
   features: {

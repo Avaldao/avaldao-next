@@ -17,8 +17,6 @@ class UsersService {
     const db = await getDb();
     const user = await db.collection<UserInfo>("users").findOne({ "address": address });
 
-    console.log(user);
-
     if (user) {
       user.id = user._id.toString();
       user.roles = await authorizationService.getRoles(address);

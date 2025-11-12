@@ -1,10 +1,13 @@
 import Page from "@/components/layout/page";
 import AvalesService from "@/services/avales-service";
-import React from "react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, DollarSign, Users, Target, FileText, UserCheck, Store, Shield } from "lucide-react";
 import { shortenAddress } from "@/utils";
+
+import AvalActionsWrapper from "../aval-actions-wrapper";
+
 
 interface AvalDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -24,11 +27,11 @@ const formatDate = (date: Date) => {
 // Función para obtener el texto del status
 const getStatusText = (status: number) => {
   const statusMap: { [key: number]: { text: string; variant: "default" | "secondary" | "destructive" | "outline" } } = {
-    0: { text: "Pendiente", variant: "outline" },
-    1: { text: "En Proceso", variant: "secondary" },
-    2: { text: "Aprobado", variant: "default" },
-    3: { text: "Completado", variant: "default" },
-    4: { text: "Rechazado", variant: "destructive" },
+    0: { text: "Solicitado", variant: "outline" },
+    1: { text: "Rechazado", variant: "destructive" },
+    2: { text: "Aceptado", variant: "default" },
+    3: { text: "Vigente", variant: "default" },
+    4: { text: "Finalizado", variant: "secondary" },
   };
   return statusMap[status] || { text: "Desconocido", variant: "outline" };
 };
@@ -125,6 +128,9 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                   <p className="text-slate-700">{aval.beneficiarios}</p>
                 </CardContent>
               </Card>
+
+              <AvalActionsWrapper aval={aval} />
+
             </div>
 
             {/* Columna derecha - Información técnica y financiera */}
@@ -138,7 +144,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600">Monto FIAT:</span>
                     <span className="font-bold text-green-600">
-                      ${aval.montoFiat.toLocaleString('es-ES')}
+                      ${(aval.montoFiat/100).toLocaleString('es-ES')}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
