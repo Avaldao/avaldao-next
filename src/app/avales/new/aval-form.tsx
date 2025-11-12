@@ -9,6 +9,9 @@ import { UserInfo } from "@/types";
 import Spinner from "@/components/ui/spinner";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import InputDatePicker from "@/components/ui/input-date-picker";
+
+
 
 interface FieldErrors {
   proyecto?: string;
@@ -25,19 +28,34 @@ interface FieldErrors {
   avaladoAddress?: string;
 }
 
+interface AvalFields {
+  proyecto: string,
+  objetivo: string,
+  adquisicion: string,
+  beneficiarios: string,
+  montoFiat: number,
+  cuotasCantidad: number,
+  fechaInicio: Date | string | undefined,
+  duracionCuotaDias: 30,
+  solicitanteAddress: string | undefined,
+  avaldaoAddress: string,
+  comercianteAddress: string,
+  avaladoAddress: string,
+}
+
 
 export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string }) {
   const { data: session } = useSession();
   const user = session?.user;
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<AvalFields>({
     proyecto: "",
     objetivo: "",
     adquisicion: "",
     beneficiarios: "",
     montoFiat: 1000,
     cuotasCantidad: 6,
-    fechaInicio: "",
+    fechaInicio: new Date(),
     duracionCuotaDias: 30,
     solicitanteAddress: user?.address,
     avaldaoAddress: avaldaoAddress,
@@ -163,12 +181,18 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
     setSuccess(false);
 
+    if(form.fechaInicio instanceof Date){
+      form.fechaInicio = form.fechaInicio.toISOString();
+    }
+    
+    const data = JSON.stringify(form);
+
     try {
       setLoading(true);
       const res = await fetch("/api/avales", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: data,
       });
 
       if (res.ok) {
@@ -255,17 +279,17 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
         <div>
           <Label >Fecha inicio</Label>
-          <div className="relative">
-            <CalendarDays className="absolute left-3 top-2.5 text-gray-400 h-5 w-5" />
-            <Input
-              type="date"
-              name="fechaInicio"
-              value={form.fechaInicio}
-              onChange={handleChange}
-              className="w-full pl-10"
-            />
-          </div>
+          <InputDatePicker
+            onChange={(s) => {
+              if (s) {
+                setForm((prev) => ({ ...prev, ["fechaInicio"]: s }))
+              }
+            }
+            }
+          />
         </div>
+
+
 
         <div>
           <Label required>Duración (días)</Label>
@@ -376,7 +400,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
             beneficiarios: "",
             montoFiat: 1000,
             cuotasCantidad: 6,
-            fechaInicio: "",
+            fechaInicio: new Date(),
             duracionCuotaDias: 30,
             solicitanteAddress: "",
             avaldaoAddress: "",
