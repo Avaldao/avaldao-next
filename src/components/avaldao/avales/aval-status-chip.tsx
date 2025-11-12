@@ -1,14 +1,5 @@
+import { AvalState } from "@/types";
 import { Award, Clock, FileCheck, ShieldCheck, X } from "lucide-react";
-
-
-enum AvalState {
-  SOLICITADO = 0,
-  RECHAZADO = 1,
-  ACEPTADO = 2,
-  VIGENTE = 3,
-  FINALIZADO = 4
-}
-
 
 export function AvalStatusChip({ status, variant = "default", className }: { status: number; variant?: "default" | "compact", className?: string }) {
   const getStatusConfig = (status: AvalState) => {

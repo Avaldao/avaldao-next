@@ -419,7 +419,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
         <Button
           type="submit"
           loading={loading}
-          disabled={loading || success}
+          disabled={loading /* || success */}
         >
           {loading && <Spinner />}
           {loading ? "Creando..." : "Crear Aval"}

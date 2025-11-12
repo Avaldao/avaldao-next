@@ -1,6 +1,7 @@
 import getDb from "@/lib/mongodb";
-import { Aval, AvalRequest } from "@/types";
+import { Aval, AvalRequest, AvalState } from "@/types";
 import { ObjectId } from "mongodb";
+import AvalModel from "@/lib/db/models/aval-model";
 
 
 
@@ -14,13 +15,21 @@ export default class AvalesService {
     return db;
   }
 
+  async getAvales(){
+    return AvalModel.find({})
+  }
+
+
   async saveAval(avalData: AvalRequest) {
-    console.log(`Avales service, save aval:`)
-    console.log(avalData)
+    avalData.fechaInicio = new Date(avalData.fechaInicio);
+    avalData.duracionCuotaSeconds = avalData.duracionCuotaDias * 24 * 60 * 60;
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const aval = new AvalModel({
+      ...avalData
+    });
 
-
+    const result = await aval.save(); 
+    return result;
   }
 
   async getAval(id: string): Promise<Aval | null> {

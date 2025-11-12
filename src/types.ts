@@ -51,10 +51,21 @@ export interface AvalRequest {
   beneficiarios: string,
   montoFiat: number,
   cuotasCantidad: number,
-  fechaInicio: string,
+  fechaInicio: string | Date,
   duracionCuotaDias: number,
   solicitanteAddress: string,
   avaldaoAddress: string,
   comercianteAddress: string,
   avaladoAddress: string,
+  status?: number
+  duracionCuotaSeconds?: number;
+}
+
+
+export enum AvalState {
+  SOLICITADO = 0,
+  RECHAZADO = 1,
+  ACEPTADO = 2,
+  VIGENTE = 3,
+  FINALIZADO = 4
 }

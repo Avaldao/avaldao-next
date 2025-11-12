@@ -1,5 +1,6 @@
 // lib/mongodb.ts
-import { MongoClient, W } from 'mongodb';
+import { MongoClient } from 'mongodb';
+import mongoose from 'mongoose';
 
 const uri = process.env.MONGO_DB_USERS!;
 
@@ -23,6 +24,22 @@ if (process.env.NODE_ENV === 'development') {
   client = new MongoClient(uri, options);
   clientPromise = client.connect();
 }
+
+async function connectMongoose() {
+  try {    
+    await mongoose.connect(uri,{
+      dbName: "avaldao-production"
+    });    
+    console.log("Mongoose connected to database avaldao-production");
+  } catch (err) {
+    console.log("Error in connectMongoose:", err);
+  }
+}
+
+connectMongoose();
+
+
+
 
 
 const getDb = async (db?: string) => {
