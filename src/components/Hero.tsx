@@ -125,7 +125,7 @@ function Slide({ title, description, bg, btn }: SlideProps) {
         ${bg}
       `}
     >
-      <div className="container mx-auto px-8 flex flex-col justify-center items-start max-w-6xl text-left">
+      <div className="container mx-auto px-8 flex flex-col justify-center items-start max-w-sm md:max-w-6xl text-left">
 
         <p className="font-heading text-3xl md:text-4xl text-primary mb-4 font-bold leading-11 select-none">
           {title}
