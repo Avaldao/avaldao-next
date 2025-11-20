@@ -1,28 +1,49 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import EmblaCarousel from "embla-carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 export default function Hero() {
   const emblaRef = useRef<HTMLDivElement>(null);
+  const [embla, setEmbla] = useState<any>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
+  // Initialize Embla
   useEffect(() => {
     if (!emblaRef.current) return;
 
-    const embla = EmblaCarousel(emblaRef.current, {
+    const autoplay = Autoplay({ delay: 5000, stopOnInteraction: false });
+
+    const instance = EmblaCarousel(emblaRef.current, {
       loop: true,
       align: "start",
-      duration: 20,
+    }, [autoplay]);
+
+    setEmbla(instance);
+    setScrollSnaps(instance.scrollSnapList());
+    setSelectedIndex(instance.selectedScrollSnap());
+
+    instance.on("select", () => {
+      setSelectedIndex(instance.selectedScrollSnap());
     });
 
-    return () => embla.destroy();
+    return () => instance.destroy();
   }, []);
 
+  // Arrow handlers
+  const scrollPrev = useCallback(() => embla && embla.scrollPrev(), [embla]);
+  const scrollNext = useCallback(() => embla && embla.scrollNext(), [embla]);
+  const scrollTo = useCallback((i: number) => embla && embla.scrollTo(i), [embla]);
+
   return (
-    <section>
+    <section className="relative">
+
+      {/* Embla viewport */}
       <div className="embla overflow-hidden" ref={emblaRef}>
         <div className="embla__container flex">
-          
+
           <div className="embla__slide flex-[0_0_100%]">
             <Slide
               title="Confiamos en vos"
@@ -49,9 +70,39 @@ export default function Hero() {
               btn="Sumate"
             />
           </div>
-
         </div>
       </div>
+
+      {/* Arrows */}
+      <button
+        onClick={scrollPrev}
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full"
+      >
+        ‹
+      </button>
+
+      <button
+        onClick={scrollNext}
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full"
+      >
+        ›
+      </button>
+
+      {/* Pagination dots */}
+      <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3">
+        {scrollSnaps.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => scrollTo(i)}
+            className={`
+              w-3 h-3 rounded-full 
+              transition
+              ${i === selectedIndex ? "bg-slate-700" : "bg-gray-50"}
+            `}
+          />
+        ))}
+      </div>
+
     </section>
   );
 }
@@ -76,18 +127,37 @@ function Slide({ title, description, bg, btn }: SlideProps) {
     >
       <div className="container mx-auto px-8 flex flex-col justify-center items-start max-w-6xl text-left">
 
-        <p className="font-heading text-4xl text-primary mb-4 font-bold leading-11">
+        <p className="font-heading text-3xl md:text-4xl text-primary mb-4 font-bold leading-11 select-none">
           {title}
         </p>
 
-        <p className="text-lg text-slate-700 mb-12 max-w-xl">
+        <p className="text-md md:text-lg text-slate-700 mb-12 max-w-xl select-none">
           {description}
         </p>
 
-        <button className="bg-secondary text-white inline-block px-5 py-2 rounded-full font-medium text-lg select-none cursor-pointer text-heading">
+        <button className="
+        bg-secondary text-white 
+        inline-block 
+        px-5 py-2 rounded-full 
+        font-medium 
+        text-md 
+         cursor-pointer text-heading
+            shadow-lg 
+          shadow-secondary/30
+          hover:shadow-xl 
+          hover:shadow-secondary/50
+          hover:bg-secondary/90
+          transition-all 
+          duration-300 
+          select-none
+          uppercase
+          font-heading
+          
+          tracking-wide
+
+        ">
           {btn}
         </button>
-
       </div>
     </div>
   );
