@@ -1,4 +1,6 @@
+import DashboardAnimation from "./dashboard-animation";
 import GuaranteeFund from "./GuaranteeFund";
+
 
 export default function Dashboard() {
   return (
@@ -7,10 +9,7 @@ export default function Dashboard() {
     bg-cover bg-no-repeat
     relative
     ">
-
-      <div className="bg-[url(/images/guarantee-fund-n.png)]  w-full max-w-[300px] h-[283px] absolute bottom-6/12 right-5 z-0 opacity-50 hidden md:block">
-
-      </div>
+      <DashboardAnimation />
 
       <div className="container mx-auto px-4 z-2 relative max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold text-center font-heading mb-12">Dashboard</h2>
