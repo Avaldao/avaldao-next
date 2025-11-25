@@ -32,10 +32,6 @@ export const translations: Translations = {
     es: 'Las personas y empresas avaladas cuentan con una reputación inmutable, creada por terceras partes de confianza',
     en: 'Endorsed people and companies have an immutable reputation, created by trusted third parties'
   },
-   'features.autonomy.title': {
-    es: 'Seguridad',
-    en: 'Security'
-  },
   'features.autonomy.description': {
     es: 'Las personas y empresas avaladas cuentan con una reputación inmutable, creada por terceras partes de confianza',
     en: 'Endorsed people and companies have an immutable reputation, created by trusted third parties'

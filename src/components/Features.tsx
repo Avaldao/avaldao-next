@@ -45,9 +45,9 @@ export default function Features() {
         </div>
 
         {/* Características principales */}
-        <div className="grid md:grid-cols-3 gap-8 mb-20">
+        <div className="grid md:grid-cols-3 gap-8 mb-20 max-w-7xl mx-auto">
           {features.map((feature, index) => (
-            <div key={index} className="bg-white p-8 rounded-2xl shadow-lg text-center   max-w-lg md:max-w-lg  mx-auto">
+            <div key={index} className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-lg md:max-w-lg  mx-auto">
               <h3 className="text-[#7868E5] text-2xl font-bold mb-4 font-heading">{feature.title}</h3>
               <p className="text-lg text-slate-700">{feature.description}</p>
             </div>
@@ -68,12 +68,13 @@ export default function Features() {
         <div className="grid md:grid-cols-2 gap-8 border border-white  
           backdrop-blur-xs rounded-md bg-gray-50/20
           md:p-8
+          max-w-7xl mx-auto
           ">
           <div className="col-span-full">
             <AvalDaoDiagram />
           </div>
           {services.map((service, index) => (
-            <div key={index} className="bg-gray-100 text-slate-800 rounded-md shadow-lg">
+            <div key={index} className="bg-gray-100 text-slate-800 rounded-md shadow-lg ">
               <Image
                 src={service.img}
                 alt={service.title}
