@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { Checkbox } from "@headlessui/react";
 import { TyCDialog } from "./tyc-dialog";
+import ConnectedAddressInput from "./connected-address-input";
+import { SessionProvider } from "next-auth/react";
 
 
 export default function RegisterPage() {
@@ -104,6 +106,14 @@ export default function RegisterPage() {
 
 
             />
+          </div>
+
+
+          <div>
+            <Label>Address</Label>
+            <SessionProvider>
+              <ConnectedAddressInput />
+            </SessionProvider>
           </div>
 
 
