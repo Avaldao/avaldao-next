@@ -1,10 +1,18 @@
-import AnimatedCounter from "./animated-counter";
 import GuaranteeFund from "./GuaranteeFund";
 
 export default function Dashboard() {
   return (
-    <section id="dashboard" className="py-20 bg-primary text-white">
-      <div className="container mx-auto px-4">
+    <section id="dashboard" className="
+    py-20 bg-primary text-white  bg-[url(/images/guarantee-fund-bg.png)]
+    bg-cover bg-no-repeat
+    relative
+    ">
+
+      <div className="bg-[url(/images/guarantee-fund-n.png)]  w-full max-w-[300px] h-[283px] absolute bottom-6/12 right-5 z-0 opacity-50 hidden md:block">
+
+      </div>
+
+      <div className="container mx-auto px-4 z-2 relative">
         <h2 className="text-4xl font-bold text-center font-heading mb-12">Dashboard</h2>
         <p className="text-lg text-gray-100 text-center mb-12 max-w-lg mx-auto">
           AvalDAO es transparente. Puedes conocer el estado de su economía interna en tiempo real.
