@@ -23,18 +23,18 @@ const roles: AccountRole[] = [
   {
     id: 2,
     name: 'merchant',
-    value: 'merchant', 
+    value: 'merchant',
     description: 'Sell products/services and accept endorsees on Avaldao platform',
     icon: <Store />
   },
-   {
+  {
     id: 3,
     name: 'applicant',
     value: 'applicant',
     description: 'Submit endorsement requests and applications on behalf of endorsed users',
     icon: <FileSearch />
   },
-   {
+  {
     id: 4,
     name: 'endorsed',
     value: 'endorsed',
@@ -51,7 +51,7 @@ interface ActivitySectorComboBoxProps {
 }
 
 export default function RolesSelector({ initialRoles, onSelectedRoles: onSelectedRoles, ref }: ActivitySectorComboBoxProps) {
-  const t  = (key: string) => (key);
+  const t = (key: string) => (key);
   const [selectedRoles, setSelectedRoles] = useState<any[]>(!initialRoles ? [] : roles.filter(type => initialRoles.includes(type.value)))
 
   useEffect(() => {
@@ -64,7 +64,10 @@ export default function RolesSelector({ initialRoles, onSelectedRoles: onSelecte
   return (
     <Combobox immediate multiple value={selectedRoles} onChange={setSelectedRoles}>
       <div className="relative">
-    
+        <ComboboxInput
+          ref={ref}
+          className={"h-0"}
+        />
         <ComboboxOptions
           static
           className="empty:invisible 

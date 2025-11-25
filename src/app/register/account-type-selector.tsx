@@ -42,7 +42,6 @@ export default function AccountTypeSelector({ initialType, onTypeSelected: onTyp
 
   useEffect(() => {
     if (typeof onTypeSelected == "function") {
-      console.log("selectedType", selectedType)
       onTypeSelected(selectedType);
     }
   }, [selectedType]);
@@ -51,6 +50,10 @@ export default function AccountTypeSelector({ initialType, onTypeSelected: onTyp
   return (
     <Combobox immediate value={selectedType} onChange={setSelectedType}>
       <div className="relative">
+        <ComboboxInput
+          ref={ref}
+          className={"h-0"}
+        />
 
         <ComboboxOptions
           static
