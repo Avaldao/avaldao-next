@@ -1,5 +1,7 @@
 export interface Aval {
   _id: string;
+  address?: string;
+  infoCid?: string;
   proyecto: string;
   objetivo: string;
   adquisicion: string;
@@ -20,6 +22,7 @@ export interface Aval {
   avaladoSignature?: string;
   comercianteSignature?: string;
   avaldaoSignature?: string;
+  chainId: number;
 }
 
 
@@ -39,7 +42,7 @@ export interface UserUpsert {
   id: string,
   address: string,
   name: string,
-  email :string,
+  email: string,
   website?: string
   avatar?: File
 }

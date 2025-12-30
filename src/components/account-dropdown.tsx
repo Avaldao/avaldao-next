@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { CheckCircle2, UserIcon, Settings, LogOut, LayoutDashboard, Wallet } from "lucide-react";
 import Image from "next/image";
-import { useAppKit, useAppKitAccount, useWalletInfo } from "@reown/appkit/react";
+import { useAppKit, useAppKitAccount, useDisconnect, useWalletInfo } from "@reown/appkit/react";
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from "next-auth/react";
 import Link from "next/link";
@@ -22,11 +22,14 @@ export function AccountDropdown({ address }: { address: string }) {
   const { open: openAppkit } = useAppKit();
   const { isConnected, embeddedWalletInfo } = useAppKitAccount();
   const walletInfo = useWalletInfo();
+  const { disconnect } = useDisconnect();
+
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     signOut({ callbackUrl: "/" });
+    await disconnect();
     router.push("/");
   };
 
@@ -35,6 +38,7 @@ export function AccountDropdown({ address }: { address: string }) {
   return (
     <Menu>
       <MenuButton
+        onDoubleClick={() => openAppkit()}
         className={`
           px-4 py-2 rounded-lg font-medium transition-all duration-300 min-w-[140px]
           flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white 
@@ -81,10 +85,11 @@ export function AccountDropdown({ address }: { address: string }) {
               {session?.user?.roles && session.user.roles.length > 0 && (
                 <div className="text-xs text-emerald-600 font-medium mt-1 max-w-xs flex gap-x-1 gap-y-1 flex-wrap">
                   {session.user.roles.map(role => (
-                    <div className="text-primary px-1 py-1 rounded-2xl select-none">{role.split("_")[0]}</div>
+                    <div key={role} className="text-primary px-1 py-1 rounded-2xl select-none">{role.split("_")[0]}</div>
                   ))}
                 </div>
               )}
+
             </div>
           </div>
         </div>

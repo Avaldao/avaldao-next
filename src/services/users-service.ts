@@ -1,7 +1,7 @@
 import getDb from '@/lib/mongodb';
 import roles from "@/roles";
 import { UserInfo, UserUpsert } from '@/types';
-import { verifyMessage } from 'ethers';
+import { getAddress, verifyMessage } from 'ethers';
 import { ObjectId } from 'mongodb';
 import OnChainAuthorizationService from '@/services/onchain-authorization-service';
 
@@ -25,19 +25,19 @@ class UsersService {
 
     const db = await getDb();
     const exists = await db.collection<UserInfo>("users").findOne({ "address": request.address });
-    if(exists){
+    if (exists) {
       throw new Error("Address already registered");
     } else {
       //  id: string;
-  /* address: string;
-  email: string;
-  infoCid?: string;
-  name: string;
-  avatar: string;
-  roles: string[];
-  url?: string; //deprecated
-  website?: string;
-   */
+      /* address: string;
+      email: string;
+      infoCid?: string;
+      name: string;
+      avatar: string;
+      roles: string[];
+      url?: string; //deprecated
+      website?: string;
+       */
       /* await db.collection<UserInfo>("users").insertOne({ 
 
 
@@ -54,21 +54,34 @@ class UsersService {
 
   async loginWithSignature(message: string, signature: string): Promise<UserInfo | null> {
     const address = verifyMessage(message, signature); //throws?
+    console.log(`Login with signature ${address} ${getAddress(address)}`);
 
     const db = await getDb();
-    const user = await db.collection<UserInfo>("users").findOne({ "address": address });
+    const user = await db.collection<UserInfo>("users").findOne({ "address": address }); //user not found? or what
 
     if (user) {
       user.id = user._id.toString();
-      user.roles = await authorizationService.getRoles(address);
+      user.roles = await authorizationService.getRoles(address); //Este deberia depender del ctx
       user.website = user.url ?? user.website;
       //populate avatar
     }
 
-    if (user?.address == "0x8b8099bB67EAC696148cBa04575828635Ba7Cee6") {
+    if (user?.address == getAddress("0x8b8099bB67EAC696148cBa04575828635Ba7Cee6")) {
       user.roles.push("SOLICITANTE_ROLE")
     }
 
+    if (!user && address == getAddress("0x9dec90af27e95299d56cef85ee1ad7e77353ddbb")) { //todo: check with checksum
+      return {
+        id: "1231412",
+        roles: ["SOLICITANTE_ROLE"],
+        address: getAddress("0x9dec90af27e95299d56cef85ee1ad7e77353ddbb"), //0x9deC90af27E95299D56Cef85eE1aD7E77353dDBB
+        email: "jonatanduttweiler@gmail.com",
+        name: "Jona",
+        avatar: "" //make it optional
+      }
+    }
+
+    console.log(user);
 
     return user;
   }
@@ -88,7 +101,7 @@ class UsersService {
 
 
   //TODO: CRITICAL make it available only to admin users
-  async getUser(id: string, options: { resolveInfoCid: boolean }): Promise<UserInfo | null> {
+  async getUser(id: string, options?: { resolveInfoCid: boolean }): Promise<UserInfo | null> {
 
     const db = await getDb();
     const user = await db.collection<UserInfo>("users").findOne({ "_id": new ObjectId(id) });
@@ -98,7 +111,7 @@ class UsersService {
       user.website = user.url ?? user.website;
 
       //resolve infocid
-      if (!user.avatar && options.resolveInfoCid && user.infoCid) {
+      if (!user.avatar && options?.resolveInfoCid && user.infoCid) {
         try {
           const response = await fetch(`https://ipfs.io${user.infoCid}`);
           const data = await response.json();

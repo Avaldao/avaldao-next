@@ -3,10 +3,13 @@ import AvalesService from "@/services/avales-service";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, DollarSign, Users, Target, FileText, UserCheck, Store, Shield } from "lucide-react";
+import { Calendar, DollarSign, Users, Target, FileText, UserCheck, Store, Shield, CalendarClock } from "lucide-react";
 import { shortenAddress } from "@/utils";
 
 import AvalActionsWrapper from "../aval-actions-wrapper";
+import { format } from "date-fns";
+import { Aval } from "@/types";
+import { generateTranches, generateTranchesFromAval, getTranchesTs, Tranche } from "@/app/entities/aval.entity";
 
 
 interface AvalDetailsPageProps {
@@ -129,6 +132,70 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                 </CardContent>
               </Card>
 
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CalendarClock className="w-5 h-5 text-orange-600" />
+                    Cuotas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div>
+                    Fecha inicio: {aval.fechaInicio.toISOString()}
+                  </div>
+                  <div>
+                    Duracion cuota: {aval.duracionCuotaSeconds / 60 / 60 / 24} Dias
+                  </div>
+
+                  <div>
+                    Desbloqueo: {aval.desbloqueoSeconds / 60 / 60 / 24} dias
+                  </div>
+
+                  <div>
+                    Cuotas cantidad: {aval.cuotasCantidad}
+                  </div>
+
+                  <div>
+                    Monto fiat: {aval.montoFiat / 100} <b>USD</b>
+                  </div>
+
+                  <div>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Cuota #</th>
+                          <th>Vto</th>
+                          <th>Desbloqueo</th>
+<th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <>
+
+                          {generateTranchesFromAval(aval)
+                            .map((tranche: Tranche) => (
+                              <tr key={tranche.index} className="font-mono">
+                                <td>Cuota {tranche.index} </td>
+                                <td>{format(new Date(tranche.maturityDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
+                                <td>{format(new Date(tranche.unlockDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
+                                
+                              </tr>
+                            ))
+                          }
+                        </>
+                      </tbody>
+                    </table>
+                  </div>
+
+
+                  {/* I need to generate cuotas with aval data */}
+                  <table>
+
+                  </table>
+                </CardContent>
+              </Card>
+
+
               <AvalActionsWrapper aval={aval} />
 
             </div>
@@ -144,7 +211,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600">Monto FIAT:</span>
                     <span className="font-bold text-green-600">
-                      ${(aval.montoFiat/100).toLocaleString('es-ES')}
+                      ${(aval.montoFiat / 100).toLocaleString('es-ES')}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -303,3 +370,6 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
     );
   }
 }
+
+
+

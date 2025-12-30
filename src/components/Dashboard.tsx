@@ -11,7 +11,7 @@ export default function Dashboard() {
     ">
       <DashboardAnimation />
 
-      <div className="container mx-auto px-4 z-2 relative max-w-7xl mx-auto">
+      <div className="container mx-auto px-4 z-2 relative max-w-7xl">
         <h2 className="text-4xl font-bold text-center font-heading mb-12">Dashboard</h2>
         <p className="text-lg text-gray-100 text-center mb-12 max-w-lg mx-auto">
           AvalDAO es transparente. Puedes conocer el estado de su economía interna en tiempo real.

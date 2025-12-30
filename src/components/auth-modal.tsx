@@ -11,6 +11,7 @@ import {
   Shield,
   Sparkles
 } from 'lucide-react';
+import { getAddress } from 'ethers';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -167,7 +168,7 @@ export const AuthModal = ({
               </h3>
               <div className="bg-gray-50 rounded-lg p-3 mb-4">
                 <p className="text-sm font-mono text-gray-800">
-                  {truncateAddress(address)}
+                  {truncateAddress(getAddress(address))}
                 </p>
               </div>
               <p className="text-gray-600 mb-6">

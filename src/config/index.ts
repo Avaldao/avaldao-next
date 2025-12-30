@@ -10,17 +10,17 @@ if (!projectId) {
 
 export const networks = [
   rootstock,
-  mainnet, 
-  arbitrum, 
-  celo, 
-  celoAlfajores, 
-  polygon, 
+  mainnet,
+  arbitrum,
+  celo,
+  celoAlfajores,
+  polygon,
   polygonAmoy,
   rootstockTestnet
 ] as [AppKitNetwork, ...AppKitNetwork[]]
 
 
-export const jwtSecret = process.env.JWT_SECRET ;
+export const jwtSecret = process.env.JWT_SECRET;
 
 
 
@@ -48,3 +48,5 @@ export const ROOTSTOCK_NETWORKS = {
     blockExplorerUrls: ["https://explorer.testnet.rsk.co"],
   },
 };
+
+export const CONTRACTS_VERSION = process.env.AVALDAO_CONTRACTS_VERSION ?? "1";

@@ -20,7 +20,9 @@ export const avalSchema = new Schema(
     solicitanteSignature: { type: String },
     comercianteSignature: { type: String },
     avaladoSignature: { type: String },
-    status: { type: Number, required: true, default: 0 }
+    status: { type: Number, required: true, default: 0 },
+    chainId: { type: Number, required: true },
+    isTestnet: { type: Boolean, default: false },
   },
   {
     timestamps: true,

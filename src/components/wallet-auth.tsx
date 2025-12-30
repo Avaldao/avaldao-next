@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect } from '@reown/appkit/react';
 import { AuthModal } from './auth-modal';
 import { Wallet, Loader2, CheckCircle2 } from 'lucide-react';
-import { BrowserProvider } from 'ethers';
+import { BrowserProvider, getAddress } from 'ethers';
 import { Eip1193Provider } from 'ethers';
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -121,7 +121,7 @@ const WalletAuth = () => {
         return (
           <>
             <CheckCircle2 className="w-4 h-4" />
-            {truncateAddress(address!)}
+            {truncateAddress(getAddress(address!))}
           </>
         );
       case 'signing':
@@ -164,7 +164,7 @@ const WalletAuth = () => {
   return (
     <>
       {authStep == "verified" && address ? (
-        <AccountDropdown address={address} />
+        <AccountDropdown address={getAddress(address)} />
 
       ) : (
         <button
