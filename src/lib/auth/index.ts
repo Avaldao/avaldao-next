@@ -1,34 +1,23 @@
 import { DefaultSession, DefaultUser, SessionStrategy } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import UserService from "@/services/users-service";
+import { Role } from "@/roles";
 
-export interface Role {
-  name: string;
-  description: string;
-  granted_at: string; //date
-}
+
+
+type AuthUser = {
+  id: string;
+  address: string;
+  infoCid?: string;
+  avatar?: string;
+  roles: Role[];
+};
 
 declare module "next-auth" {
-  interface User extends DefaultUser {
-    id: string;
-    name: string;
-    address: string;
-    email: string;
-    infoCid?: string;
-    avatar?: string;
-    roles: string[];
-  }
-
+  interface User extends DefaultUser, AuthUser {}
+  
   interface Session extends DefaultSession {
-    user: {
-      id: string;
-      name: string;
-      address: string;
-      email: string;
-      infoCid?: string;
-      avatar?: string;
-      roles?: string[];
-    } & DefaultSession["user"];
+    user: DefaultSession["user"] & AuthUser;
   }
 }
 

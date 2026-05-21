@@ -1,6 +1,8 @@
 import Page from "@/components/layout/page";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { requireRoles } from "@/lib/auth/authorization";
+import { handleError } from "@/lib/auth/page-guards";
 import UsersService from "@/services/users-service";
 import { div } from "framer-motion/client";
 import Image from "next/image";
@@ -11,6 +13,12 @@ interface UersDetailsPageProps {
 
 export default async function UserDetailsPage({ params }: UersDetailsPageProps) {
   const { id } = await params;
+
+  try {
+    await requireRoles(["ADMIN_ROLE", "AVALDAO_ROLE"]);
+  } catch (err) {
+    handleError(err);
+  }
   const user = await new UsersService().getUser(id, { resolveInfoCid: true });
 
   if (!user) {

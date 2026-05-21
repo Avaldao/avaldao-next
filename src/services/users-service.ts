@@ -4,6 +4,7 @@ import { UserInfo, UserUpsert } from '@/types';
 import { getAddress, verifyMessage } from 'ethers';
 import { ObjectId } from 'mongodb';
 import OnChainAuthorizationService from '@/services/onchain-authorization-service';
+import { requireRoles } from '@/lib/auth/authorization';
 
 const authorizationService = new OnChainAuthorizationService();
 
@@ -87,8 +88,10 @@ class UsersService {
   }
 
 
-  //TODO: CRITICAL make it available only to admin users
+  
   async getAll(): Promise<UserInfo[]> {
+    await requireRoles(["ADMIN_ROLE", "AVALDAO_ROLE"]); 
+    
     const db = await getDb();
     const users = await db.collection<UserInfo>("users").find({}).toArray();
 
