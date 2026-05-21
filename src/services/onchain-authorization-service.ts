@@ -25,14 +25,14 @@ export default class OnChainAuthorizationService {
     return result;
   }
 
-  async getRoles(address: string) {
+  async getRoles(address: string): Promise<Role[]> {
     const userRoles = [];
     for (const role of roles) {
       if (await this.admin.hasUserRole(address, role.app, role.hash)) {
         userRoles.push(role);
       }
     }
-    return userRoles.map(role => role.value);
+    return userRoles.map(role => role.value) as Role[];
   }
 
 

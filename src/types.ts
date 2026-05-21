@@ -1,3 +1,5 @@
+import { Role } from "./roles";
+
 export interface Aval {
   _id: string;
   address?: string;
@@ -33,7 +35,7 @@ export interface UserInfo {
   infoCid?: string;
   name: string;
   avatar: string;
-  roles: string[];
+  roles: Role[];
   url?: string; //deprecated
   website?: string;
 }

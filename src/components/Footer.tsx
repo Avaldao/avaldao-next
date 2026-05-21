@@ -9,7 +9,7 @@ export default function Footer() {
           La primera Sociedad de Garantía Recíproca descentralizada
         </p>
         <div className="text-sm">
-          <p>© 2025 AvalDAO. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} AvalDAO. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>

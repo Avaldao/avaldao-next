@@ -8,7 +8,8 @@ export const dynamic = 'force-dynamic';
 
 export default async function AvalesPage() {
 
-  const avales = await new AvalesService().getAll();
+  const avales = await (new AvalesService()).getAvales();
+
 
   return (
     <Page>

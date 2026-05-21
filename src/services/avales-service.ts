@@ -1,8 +1,9 @@
 import getDb from "@/lib/mongodb";
-import { Aval, AvalRequest, AvalState } from "@/types";
-import { ObjectId } from "mongodb";
+import { Aval, AvalRequest } from "@/types";
 import AvalModel from "@/lib/db/models/aval-model";
 import { getAddress, SignatureLike, verifyTypedData } from "ethers";
+import { getCurrentUser } from "@/lib/auth/authorization";
+import { use } from "react";
 
 export type AvalRoleEnum = "avaldao" | "solicitante" | "comerciante" | "avalado";
 
@@ -17,7 +18,61 @@ export default class AvalesService {
   }
 
   async getAvales() {
-    return AvalModel.find({})
+    const user = await getCurrentUser();
+
+    const isAdmin = user.roles.includes("AVALDAO_ROLE") ||
+      user.roles.includes("ADMIN_ROLE");
+
+    const filter = isAdmin
+      ? {}
+      : {
+        $or: [
+          { avaldaoAddress: user.address },
+          { solicitanteAddress: user.address },
+          { comercianteAddress: user.address },
+          { avaladoAddress: user.address },
+        ],
+      };
+
+    const avales = await AvalModel.find(filter)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return avales.map(aval => ({
+      ...aval,
+      _id: aval._id.toString(),
+    }));
+  }
+
+
+
+  async getAvalesByAddress(address: string) {
+    const user = await getCurrentUser();
+
+    const isAdmin = user.roles.includes("AVALDAO_ROLE") ||
+      user.roles.includes("ADMIN_ROLE");
+
+    const isOwner = getAddress(user.address) == getAddress(address);
+
+    if (!isAdmin && !isOwner) {
+      throw new Error("Unauthorized");
+    }
+
+    const avales = await AvalModel.find({
+      $or: [
+        { avaldaoAddress: address },
+        { solicitanteAddress: address },
+        { comercianteAddress: address },
+        { avaladoAddress: address },
+      ],
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return avales.map(aval => ({
+      ...aval,
+      _id: aval._id.toString(),
+    }));
   }
 
 

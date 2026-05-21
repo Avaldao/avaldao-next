@@ -6,18 +6,22 @@ import Link from "next/link";
 import IPFSUserAvatar from "./ipfs-user-avatar";
 import { Suspense } from "react";
 import CopyAddress from "@/components/copy-address";
+import { guardPage } from "@/lib/auth/page-guards";
+import { handleError } from "@/lib/auth/page-guards";
 
 export const dynamic = 'force-dynamic';
 
+/* First check roles. Necesita ser un admin para ver todos los usarios de la plataforma */
 export default async function UsersPage() {
   let users;
   let error;
-  try {
+
+  try{
     users = await new UsersService().getAll();
-    /* console.log(users); */
-  } catch (err) {
-    error = err;
+  } catch(err){
+    handleError(err);
   }
+
 
   return (
     <Page>
@@ -77,7 +81,7 @@ export default async function UsersPage() {
                   <td>
                     <div className="flex justify-center items-center">
                       <Link
-                        href={`/admin/users/${user.id}`}
+                        href={`/staff/users/${user.id}`}
                         className="inline-flex items-center justify-center p-2 bg-secondary hover:bg-secondary-accent text-white rounded-lg transition-colors duration-200"
                         title="Ver detalles del usuario"
                       >
