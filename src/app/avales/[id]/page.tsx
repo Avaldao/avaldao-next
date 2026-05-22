@@ -48,29 +48,28 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
 
     if (!aval) {
       return (
-        <Page>
-          <div className="container mx-auto p-6">
-            <Card className="max-w-2xl mx-auto">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-                  <FileText className="w-8 h-8 text-red-600" />
-                </div>
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">Aval No Encontrado</h2>
-                <p className="text-slate-600 mb-6">
-                  El aval con ID {id} no existe o no pudo ser cargado.
-                </p>
-                <Badge variant="destructive">ID Inválido</Badge>
-              </CardContent>
-            </Card>
-          </div>
-        </Page>
+
+        <div className="container mx-auto p-6">
+          <Card className="max-w-2xl mx-auto">
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                <FileText className="w-8 h-8 text-red-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Aval No Encontrado</h2>
+              <p className="text-slate-600 mb-6">
+                El aval con ID {id} no existe o no pudo ser cargado.
+              </p>
+              <Badge variant="destructive">ID Inválido</Badge>
+            </CardContent>
+          </Card>
+        </div>
+
       );
     }
 
     const statusInfo = getStatusText(aval.status);
 
     return (
-      <Page>
         <div className="container mx-auto p-6 space-y-6">
           {/* Header con información básica */}
           <Card>
@@ -166,7 +165,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                           <th>Cuota #</th>
                           <th>Vto</th>
                           <th>Desbloqueo</th>
-<th></th>
+                          <th></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -178,7 +177,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                                 <td>Cuota {tranche.index} </td>
                                 <td>{format(new Date(tranche.maturityDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
                                 <td>{format(new Date(tranche.unlockDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
-                                
+
                               </tr>
                             ))
                           }
@@ -347,7 +346,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
             </div>
           </div>
         </div>
-      </Page>
+      
     );
   } catch (error) {
     return (
