@@ -1,19 +1,13 @@
-/* Podemos tener un enum para roles, recordar que pasamos el hash de keccak */
-
-import adminAbi from "@/blockchain/contracts/avaldao/admin.abi";
+import ContractsFactory from "@/blockchain/contracts";
 import roles, { Role } from "@/roles";
-import { Contract, JsonRpcProvider } from "ethers";
-
-const rpcUrl = process.env.RPC_URL;
-const deployedAt = process.env.ADMIN_CONTRACT_ADDRESS!;
+import { Contract } from "ethers";
 
 export default class OnChainAuthorizationService {
-  public provider;
+
   public admin: Contract;
 
-  constructor() {
-    this.provider = new JsonRpcProvider(rpcUrl);
-    this.admin = new Contract(deployedAt, adminAbi, this.provider);
+  constructor(chainId: number = Number(process.env.DEFAULT_CHAIN_ID!)) {
+    this.admin = ContractsFactory.getPermissionsContract(chainId);
   }
 
   async hasRole(address: string, role: Role) {
@@ -21,7 +15,6 @@ export default class OnChainAuthorizationService {
     if (!role_) throw new Error(`Invalid role value: ${role}`);
 
     const result = await this.admin.hasUserRole(address, role_.app, role_.hash);
-    console.log(result);
     return result;
   }
 

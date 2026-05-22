@@ -1,21 +1,13 @@
 import getDb from '@/lib/mongodb';
-import roles from "@/roles";
 import { UserInfo, UserUpsert } from '@/types';
-import { getAddress, verifyMessage } from 'ethers';
 import { ObjectId } from 'mongodb';
-import OnChainAuthorizationService from '@/services/onchain-authorization-service';
-import { requireRoles } from '@/lib/auth/authorization';
-
-const authorizationService = new OnChainAuthorizationService();
-
-
+import { getCurrentUser, requireRoles } from '@/lib/auth/authorization';
+import OnChainAuthorizationService from './onchain-authorization-service';
 
 
 interface UserData {
   address: string;
 }
-
-
 
 class UsersService {
 
@@ -53,39 +45,6 @@ class UsersService {
   }
 
 
-  async loginWithSignature(message: string, signature: string): Promise<UserInfo | null> {
-    const address = verifyMessage(message, signature); //throws?
-    console.log(`Login with signature ${address} ${getAddress(address)}`);
-
-    const db = await getDb();
-    const user = await db.collection<UserInfo>("users").findOne({ "address": address }); //user not found? or what
-
-    if (user) {
-      user.id = user._id.toString();
-      user.roles = await authorizationService.getRoles(address); //Este deberia depender del ctx
-      user.website = user.url ?? user.website;
-      //populate avatar
-    }
-
-    if (user?.address == getAddress("0x8b8099bB67EAC696148cBa04575828635Ba7Cee6")) {
-      user.roles.push("SOLICITANTE_ROLE")
-    }
-
-    if (!user && address == getAddress("0x9dec90af27e95299d56cef85ee1ad7e77353ddbb")) { //todo: check with checksum
-      return {
-        id: "1231412",
-        roles: ["SOLICITANTE_ROLE"],
-        address: getAddress("0x9dec90af27e95299d56cef85ee1ad7e77353ddbb"), //0x9deC90af27E95299D56Cef85eE1aD7E77353dDBB
-        email: "jonatanduttweiler@gmail.com",
-        name: "Jona",
-        avatar: "" //make it optional
-      }
-    }
-
-    console.log(user);
-
-    return user;
-  }
 
 
   
@@ -110,6 +69,8 @@ class UsersService {
     const user = await db.collection<UserInfo>("users").findOne({ "_id": new ObjectId(id) });
     if (user) {
       user.id = user._id.toString();
+      console.log(`Fetching roles using chainid? ${process.env.DEFAULT_CHAIN_ID}`);
+      const authorizationService = new OnChainAuthorizationService();
       user.roles = await authorizationService.getRoles(user.address);
       user.website = user.url ?? user.website;
 
@@ -129,11 +90,22 @@ class UsersService {
 
     return user;
   }
-  //TODO: CRITICAL make it available only to admin users
+  
   async getUserByAddress(address: string): Promise<UserInfo | null> {
+    const requester = await getCurrentUser();
+    //Esta funcion se usa en el formulario de aval. Al momento de completar un address hace un lookup por address
+    //para mostrar el nombre y el avatar.
+
+    //La linea anterior asegura que solo personas autenticadas pueden hacer ese lookup, 
+    // pero no restringe que cualquier usuario pueda hacer lookup de cualquier address. 
+    // Esto podria ser un problema de privacidad? En teoria el address es publico, 
+    // pero el hecho de que puedas asociarlo a un nombre y avatar hace que sea mas sensible. 
+    // Por ahora lo dejo asi, pero es algo para tener en cuenta.
+
     const db = await getDb();
     const user = await db.collection<UserInfo>("users").findOne({ "address": address });
     if (user) {
+      const authorizationService = new OnChainAuthorizationService();
       user.roles = await authorizationService.getRoles(user.address);
       user.id = user._id.toString();
       user.website = user.url ?? user.website;

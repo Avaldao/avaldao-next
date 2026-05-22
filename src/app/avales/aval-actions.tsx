@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +21,9 @@ import { AvalRoleEnum } from "@/services/avales-service";
 import { useRouter } from "next/navigation";
 import vaultAbi from "@/blockchain/contracts/avaldao/vault.abi";
 import { getSignatures } from "@/blockchain/utils/signatures";
+import { contractsAddress } from "@/blockchain/contracts";
+import { TxModal, TxStep } from "@/components/tx-modal";
+
 
 const avalStatuses = [
   "Solicitado",
@@ -29,30 +33,6 @@ const avalStatuses = [
   "Finalizado"
 ]
 
-const contractsAddress: {
-  [key: number]: {
-    avaldao: string;
-    permissions: string;
-    tokens?: {
-      doc: string;
-    };
-  }
-} = {
-  30: {
-    avaldao: "0x6DC9BCDD6fe5822D7E52Ac06E3ae740faa5d57a5",
-    permissions: "0x7D64C1532Efa7bd0d1554b4876d01e8c273fA129",
-    tokens: {
-      doc: ""
-    }
-  },
-  31: {
-    avaldao: "0x0185e73DaaC1FBF56f71448477026A6A3Dd39aFE",
-    permissions: "0x35e08235457394A1C50dF3C1641BD4996F2EBB5F",
-    tokens: {
-      doc: "0xCB46c0ddc60D18eFEB0E586C17Af6ea36452Dae0"
-    },
-  }
-}
 
 
 interface GetContractsOptions {
@@ -82,6 +62,11 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   const { chainId } = useAppKitNetwork();
 
   const { address } = useAppKitAccount();
+
+  const [txModalOpen, setTxModalOpen] = useState(false);
+  const [txStep, setTxStep] = useState<TxStep>('waiting_wallet');
+  const [txHash, setTxHash] = useState<string | undefined>();
+  const [txError, setTxError] = useState<string | undefined>();
 
   if (!session?.user) {
     //redirect
@@ -129,11 +114,20 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
 
 
-  async function getContracts({ permissions = false }: GetContractsOptions = {}): Promise<ContractsResult> {
+  async function getContracts(chainId: 30 | 31 = aval.chainId, { permissions = false }: GetContractsOptions = {}): Promise<ContractsResult> {
     const ethersProvider = new BrowserProvider(walletProvider);
     const signer = await ethersProvider.getSigner();
-    const chainId = signer.provider._network.chainId;
-    console.log(`Network: ${signer.provider._network.chainId}`)
+    const connectedChainId = signer.provider._network.chainId;
+    
+    if(Number(connectedChainId) !== chainId) {
+      const switched = await switchNet(chainId);
+      if (!switched) {
+        throw new Error(`Please switch to the correct network to interact with this aval. Target network chain id: ${chainId}`);
+      }
+    } 
+   //Tendriamos que comprobar si el signer esta en la misma red que el aval, y si no, ofrecer hacer switch de red. 
+   // Para simplificar el ejemplo, asumimos que ya esta en la red correcta
+   //console.log(`Network: ${signer.provider._network.chainId}`)
 
     const avaldaoAddress = contractsAddress[Number(chainId)].avaldao;
     const avaldao = new Contract(avaldaoAddress, avaldaoAbi, signer);
@@ -182,7 +176,8 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   }
 
   async function getAval(avalId: string) {
-    const { avalContract } = await getContracts();
+    
+    const { avalContract } = await getContracts(aval.chainId);
     console.log(`Get aval:  ${avalId}`)
     if (!avalContract) {
       console.log("Aval contract not found");
@@ -201,12 +196,15 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   }
 
   async function signAval(aval: Aval, role: AvalRoleEnum) {
-    const { avaldaoAddress, avalAddress, signer } = await getContracts();
+    const { avaldaoAddress, avalAddress, signer } = await getContracts(aval.chainId);
+    console.log(avaldaoAddress, signer);
 
     aval.infoCid = "/ipfs/QmQZiVUdK7t5N8teghjQ3khcQ32W6bpFvuUpsU7p1wcBun"; //TODO: READ FROM BACKEND OR GENERATE
     aval.address = avalAddress!;
 
     const data = JSON.stringify(generateStructDataToSign(aval, avaldaoAddress));
+
+    console.log(aval, avaldaoAddress, data);
 
     const signature = await walletProvider.request({
       method: "eth_signTypedData_v4",
@@ -238,7 +236,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
     console.log(`Network: ${signer.provider._network.chainId} - ${signer.address}`)
 
     //Can I get the permissions /admin from avaldao contract directly?
-    const { permissions } = await getContracts({ permissions: true });
+    const { permissions } = await getContracts(aval.chainId,{ permissions: true });
     const permissionsContract = permissions?.contract;
     if (!permissionsContract) {
       console.log("Permissions contract not found");
@@ -279,28 +277,63 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
 
   async function startAval() {
-    const { avalContract } = await getContracts();
-    if (!avalContract) {
-      console.log("Aval contract not found");
-      return;
+    setTxHash(undefined);
+    setTxError(undefined);
+    setTxStep('waiting_wallet');
+    setTxModalOpen(true);
+    try {
+      const { avalContract } = await getContracts(aval.chainId);
+      if (!avalContract) {
+        console.log("Aval contract not found");
+        setTxModalOpen(false);
+        return;
+      }
+
+      const signatures = getSignatures(aval);
+      if (!signatures) {
+        setTxModalOpen(false);
+        return;
+      }
+      const [r, v, s] = signatures;
+
+      const tx = await avalContract.sign(r, v, s, {
+        gasLimit: BigInt(5_000_000)
+      });
+
+      setTxHash(tx.hash);
+      setTxStep('waiting_confirmation');
+
+      const receipt = await tx.wait();
+      console.log(receipt);
+
+      if (receipt?.status === 1) {
+        setTxStep('confirmed');
+        toast.success('Transacción confirmada exitosamente.');
+        router.refresh();
+      } else {
+        setTxStep('error');
+        setTxError('La transacción falló en la blockchain.');
+      }
+    } catch (err: any) {
+      console.log(err);
+      if (isUserRejection(err)) {
+        setTxModalOpen(false);
+        toast('Cancelaste la transacción.', { icon: '⚠️' });
+      } else {
+        setTxStep('error');
+        setTxError(err?.message ?? 'Error desconocido.');
+      }
     }
-
-    const signatures = getSignatures(aval);
-    if (!signatures) return;
-    const [r, v, s] = signatures;
-
-    const tx = await avalContract.sign(r, v, s, {
-      gasLimit: BigInt(5_000_000)
-    });
-    const receipt = await tx.wait();
-    console.log(receipt);  //if receipt.status == 1 show "aval confirmado";
-
   }
 
 
   async function acceptAval() {
+    setTxHash(undefined);
+    setTxError(undefined);
+    setTxStep('waiting_wallet');
+    setTxModalOpen(true);
     try {
-      const { avaldao } = await getContracts();
+      const { avaldao } = await getContracts(aval.chainId);
 
       const tx = await avaldao.saveAval(
         aval._id,
@@ -318,11 +351,29 @@ export default function AvalActions({ aval }: { aval: Aval }) {
         }
       );
 
+      setTxHash(tx.hash);
+      setTxStep('waiting_confirmation');
+
       const receipt = await tx.wait();
       console.log(receipt);
 
-    } catch (err) {
+      if (receipt?.status === 1) {
+        setTxStep('confirmed');
+        toast.success('Transacción confirmada exitosamente.');
+        router.refresh();
+      } else {
+        setTxStep('error');
+        setTxError('La transacción falló en la blockchain.');
+      }
+    } catch (err: any) {
       console.log(err);
+      if (isUserRejection(err)) {
+        setTxModalOpen(false);
+        toast('Cancelaste la transacción.', { icon: '⚠️' });
+      } else {
+        setTxStep('error');
+        setTxError(err?.message ?? 'Error desconocido.');
+      }
     }
   }
 
@@ -330,7 +381,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   async function getTokenBalance() {
     try {
       console.log(`get token balances`);
-      const { vault } = await getContracts();
+      const { vault } = await getContracts(aval.chainId);
 
       const amt = await vault.getTokensBalanceFiat();
       console.log(amt);
@@ -347,7 +398,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   }
 
   async function getCuotas() {
-    const { avalContract } = await getContracts();
+    const { avalContract } = await getContracts(aval.chainId);
     if (!avalContract) {
       console.log("Aval contract not found");
       return;
@@ -370,7 +421,29 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
   }
 
+  const explorerUrl = contractsAddress[aval.chainId]?.explorerUrl;
+  const networkName = contractsAddress[aval.chainId]?.networkName;
+
+  function isUserRejection(err: any): boolean {
+    return (
+      err?.code === 4001 ||
+      err?.code === 'ACTION_REJECTED' ||
+      err?.message?.toLowerCase().includes('user denied') ||
+      err?.message?.toLowerCase().includes('user rejected')
+    );
+  }
+
   return (
+    <>
+    <TxModal
+      isOpen={txModalOpen}
+      onClose={() => setTxModalOpen(false)}
+      step={txStep}
+      txHash={txHash}
+      errorMessage={txError}
+      explorerUrl={explorerUrl}
+      networkName={networkName}
+    />
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -413,7 +486,14 @@ export default function AvalActions({ aval }: { aval: Aval }) {
               <Button
                 className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
                 disabled={aval.avaldaoSignature != undefined}
-                onClick={() => signAval(aval, "avaldao")}>
+                onClick={async () => {
+                  try{
+                    await signAval(aval, "avaldao")
+                  } catch (err) {
+                    console.log(err);
+                    toast.error(`Error signing aval: ${err}`);
+                  }
+                }}>
                 <PenLine />
                 signAval avaldao
               </Button>
@@ -481,6 +561,6 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
       </CardContent>
     </Card>
-
+    </>
   )
 }

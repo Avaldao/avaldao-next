@@ -2,6 +2,7 @@ import { DefaultSession, DefaultUser, SessionStrategy } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import UserService from "@/services/users-service";
 import { Role } from "@/roles";
+import { AuthService } from "@/services/auth-service";
 
 
 
@@ -37,7 +38,7 @@ export const authOptions = {
         if (!credentials || !credentials.signature || !credentials.message) return null;
 
         try {
-          const user = await new UserService().loginWithSignature(credentials.message, credentials.signature);
+          const user = await new AuthService().loginWithSignature(credentials.message, credentials.signature);
           if (user) return user;
 
         } catch (err: any) {
