@@ -10,7 +10,7 @@ import Spinner from "@/components/ui/spinner";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import InputDatePicker from "@/components/ui/input-date-picker";
-
+import toast from "react-hot-toast";
 
 
 interface FieldErrors {
@@ -29,6 +29,7 @@ interface FieldErrors {
 }
 
 interface AvalFields {
+  chainId?: number;
   proyecto: string,
   objetivo: string,
   adquisicion: string,
@@ -36,7 +37,7 @@ interface AvalFields {
   montoFiat: number,
   cuotasCantidad: number,
   fechaInicio: Date | string | undefined,
-  duracionCuotaDias: 30,
+  duracionCuotaDias: number,
   solicitanteAddress: string | undefined,
   avaldaoAddress: string,
   comercianteAddress: string,
@@ -64,7 +65,6 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
   });
 
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const [comerciante, setComerciante] = useState<UserInfo | null>();
   const [avalado, setAvalado] = useState<UserInfo | null>();
@@ -173,7 +173,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (loading) return;
     clearFormErrors();
@@ -183,7 +183,6 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       return;
     }
 
-    setSuccess(false);
 
     try {
       setLoading(true);
@@ -191,6 +190,9 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       if (form.fechaInicio instanceof Date) {
         form.fechaInicio = form.fechaInicio.toISOString();
       }
+
+      form.chainId = Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!);
+
       const data = JSON.stringify(form);
 
       const res = await fetch("/api/avales", {
@@ -200,12 +202,31 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       });
 
       if (res.ok) {
-        setSuccess(true);
+        toast.success("Aval creado correctamente");
+        setForm({
+          proyecto: "",
+          objetivo: "",
+          adquisicion: "",
+          beneficiarios: "",
+          montoFiat: 1000,
+          cuotasCantidad: 6,
+          fechaInicio: new Date(),
+          duracionCuotaDias: 30,
+          solicitanteAddress: user?.address,
+          avaldaoAddress: avaldaoAddress,
+          comercianteAddress: "",
+          avaladoAddress: "",
+        });
+        setComerciante(null);
+        setAvalado(null);
+        // setSuccess(true);  
       } else {
-        console.error("Error al enviar los datos");
+        const errorData = await res.json();
+        toast.error(`Error al crear el aval. Por favor intenta nuevamente: ${errorData.message || ""}`);
       }
     } catch (err) {
       console.error(err);
+      toast.error("Error al crear el aval. Por favor intenta nuevamente.");
     } finally {
       setLoading(false);
     }
@@ -426,11 +447,6 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
         </Button>
       </div>
 
-
-
-      {success && (
-        <p className="text-green-600 text-lg mt-7 text-center">✅ Aval registrado correctamente.</p>
-      )}
     </form>
 
   );

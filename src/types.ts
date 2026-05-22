@@ -24,7 +24,7 @@ export interface Aval {
   avaladoSignature?: string;
   comercianteSignature?: string;
   avaldaoSignature?: string;
-  chainId: number;
+  chainId: 30 | 31;
 }
 
 
@@ -50,6 +50,7 @@ export interface UserUpsert {
 }
 
 export interface AvalRequest {
+  chainId: string;
   proyecto: string,
   objetivo: string,
   adquisicion: string,
