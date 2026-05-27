@@ -217,7 +217,7 @@ export const AvalTable = ({ avales }: { avales: Aval[] }) => {
     </Td>,
     <Td key="monto" className="text-right">
       <span className="font-semibold text-slate-600 ">
-        ${aval.montoFiat.toLocaleString('es-ES')}
+        ${(aval.montoFiat/100).toFixed(2)}
       </span>
     </Td>,
     <Td key="estado">

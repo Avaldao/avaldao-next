@@ -27,22 +27,28 @@ interface NetworkInfo {
 export const networks: { [key: number]: NetworkInfo } = {
   30: {
     name: "Rootstock Mainnet",
-    rpcUrl: process.env.MAINNET_RPC_URL!,
-    explorerUrl: process.env.MAINNET_EXPLORER_URL!,
+    rpcUrl: process.env.NEXT_PUBLIC_MAINNET_RPC_URL!,
+    explorerUrl: process.env.NEXT_PUBLIC_MAINNET_EXPLORER_URL!,
   },
   31: {
     name: "Rootstock Testnet",
-    rpcUrl: process.env.TESTNET_RPC_URL!,
-    explorerUrl: process.env.TESTNET_EXPLORER_URL!,
+    rpcUrl: process.env.NEXT_PUBLIC_TESTNET_RPC_URL!,
+    explorerUrl: process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL!,
   }
 }
+
+export const defaultAvaldaoAddress: { [key: number]: string } = {
+  30: process.env.USER_AVALDAO_ADDRESS!,
+  31: process.env.TESTNET_USER_AVALDAO_ADDRESS!,
+}
+
 
 
 export const contractsAddress: ContractsAddresses = {
   30: {
-    rpcUrl: process.env.MAINNET_RPC_URL!,
-    networkName: process.env.MAINNET_NETWORK_NAME!,
-    explorerUrl: process.env.MAINNET_EXPLORER_URL!,
+    rpcUrl: process.env.NEXT_PUBLIC_MAINNET_RPC_URL!,
+    networkName: process.env.NEXT_PUBLIC_MAINNET_NETWORK_NAME!,
+    explorerUrl: process.env.NEXT_PUBLIC_MAINNET_EXPLORER_URL!,
     avaldao: process.env.NEXT_PUBLIC_AVALDAO_CONTRACT_ADDRESS!,
     vault: process.env.NEXT_PUBLIC_VAULT_CONTRACT_ADDRESS!,
     permissions: process.env.NEXT_PUBLIC_AVALDAO_ADMIN_CONTRACT_ADDRESS!,
@@ -51,9 +57,9 @@ export const contractsAddress: ContractsAddresses = {
     }
   },
   31: {
-    rpcUrl: process.env.TESTNET_RPC_URL!,
-    networkName: process.env.TESTNET_NETWORK_NAME!,
-    explorerUrl: process.env.TESTNET_EXPLORER_URL!,
+    rpcUrl: process.env.NEXT_PUBLIC_TESTNET_RPC_URL!,
+    networkName: process.env.NEXT_PUBLIC_TESTNET_NETWORK_NAME!,
+    explorerUrl: process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL!,
     avaldao: process.env.NEXT_PUBLIC_TESTNET_AVALDAO_CONTRACT_ADDRESS!,
     vault: process.env.NEXT_PUBLIC_TESTNET_VAULT_CONTRACT_ADDRESS!,
     permissions: process.env.NEXT_PUBLIC_TESTNET_AVALDAO_ADMIN_CONTRACT_ADDRESS!,
@@ -64,8 +70,8 @@ export const contractsAddress: ContractsAddresses = {
 }
 
 export const rpcUrls: { [key: number]: string } = {
-  30: process.env.MAINNET_RPC_URL!,
-  31: process.env.TESTNET_RPC_URL!,
+  30: process.env.NEXT_PUBLIC_MAINNET_RPC_URL!,
+  31: process.env.NEXT_PUBLIC_TESTNET_RPC_URL!,
 }
 
 interface NetworkContracts {

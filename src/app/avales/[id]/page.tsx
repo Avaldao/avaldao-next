@@ -155,7 +155,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                   </div>
 
                   <div>
-                    Monto fiat: {aval.montoFiat / 100} <b>USD</b>
+                    Monto fiat: ${(aval.montoFiat / 100).toFixed(2)} <b>USD</b>
                   </div>
 
                   <div>
@@ -165,7 +165,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                           <th>Cuota #</th>
                           <th>Vto</th>
                           <th>Desbloqueo</th>
-                          <th></th>
+                          <th>Monto</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -177,7 +177,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                                 <td>Cuota {tranche.index} </td>
                                 <td>{format(new Date(tranche.maturityDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
                                 <td>{format(new Date(tranche.unlockDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
-
+                                <td>$ {(aval.montoFiat / 100 / aval.cuotasCantidad).toFixed(2)}</td>
                               </tr>
                             ))
                           }
@@ -210,7 +210,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600">Monto FIAT:</span>
                     <span className="font-bold text-green-600">
-                      ${(aval.montoFiat / 100).toLocaleString('es-ES')}
+                      $ {(aval.montoFiat / 100).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
