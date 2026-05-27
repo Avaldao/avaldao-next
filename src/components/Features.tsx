@@ -1,32 +1,40 @@
 import Image from "next/image"
 import AvalDaoDiagram from "./avaldao/avaldao-diagram"
+import { getLanguageCookie } from "@/lib/cookies"
+import { translations } from "@/translations";
 
-export default function Features() {
+
+
+export default async function Features() {
+
+  const language = await getLanguageCookie();
+  const t = (key: string) => translations[key]?.[language] ?? key;
+
   const features = [
     {
-      title: "Seguridad",
-      description: "Las personas y empresas avaladas cuentan con una reputación inmutable, creada por terceras partes de confianza"
+      title: t("features.security.title"),
+      description: t("features.security.description")
     },
     {
-      title: "Autonomía",
-      description: "Las garantías son contratos autónomos que se ejecutarán sin intermediación a favor de quien otorgó el crédito"
+      title: t("features.autonomy.title"),
+      description: t("features.autonomy.description")
     },
     {
-      title: "Transparencia",
-      description: "Toda la economía de la organización está a la vista, con información y estadísticas publicadas en tiempo real"
+      title: t("features.transparency.title"),
+      description: t("features.transparency.description")
     }
   ]
 
   const services = [
     {
       img: "/images/inversor.png",
-      title: "Quiero invertir",
-      description: "¿Quieres que tus inversiones operen rentabilidad al mismo tiempo que ayudas a otras personas a cumplir sus sueños?",
+      title: t("services.investor.title"),
+      description: t("services.investor.description"),
     },
     {
       img: "/images/solicitante.png",
-      title: "Quiero un aval",
-      description: "¿Tienes un comercio y quieres ampliar tus clientes? ¿Tienes un emprendimiento y necesitas una aval para obtener un crédito comercial?",
+      title: t("services.applicant.title"),
+      description: t("services.applicant.description"),
     }
   ]
 
@@ -35,12 +43,12 @@ export default function Features() {
       <section className="pt-20 px-4">
         {/* Qué es AvalDAO */}
         <div id="que-es" className="text-center mb-16">
-          <h2 className="font-heading text-4xl font-bold text-primary mb-6">Qué es AvalDAO</h2>
+          <h2 className="font-heading text-4xl font-bold text-primary mb-6">{t("about.avaldao.title")}</h2>
           <p className="text-lg text-gray-600 mb-8 max-w-xl mx-auto leading-loose">
-            AvalDAO es la primera Sociedad de Garantía Recíproca (SGR) descentralizada. Una solución WEB3 que otorga garantías a los individuos y microempresas no bancarizadas o sin historial crediticio, para que puedan acceder a créditos comerciales convenientes.
+            {t("about.avaldao.description")}
           </p>
           <div className="bg-secondary inline-block px-6 py-3 rounded-full font-bold text-white text-lg shadow-md">
-            Conocer Más
+            {t("about.avaldao.know-more")}
           </div>
         </div>
 
@@ -71,7 +79,7 @@ export default function Features() {
           max-w-7xl mx-auto
           ">
           <div className="col-span-full">
-            <AvalDaoDiagram />
+            <AvalDaoDiagram language={language} />
           </div>
           {services.map((service, index) => (
             <div key={index} className="bg-gray-100 text-slate-800 rounded-md shadow-lg ">
@@ -85,7 +93,7 @@ export default function Features() {
 
               <div className="p-8">
                 <h3 className="text-2xl font-semibold font-heading mb-4">{service.title}</h3>
-                <p className="mb-6 opacity-90">{service.description}</p>
+                <p className="mb-6 opacity-90leading-6 min-h-[4.5rem]">{service.description}</p>
               </div>
 
             </div>

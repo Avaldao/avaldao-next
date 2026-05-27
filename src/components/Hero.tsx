@@ -3,12 +3,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import EmblaCarousel from "embla-carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { Language, translations } from "@/translations";
 
-export default function Hero() {
+interface HeroProps {
+  language: Language;
+}
+
+export default function Hero({ language }: HeroProps) {
+  const t = (key: string) => translations[key]?.[language] ?? key;
+
   const emblaRef = useRef<HTMLDivElement>(null);
   const [embla, setEmbla] = useState<any>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+
 
   // Initialize Embla
   useEffect(() => {
@@ -46,28 +54,28 @@ export default function Hero() {
 
           <div className="embla__slide flex-[0_0_100%]">
             <Slide
-              title="Confiamos en vos"
-              description="En dos clicks tenés la garantía que necesitás para tu crédito."
+              title={t("slide1.title")}
+              description={t("slide1.description")}
               bg="bg-[url('/images/slide-bg1.jpg')]"
-              btn="Comenzar"
+              btn={t("slide1.btn")}
             />
           </div>
 
           <div className="embla__slide flex-[0_0_100%]">
             <Slide
-              title="Garantías rápidas y seguras"
-              description="AvalDAO utiliza la revolucionaria tecnología de blockchain para otorgar garantías crediticias de forma ágil, seguras y transparentes."
+              title={t("slide2.title")}
+              description={t("slide2.description")}
               bg="bg-[url('/images/slide-bg2.jpg')]"
-              btn="Conocer más"
+              btn={t("slide2.btn")}
             />
           </div>
 
           <div className="embla__slide flex-[0_0_100%]">
             <Slide
-              title="Sumate a la comunidad AvalDAO"
-              description="Únete a un nuevo tipo de empresa, más abierta y transparente, donde el control lo tienen quienes la usan y contribuyen."
+              title={t("slide3.title")}
+              description={t("slide3.description")}
               bg="bg-[url('/images/slide-bg3.jpg')]"
-              btn="Sumate"
+              btn={t("slide3.btn")}
             />
           </div>
         </div>
@@ -125,7 +133,7 @@ function Slide({ title, description, bg, btn }: SlideProps) {
         ${bg}
       `}
     >
-      <div className="container mx-auto px-8 flex flex-col justify-center items-start max-w-sm md:max-w-6xl text-left">
+      <div className="container mx-auto px-8 flex flex-col justify-center items-start max-w-sm md:max-w-2xl text-left ">
 
         <p className="font-heading text-3xl md:text-4xl text-primary mb-4 font-bold leading-11 select-none">
           {title}
