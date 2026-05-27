@@ -2,8 +2,16 @@
 
 import { FC } from "react";
 import Image from "next/image";
+import { Language, translations } from "@/translations";
 
-const AvalDaoDiagram: FC = () => {
+
+interface AvalDaoDiagramProps {
+  language: Language;
+}
+
+const AvalDaoDiagram: FC<AvalDaoDiagramProps> = ({ language }) => {
+  const t = (key: string) => translations[key]?.[language] ?? key;
+  
   return (
     <div className="flex flex-col max-w-6xl mx-auto pb-10 pt-10 md:pt-0 w-full bg-white px-6 rounded-lg">
 
@@ -41,11 +49,10 @@ const AvalDaoDiagram: FC = () => {
                 height={48}
               />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">Investors</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t("actors.investors.title")}</h3>
           </div>
           <p className="text-gray-600 text-md  max-w-md md:max-w-xs  text-justify min-h-15">
-            Contribute crypto capital to the Guarantee Fund to provide social
-            growth and economic sustainability.
+            {t("actors.investors.description")}
           </p>
         </div>
 
@@ -56,12 +63,10 @@ const AvalDaoDiagram: FC = () => {
               <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#D8F4F0]">
                 <Image src="/images/d-pymes.png" alt="SMEs" width={48} height={48} />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">SMEs</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t("actors.smes.title")}</h3>
             </div>
             <p className="text-gray-600 text-md  max-w-md md:max-w-xs  text-justify min-h-15">
-              Build their reputation on their digital identity through
-              credentials granted by issuers that accredit aspects such as
-              responsibility, knowledge, and productivity, among others.
+              {t("actors.smes.description")}
             </p>
           </div>
         </div>
@@ -72,21 +77,17 @@ const AvalDaoDiagram: FC = () => {
               <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#D8F4F0]">
                 <Image src="/images/d-commerce.png" alt="Shops" width={48} height={48} />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Shops</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t("actors.shops.title")}</h3>
             </div>
             <p className="text-gray-600 text-md  max-w-md md:max-w-xs  text-justify min-h-15">
-              Offer their goods and services with special credit conditions to
-              those who have guarantees approved by AvalDAO.
+              {t("actors.shops.description")}
             </p>
           </div>
         </div>
-
-
-
       </div>
       <div className="mt-12 text-center md:pt-6">
         <h4 className="text-2xl font-semibold text-[#6246ea]">
-          In You <span className="text-[#00c6cf]">We Trust</span>
+          <span className="text-[#00c6cf]">{t("we-trust")}</span>
         </h4>
         <div className="h-[2px] w-16 bg-[#00c6cf] mx-auto mt-2"></div>
       </div>
