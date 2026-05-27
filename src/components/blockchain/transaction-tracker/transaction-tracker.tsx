@@ -4,12 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useAppKitAccount, useAppKitNetwork, useWalletInfo } from "@reown/appkit/react";
 import { AbiCoder, BrowserProvider, ContractTransactionReceipt, ContractTransactionResponse, EthersError, Provider, TransactionReceipt, isError } from "ethers";
 import {
-  Wallet,
-  Clock,
   CheckCircle2,
-  XCircle,
   AlertTriangle,
-  Loader2,
   ExternalLink,
   ShieldCheck,
 } from "lucide-react";
@@ -22,8 +18,8 @@ import {
 
 
 interface TransactionTrackerProps {
-  provider: BrowserProvider,
-  onSend: () => Promise<ContractTransactionResponse>;
+  balance: string | null;
+  txState: TxState;
   contract: ContractInfo;
   explorerUrl?: string;
   onClose?: () => void;
@@ -32,122 +28,21 @@ interface TransactionTrackerProps {
 
 
 export default function TransactionTracker({
-  provider,
-  onSend,
+  txState,
   contract,
   explorerUrl = "https://etherscan.io",
+  balance,
   onClose,
 }: TransactionTrackerProps) {
-  const hasRun = useRef(false);
-
   const { address } = useAppKitAccount();
-  const [balance, setBalance] = useState<string | null>(null);
-  const [txResponse, setTxResponse] = useState<ContractTransactionResponse | null>(null);
-  const [txReceipt, setTxReceipt] = useState<ContractTransactionReceipt | null>(null);
-
   const { caipNetwork } = useAppKitNetwork();
   const networkName = caipNetwork?.name ?? "Unknown network";
-
-  const [txState, setTxState] = useState<TxState>({
-    step: 1,
-    status: "waiting_approval",
-  });
-
-  useEffect(() => {
-    async function fetchUserBalance() {
-      if (address && provider) {
-        const balance = await provider.getBalance(address);
-        setBalance((parseFloat(balance.toString()) / 1e18).toFixed(6));
-      }
-    }
-
-    fetchUserBalance();
-  }, [address]);
-
-
-  // Kick off the flow on mount
-  useEffect(() => {
-    if (hasRun.current) return; // segunda ejecución de StrictMode → ignorar
-    hasRun.current = true;
-
-    let txResponse: ContractTransactionResponse;
-    let receipt: ContractTransactionReceipt | null = null;
-    let errReason: string | undefined = undefined;
-
-    let cancelled = false;
-
-    async function run() {
-      let hash: string;
-
-      try {
-        txResponse = await onSend();
-        setTxResponse(txResponse);
-        hash = txResponse.hash;
-      } catch (err) {
-        console.log(err);
-        if (err instanceof Error && "code" in err && err.code === "ACTION_REJECTED") {
-          setTxState({ step: 1, status: "rejected" });
-        }
-
-        if (!cancelled) {
-          setTxState({ step: 1, status: "expired" });
-        }
-        return;
-      }
-
-      setTxState({ step: 1, status: "sent", txHash: hash });
-
-      await new Promise((r) => setTimeout(r, 800));
-
-
-      setTxState({ step: 2, status: "waiting_confirmation", txHash: hash });
-      try {
-        receipt = await txResponse.wait();
-        setTxReceipt(receipt);
-
-        if (cancelled) return;
-
-        if (!receipt || receipt.status === 0) {
-          setTxState({ step: 2, status: "reverted", txHash: hash, receipt: receipt ?? undefined });
-        } else {
-          setTxState({ step: 2, status: "confirmed", txHash: hash, receipt });
-        }
-      } catch (err) {
-
-        if (txResponse.to) {
-          errReason = await getRevertReason({
-            to: txResponse.to,
-            from: txResponse.from ?? "",
-            data: txResponse.data,
-            value: txResponse.value,
-            blockNumber: receipt?.blockNumber ?? undefined,
-          }, provider);
-        }
-
-        if (isError(err, "CALL_EXCEPTION")) {
-          console.log("errdata:", (err as any).data);
-          setTxState({ step: 2, status: "reverted", txHash: hash, errReason: errReason });
-
-        }
-        setTxState({ step: 2, status: "reverted", txHash: hash, errReason: errReason });
-      }
-    }
-
-    run();
-    return () => {
-      console.log("TransactionTracker unmounted, cancelling state updates");
-      cancelled = true;
-
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
 
 
   const currentStatus = txState.status as Step1Status | Step2Status;
   const copy = STATUS_COPY[currentStatus];
   const isWaiting = currentStatus === "waiting_approval" || currentStatus === "waiting_confirmation";
-  const hasError = currentStatus == "rejected" || currentStatus === "expired" || currentStatus === "reverted";
+  const hasError = currentStatus == "rejected" || currentStatus === "expired" || currentStatus === "reverted" || currentStatus === "error";
   const txHash = txState.step === 2 || txState.txHash ? txState.txHash : undefined;
 
   return (
@@ -198,7 +93,7 @@ export default function TransactionTracker({
             <span className="text-xs text-zinc-400 dark:text-zinc-500">Balance</span>
             <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200">
               {balance ?
-                `${balance} tRBTC` :
+                `${balance}` :
                 <span className="w-12 h-4 rounded bg-zinc-300 dark:bg-zinc-700 animate-pulse inline-block" />}
             </span>
           </div>
@@ -269,10 +164,12 @@ export default function TransactionTracker({
               <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
               <span className="text-xs text-red-600 dark:text-red-400">
                 {currentStatus === "expired"
-                  ? "Signing request timed out":
+                  ? "Signing request timed out" :
                   currentStatus === "rejected" ? "Transaction rejected by user"
-                  : "Transaction was reverted on-chain"}
-                {txState.step === 2 && txState.errReason && `: ${txState.errReason}`}
+                    : "Transaction was reverted on-chain"}
+                <div className="w-full overflow-hidden break-all mt-1">
+                  {txState.errReason && `${txState.errReason}`}
+                </div>
               </span>
             </div>
           )}
@@ -307,58 +204,3 @@ export default function TransactionTracker({
 }
 
 
-interface TxParams {
-  to: string;
-  from: string;
-  data: string;
-  value?: bigint | string;
-  blockNumber?: number;
-}
-
-async function getRevertReason(
-  tx: TxParams,
-  provider: Provider
-): Promise<string> {
-  try {
-    await provider.call(
-      {
-        to: tx.to,
-        from: tx.from,
-        data: tx.data,
-        value: tx.value,
-        blockTag: tx.blockNumber ? tx.blockNumber - 1 : "latest",
-      }
-    );
-    return 'No revert detected';
-  } catch (err) {
-    if (err instanceof Error) {
-      const ethersErr = err as EthersError & { data?: string };
-      if (ethersErr.data) {
-        return decodeRevertReason(ethersErr.data);
-      }
-      if ('reason' in ethersErr && typeof ethersErr.reason === 'string') {
-        return ethersErr.reason;
-      }
-      return err.message;
-    }
-    return 'Unknown error';
-  }
-}
-
-function decodeRevertReason(data: string): string {
-  // 0x08c379a0 = selector de Error(string)
-  if (data?.startsWith('0x08c379a0')) {
-    const abiCoder = AbiCoder.defaultAbiCoder();
-    const decoded = abiCoder.decode(['string'], '0x' + data.slice(10));
-    return decoded[0] as string;
-  }
-
-  // 0x4e487b71 = Panic(uint256)
-  if (data?.startsWith('0x4e487b71')) {
-    const abiCoder = AbiCoder.defaultAbiCoder();
-    const [code] = abiCoder.decode(['uint256'], '0x' + data.slice(10));
-    return `Panic: ${(code as bigint).toString()}`;
-  }
-
-  return `Unknown revert: ${data}`;
-}
