@@ -1,6 +1,6 @@
 "use client";
 
-import { ContractTransactionResponse, TransactionReceipt } from "ethers";
+import {TransactionReceipt } from "ethers";
 import {
   Wallet,
   CheckCircle2,
@@ -11,11 +11,11 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type Step1Status = "waiting_approval" | "sent" | "expired" | "rejected";
-export type Step2Status = "waiting_confirmation" | "confirmed" | "reverted";
+export type Step1Status = "waiting_approval" | "sent" | "expired" | "rejected" | "error";
+export type Step2Status = "waiting_confirmation" | "confirmed" | "reverted" | "error";
 
 export type TxState =
-  | { step: 1; status: Step1Status; txHash?: string}
+  | { step: 1; status: Step1Status; txHash?: string; errReason?: string }
   | { step: 2; status: Step2Status; txHash: string; receipt?: TransactionReceipt, errReason?: string };
 
 export interface ContractInfo {
@@ -54,7 +54,7 @@ export function SpinnerRing({ status }: SpinnerRingProps) {
   const isWaiting =
     status === "waiting_approval" || status === "waiting_confirmation";
   const isSuccess = status === "sent" || status === "confirmed";
-  const isError = status === "expired" || status === "reverted" || status === "rejected";
+  const isError = status === "expired" || status === "reverted" || status === "rejected" || status === "error";
 
   const ringColor = isError
     ? "text-red-400"
@@ -125,4 +125,9 @@ export const STATUS_COPY: Record<Step1Status | Step2Status, { title: string; des
     title: "Transaction reverted",
     description: "The transaction failed on-chain. No funds were moved.",
   },
+  error: {
+    title: "Transaction error",
+    description: "An error occurred during the transaction. Please try again.",
+  },
 };
+

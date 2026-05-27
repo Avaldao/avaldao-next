@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Aval, AvalState } from "@/types";
-import { useAppKitAccount, useAppKitNetwork, useAppKitProvider, useWalletInfo } from "@reown/appkit/react";
-import { BrowserProvider, Contract, Eip1193Provider, getAddress, hexlify, isError, JsonRpcSigner } from "ethers";
-import { rootstock, AppKitNetwork } from "@reown/appkit/networks";
+import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from "@reown/appkit/react";
+import { BrowserProvider, Contract, Eip1193Provider, getAddress, JsonRpcSigner } from "ethers";
+
 
 import { Wrench, PenLine, PlayCircle, Banknote } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -24,6 +24,8 @@ import { getSignatures } from "@/blockchain/utils/signatures";
 import { contractsAddress } from "@/blockchain/contracts";
 import { TxModal, TxStep } from "@/components/tx-modal";
 import TransactionTracker from "@/components/blockchain/transaction-tracker/transaction-tracker";
+
+import useBlockchainTransaction from "@/hooks/useBlockchainTransaction";
 
 
 const avalStatuses = [
@@ -70,6 +72,27 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   const [txError, setTxError] = useState<string | undefined>();
 
   const [showTxTracker, setShowTxTracker] = useState(false);
+
+
+  const [balance, setBalance] = useState<string | null>(null);
+
+  const provider = useMemo(() => {
+    if (!walletProvider) return null;
+    return new BrowserProvider(walletProvider);
+  }, [walletProvider]);
+
+  const { run, txState } = useBlockchainTransaction(provider);
+
+  useEffect(() => {
+    async function fetchUserBalance() {
+      if (address && provider) {
+        const balance = await provider.getBalance(address);
+        setBalance((parseFloat(balance.toString()) / 1e18).toFixed(6));
+      }
+    }
+
+    fetchUserBalance();
+  }, [address]);
 
   if (!session?.user) {
     //redirect
@@ -432,6 +455,40 @@ export default function AvalActions({ aval }: { aval: Aval }) {
     );
   }
 
+
+  async function acceptAvalNewInterface() {
+    setShowTxTracker(true);
+
+    const sendTransaction = async () => {
+      const { avaldao } = await getContracts(aval.chainId);
+      console.log(`Sending transaction to accept aval ${aval._id} on chain ${aval.chainId}...`);
+      const tx = await avaldao.saveAval(
+        aval._id,
+        "/ipfs/QmQZiVUdK7t5N8teghjQ3khcQ32W6bpFvuUpsU7p1wcBun",
+        [
+          aval.avaldaoAddress,
+          aval.solicitanteAddress,
+          aval.comercianteAddress,
+          aval.avaladoAddress,
+        ],
+        aval.montoFiat,
+        getTranchesTs(aval).map((ts: number) => `0x${ts.toString(16)}`),
+        {
+          gasLimit: BigInt(5_000_000)
+        }
+      );
+
+      return tx;
+
+    };
+
+    await run(sendTransaction);
+  }
+
+
+
+
+
   return (
     <>
       {/*       <TxModal
@@ -447,34 +504,13 @@ export default function AvalActions({ aval }: { aval: Aval }) {
       {showTxTracker && address && (
 
         <TransactionTracker
-          provider={new BrowserProvider(walletProvider)}
+          balance={balance ? `${balance} tRBTC` : null}
           contract={{
             name: "Avaldao",
             address: contractsAddress[aval.chainId].avaldao,
           }}
           explorerUrl={contractsAddress[aval.chainId]?.explorerUrl}
-          onSend={async () => {
-            const { avaldao } = await getContracts(aval.chainId);
-
-            console.log(`Sending transaction to accept aval ${aval._id} on chain ${aval.chainId}...`);
-            const tx = await avaldao.saveAval(
-              aval._id,
-              "/ipfs/QmQZiVUdK7t5N8teghjQ3khcQ32W6bpFvuUpsU7p1wcBun",
-              [
-                aval.avaldaoAddress,
-                aval.solicitanteAddress,
-                aval.comercianteAddress,
-                aval.avaladoAddress,
-              ],
-              aval.montoFiat,
-              getTranchesTs(aval).map((ts: number) => `0x${ts.toString(16)}`),
-              {
-                gasLimit: BigInt(5_000_000)
-              }
-            );
-
-            return tx;
-          }}
+          txState={txState}
           onClose={() => setShowTxTracker(false)}
         />
       )}
@@ -505,9 +541,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
             </Button>
 
 
-            <Button onClick={() => {
-              setShowTxTracker(true);
-            }}>
+            <Button onClick={acceptAvalNewInterface}>
               Aceptar aval testnet(new interface)
             </Button>
 
@@ -603,7 +637,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
 
         </CardContent>
-      </Card>
+      </Card >
     </>
   )
 }
