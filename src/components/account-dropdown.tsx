@@ -36,8 +36,6 @@ export function AccountDropdown({ address }: { address: string }) {
 
   const userInitial = session?.user?.name?.substring(0, 1)?.toUpperCase() || "U";
 
-  console.log(walletInfo, connectedChainId);
-
   return (
     <Menu>
       <MenuButton

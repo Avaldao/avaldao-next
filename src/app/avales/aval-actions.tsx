@@ -23,6 +23,7 @@ import vaultAbi from "@/blockchain/contracts/avaldao/vault.abi";
 import { getSignatures } from "@/blockchain/utils/signatures";
 import { contractsAddress } from "@/blockchain/contracts";
 import { TxModal, TxStep } from "@/components/tx-modal";
+import TransactionTracker from "@/components/blockchain/transaction-tracker/transaction-tracker";
 
 
 const avalStatuses = [
@@ -67,6 +68,8 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   const [txStep, setTxStep] = useState<TxStep>('waiting_wallet');
   const [txHash, setTxHash] = useState<string | undefined>();
   const [txError, setTxError] = useState<string | undefined>();
+
+  const [showTxTracker, setShowTxTracker] = useState(false);
 
   if (!session?.user) {
     //redirect
@@ -118,16 +121,16 @@ export default function AvalActions({ aval }: { aval: Aval }) {
     const ethersProvider = new BrowserProvider(walletProvider);
     const signer = await ethersProvider.getSigner();
     const connectedChainId = signer.provider._network.chainId;
-    
-    if(Number(connectedChainId) !== chainId) {
+
+    if (Number(connectedChainId) !== chainId) {
       const switched = await switchNet(chainId);
       if (!switched) {
         throw new Error(`Please switch to the correct network to interact with this aval. Target network chain id: ${chainId}`);
       }
-    } 
-   //Tendriamos que comprobar si el signer esta en la misma red que el aval, y si no, ofrecer hacer switch de red. 
-   // Para simplificar el ejemplo, asumimos que ya esta en la red correcta
-   //console.log(`Network: ${signer.provider._network.chainId}`)
+    }
+    //Tendriamos que comprobar si el signer esta en la misma red que el aval, y si no, ofrecer hacer switch de red. 
+    // Para simplificar el ejemplo, asumimos que ya esta en la red correcta
+    //console.log(`Network: ${signer.provider._network.chainId}`)
 
     const avaldaoAddress = contractsAddress[Number(chainId)].avaldao;
     const avaldao = new Contract(avaldaoAddress, avaldaoAbi, signer);
@@ -176,7 +179,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   }
 
   async function getAval(avalId: string) {
-    
+
     const { avalContract } = await getContracts(aval.chainId);
     console.log(`Get aval:  ${avalId}`)
     if (!avalContract) {
@@ -236,7 +239,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
     console.log(`Network: ${signer.provider._network.chainId} - ${signer.address}`)
 
     //Can I get the permissions /admin from avaldao contract directly?
-    const { permissions } = await getContracts(aval.chainId,{ permissions: true });
+    const { permissions } = await getContracts(aval.chainId, { permissions: true });
     const permissionsContract = permissions?.contract;
     if (!permissionsContract) {
       console.log("Permissions contract not found");
@@ -418,11 +421,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
          uint32 timestampDesbloqueo; // Timestamp con la fecha de desbloqueo de la cuota. 4 bytes.
          CuotaStatus status; //
      */
-
   }
-
-  const explorerUrl = contractsAddress[aval.chainId]?.explorerUrl;
-  const networkName = contractsAddress[aval.chainId]?.networkName;
 
   function isUserRejection(err: any): boolean {
     return (
@@ -435,132 +434,176 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
   return (
     <>
-    <TxModal
-      isOpen={txModalOpen}
-      onClose={() => setTxModalOpen(false)}
-      step={txStep}
-      txHash={txHash}
-      errorMessage={txError}
-      explorerUrl={explorerUrl}
-      networkName={networkName}
-    />
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Wrench className="w-5 h-5 text-orange-600" />
-          Actions
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+      {/*       <TxModal
+        isOpen={txModalOpen}
+        onClose={() => setTxModalOpen(false)}
+        step={txStep}
+        txHash={txHash}
+        errorMessage={txError}
+        explorerUrl={explorerUrl}
+        networkName={networkName}
+      /> */}
 
-        
+      {showTxTracker && address && (
+
+        <TransactionTracker
+          provider={new BrowserProvider(walletProvider)}
+          contract={{
+            name: "Avaldao",
+            address: contractsAddress[aval.chainId].avaldao,
+          }}
+          explorerUrl={contractsAddress[aval.chainId]?.explorerUrl}
+          onSend={async () => {
+            const { avaldao } = await getContracts(aval.chainId);
+
+            console.log(`Sending transaction to accept aval ${aval._id} on chain ${aval.chainId}...`);
+            const tx = await avaldao.saveAval(
+              aval._id,
+              "/ipfs/QmQZiVUdK7t5N8teghjQ3khcQ32W6bpFvuUpsU7p1wcBun",
+              [
+                aval.avaldaoAddress,
+                aval.solicitanteAddress,
+                aval.comercianteAddress,
+                aval.avaladoAddress,
+              ],
+              aval.montoFiat,
+              getTranchesTs(aval).map((ts: number) => `0x${ts.toString(16)}`),
+              {
+                gasLimit: BigInt(5_000_000)
+              }
+            );
+
+            return tx;
+          }}
+          onClose={() => setShowTxTracker(false)}
+        />
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wrench className="w-5 h-5 text-orange-600" />
+            Actions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+
+
           Connected account: {address}
-        
-        <div>Current Chain Id: {chainId} </div>
-        <div>Target Chain ID: {aval.chainId}</div>
+
+          <div>Current Chain Id: {chainId} </div>
+          <div>Target Chain ID: {aval.chainId}</div>
 
 
 
-        <div className="mt-5 space-x-2 5 space-y-2">
+          <div className="mt-5 space-x-2 5 space-y-2">
 
-          {/* Botones dependiendo del estado del aval */}
+            {/* Botones dependiendo del estado del aval */}
 
-          <Button onClick={acceptAval}>
-            Aceptar aval testnet
-          </Button>
-
-          <Button onClick={getRoles}>
-            Get roles
-          </Button>
+            <Button onClick={acceptAval}>
+              Aceptar aval testnet
+            </Button>
 
 
-          <Button onClick={() => getAval("6914d31a8925c19898133dfb")}>
-            Get aval 6914d31a8925c19898133dfb
-          </Button>
+            <Button onClick={() => {
+              setShowTxTracker(true);
+            }}>
+              Aceptar aval testnet(new interface)
+            </Button>
+
+
+            <Button onClick={getRoles}>
+              Get roles
+            </Button>
+
+
+            <Button onClick={() => getAval("6914d31a8925c19898133dfb")}>
+              Get aval 6914d31a8925c19898133dfb
+            </Button>
 
 
 
 
-          <div className=" flex gap-x-2">
-            {address && getAddress(address) == aval.avaldaoAddress && (
-              <Button
-                className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
-                disabled={aval.avaldaoSignature != undefined}
-                onClick={async () => {
-                  try{
-                    await signAval(aval, "avaldao")
-                  } catch (err) {
-                    console.log(err);
-                    toast.error(`Error signing aval: ${err}`);
-                  }
-                }}>
-                <PenLine />
-                signAval avaldao
-              </Button>
-            )}
-            {address && getAddress(address) == aval.solicitanteAddress && (
-              <Button className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
-                disabled={aval.solicitanteSignature != undefined}
-                onClick={() => signAval(aval, "solicitante")}>
-                <PenLine />
-                signAval solicitante
-              </Button>
-            )}
-            {address && getAddress(address) == aval.comercianteAddress && (
-              <Button className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
-                disabled={aval.comercianteSignature != undefined}
-                onClick={() => signAval(aval, "comerciante")}>
-                <PenLine />
-                signAval comerciante
-              </Button>
-            )}
+            <div className=" flex gap-x-2">
+              {address && getAddress(address) == aval.avaldaoAddress && (
+                <Button
+                  className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
+                  disabled={aval.avaldaoSignature != undefined}
+                  onClick={async () => {
+                    try {
+                      await signAval(aval, "avaldao")
+                    } catch (err) {
+                      console.log(err);
+                      toast.error(`Error signing aval: ${err}`);
+                    }
+                  }}>
+                  <PenLine />
+                  signAval avaldao
+                </Button>
+              )}
+              {address && getAddress(address) == aval.solicitanteAddress && (
+                <Button className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
+                  disabled={aval.solicitanteSignature != undefined}
+                  onClick={() => signAval(aval, "solicitante")}>
+                  <PenLine />
+                  signAval solicitante
+                </Button>
+              )}
+              {address && getAddress(address) == aval.comercianteAddress && (
+                <Button className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
+                  disabled={aval.comercianteSignature != undefined}
+                  onClick={() => signAval(aval, "comerciante")}>
+                  <PenLine />
+                  signAval comerciante
+                </Button>
+              )}
 
-            {address && getAddress(address) == aval.avaladoAddress && (
-              <Button className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
-                disabled={aval.avaladoSignature != undefined}
-                onClick={() => signAval(aval, "avalado")}>
-                <PenLine />
-                signAval avalado
-              </Button>
-            )}
+              {address && getAddress(address) == aval.avaladoAddress && (
+                <Button className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
+                  disabled={aval.avaladoSignature != undefined}
+                  onClick={() => signAval(aval, "avalado")}>
+                  <PenLine />
+                  signAval avalado
+                </Button>
+              )}
 
-          </div>
+            </div>
 
 
-          <div className="mt-4"> {/* Only if aval is aceptado - after creation on chain, the status should be updated offchain
+            <div className="mt-4"> {/* Only if aval is aceptado - after creation on chain, the status should be updated offchain
             we should keep a copy of the aval address
              */}
-            <Button onClick={getCuotas}>
-              Get cuotas
-            </Button>
-          </div>
+              <Button onClick={getCuotas}>
+                Get cuotas
+              </Button>
+            </div>
 
-          <div className="mt-4"> {/* Only if aval is aceptado - after creation on chain, the status should be updated offchain
+            <div className="mt-4"> {/* Only if aval is aceptado - after creation on chain, the status should be updated offchain
             we should keep a copy of the aval address
              */}
-            <Button onClick={() => getTokenBalance()}>
-              <Banknote className="mr-2 h-4 w-4" />
-              Get avaldao balance
-            </Button>
-          </div>
+              <Button onClick={() => getTokenBalance()}>
+                <Banknote className="mr-2 h-4 w-4" />
+                Get avaldao balance
+              </Button>
+            </div>
 
 
-          <div className="mt-4"> {/* Only if aval is aceptado - after creation on chain, the status should be updated offchain
+            <div className="mt-4"> {/* Only if aval is aceptado - after creation on chain, the status should be updated offchain
             we should keep a copy of the aval address
              */}
-            <Button onClick={startAval}>
-              <PlayCircle className="mr-2 h-4 w-4" />
-              Iniciar aval
-            </Button>
+              <Button onClick={startAval}>
+                <PlayCircle className="mr-2 h-4 w-4" />
+                Iniciar aval
+              </Button>
+            </div>
+
+
+
           </div>
 
 
-
-        </div>
-
-
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
     </>
   )
 }
