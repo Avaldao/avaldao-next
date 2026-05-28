@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   ExternalLink,
   ShieldCheck,
+  Copy,
 } from "lucide-react";
 
 import {
@@ -36,6 +37,7 @@ export default function TransactionTracker({
 }: TransactionTrackerProps) {
   const { address } = useAppKitAccount();
   const { caipNetwork } = useAppKitNetwork();
+  const [copiedReason, setCopiedReason] = useState(false);
   const networkName = caipNetwork?.name ?? "Unknown network";
 
 
@@ -44,6 +46,18 @@ export default function TransactionTracker({
   const isWaiting = currentStatus === "waiting_approval" || currentStatus === "waiting_confirmation";
   const hasError = currentStatus == "rejected" || currentStatus === "expired" || currentStatus === "reverted" || currentStatus === "error";
   const txHash = txState.step === 2 || txState.txHash ? txState.txHash : undefined;
+
+  const handleCopyErrorReason = async () => {
+    if (!txState.errReason) return;
+
+    try {
+      await navigator.clipboard.writeText(txState.errReason);
+      setCopiedReason(true);
+      setTimeout(() => setCopiedReason(false), 1500);
+    } catch {
+      setCopiedReason(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -160,9 +174,20 @@ export default function TransactionTracker({
           )}
 
           {hasError && (
-            <div className="flex items-center gap-2 rounded-lg bg-red-50 dark:bg-red-950/40 ring-1 ring-red-100 dark:ring-red-900 px-4 py-2.5">
+            <div className="flex items-center gap-2 rounded-lg bg-red-50 dark:bg-red-950/40 ring-1 ring-red-100 dark:ring-red-900 px-4 py-2.5 max-h-40 overflow-auto">
               <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
-              <span className="text-xs text-red-600 dark:text-red-400">
+              <div className="text-xs text-red-600 dark:text-red-400 w-full">
+                {txState.errReason && (
+                  <button
+                    type="button"
+                    onClick={handleCopyErrorReason}
+                    className="mb-2 inline-flex items-center gap-1 rounded-md border border-red-200 dark:border-red-800 px-2 py-1 text-[11px] font-medium text-red-700 dark:text-red-300 hover:bg-red-100/70 dark:hover:bg-red-900/40 transition-colors"
+                  >
+                    <Copy className="w-3 h-3" />
+                    {copiedReason ? "Copied" : "Copy reason"}
+                  </button>
+                )}
+
                 {currentStatus === "expired"
                   ? "Signing request timed out" :
                   currentStatus === "rejected" ? "Transaction rejected by user"
@@ -170,7 +195,7 @@ export default function TransactionTracker({
                 <div className="w-full overflow-hidden break-all mt-1">
                   {txState.errReason && `${txState.errReason}`}
                 </div>
-              </span>
+              </div>
             </div>
           )}
 
