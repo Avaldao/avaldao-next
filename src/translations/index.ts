@@ -226,6 +226,54 @@ export const translations: Translations = {
     es: 'Cada garantia queda registrada con reglas verificables y trazabilidad en blockchain. Eso permite auditar aprobaciones, condiciones y ejecuciones sin depender de procesos opacos.',
     en: 'Each guarantee is recorded with verifiable rules and blockchain traceability. That makes approvals, terms, and executions auditable without relying on opaque processes.'
   },
+  "timeline.eyebrow": {
+    es: 'Evolucion del proyecto',
+    en: 'Project evolution'
+  },
+  "timeline.title": {
+    es: 'Roadmap del fondo de garantias',
+    en: 'Guarantee fund roadmap'
+  },
+  "timeline.description": {
+    es: 'Hoy el fondo se sostiene con aportes voluntarios. El proximo salto es habilitar participacion de inversores con contratos inteligentes y rendimiento transparente.',
+    en: 'Today the fund is sustained by voluntary contributions. The next leap is enabling investor participation with smart contracts and transparent yield.'
+  },
+  "timeline.phase.current": {
+    es: 'Estado actual',
+    en: 'Current state'
+  },
+  "timeline.current.title": {
+    es: 'Fondo por donaciones',
+    en: 'Donation-based fund'
+  },
+  "timeline.current.description": {
+    es: 'Las personas que aportan capital lo hacen por voluntad propia para fortalecer la cobertura de garantias, sin retorno economico directo.',
+    en: 'People who contribute capital do so voluntarily to strengthen guarantee coverage, without direct financial return.'
+  },
+  "timeline.phase.next": {
+    es: 'Siguiente etapa',
+    en: 'Next stage'
+  },
+  "timeline.next.title": {
+    es: 'Nuevos smart contracts',
+    en: 'New smart contracts'
+  },
+  "timeline.next.description": {
+    es: 'Estamos disenando contratos para administrar aportes, reglas de riesgo y distribucion de resultados de manera automatizada y auditable.',
+    en: 'We are designing contracts to manage contributions, risk rules, and result distribution in an automated and auditable way.'
+  },
+  "timeline.phase.future": {
+    es: 'Vision futura',
+    en: 'Future vision'
+  },
+  "timeline.future.title": {
+    es: 'Inversores con rendimiento',
+    en: 'Yield for investors'
+  },
+  "timeline.future.description": {
+    es: 'La meta es que inversores participen del fondo y obtengan rendimiento sostenible, alineado al desempeno real de las garantias.',
+    en: 'The goal is for investors to participate in the fund and earn sustainable yield aligned with the real performance of guarantees.'
+  },
   "actors.investors.title": {
     es: 'Inversores',
     en: 'Investors'

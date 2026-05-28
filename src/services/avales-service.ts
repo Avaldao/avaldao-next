@@ -104,7 +104,7 @@ export default class AvalesService {
 
   }
 
-  async saveAval(avalData: AvalRequest, storeOnIpfs = false): Promise<Aval> {
+  async saveAval(avalData: AvalRequest): Promise<Aval> {
     avalData.fechaInicio = new Date(avalData.fechaInicio);
     avalData.duracionCuotaSeconds = avalData.duracionCuotaDias * 24 * 60 * 60;
     avalData.montoFiat = avalData.montoFiat * 100; //lo guarda con 2 decimales
@@ -115,8 +115,11 @@ export default class AvalesService {
 
     const result = await aval.save();
 
-    if (storeOnIpfs) {
+    if (aval.chainId === 30) { //solo subimos a ipfs los avales de mainnet, los de testnet no
       await this._storeIpfs(result._id.toString());
+    } else {
+      console.log("Aval created on testnet, skipping IPFS upload");
+      
     }
 
     return result;

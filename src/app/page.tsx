@@ -5,6 +5,7 @@ import Dashboard from '@/components/Dashboard'
 import Footer from '@/components/Footer'
 import HowItWorks from '@/components/HowItWorks'
 import FAQ from '@/components/FAQ'
+import ProjectTimeline from '@/components/ProjectTimeline'
 import { getLanguageCookie } from '@/lib/cookies'
 
 
@@ -18,6 +19,7 @@ export default async function Home() {
       <Hero language={language} />
       <Features />
       <HowItWorks />
+      <ProjectTimeline />
       <FAQ />
       <Dashboard/>
       <Footer />
