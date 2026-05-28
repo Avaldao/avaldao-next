@@ -10,6 +10,8 @@ import AvalActionsWrapper from "../aval-actions-wrapper";
 import { format } from "date-fns";
 import { Aval } from "@/types";
 import { generateTranches, generateTranchesFromAval, getTranchesTs, Tranche } from "@/app/entities/aval.entity";
+import { getLanguageCookie } from "@/lib/cookies";
+import { translations } from "@/translations";
 
 
 interface AvalDetailsPageProps {
@@ -42,6 +44,8 @@ const getStatusText = (status: number) => {
 
 export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) {
   const { id } = await params;
+  const language = await getLanguageCookie();
+  const t = (key: string) => translations[key]?.[language] ?? key;
 
   try {
     const aval = await new AvalesService().getAval(id);
@@ -55,9 +59,9 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
               <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
                 <FileText className="w-8 h-8 text-red-600" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Aval No Encontrado</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">{t("aval-not-found.title")}</h2>
               <p className="text-slate-600 mb-6">
-                El aval con ID {id} no existe o no pudo ser cargado.
+                {t("aval-not-found.description").replace("{id}", id)}
               </p>
               <Badge variant="destructive">ID Inválido</Badge>
             </CardContent>
@@ -97,7 +101,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Target className="w-5 h-5 text-green-600" />
-                    Objetivo del Proyecto
+                    {t("aval.details.objective")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -110,7 +114,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <DollarSign className="w-5 h-5 text-purple-600" />
-                    Adquisición Planeada
+                    {t("aval.details.acquisition")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -123,7 +127,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="w-5 h-5 text-orange-600" />
-                    Beneficiarios
+                    {t("aval.details.beneficiaries")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -135,37 +139,37 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <CalendarClock className="w-5 h-5 text-orange-600" />
-                    Cuotas
+                    {t("aval.details.schedule")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div>
-                    Fecha inicio: {aval.fechaInicio.toISOString()}
+                    {t("aval.details.start-date")}: {aval.fechaInicio.toISOString()}
                   </div>
                   <div>
-                    Duracion cuota: {aval.duracionCuotaSeconds / 60 / 60 / 24} Dias
-                  </div>
-
-                  <div>
-                    Desbloqueo: {aval.desbloqueoSeconds / 60 / 60 / 24} dias
+                    {t("aval.details.duration")}: {aval.duracionCuotaSeconds / 60 / 60 / 24} {t("aval.details.days")}
                   </div>
 
                   <div>
-                    Cuotas cantidad: {aval.cuotasCantidad}
+                    {t("aval.details.unlock")}: {aval.desbloqueoSeconds / 60 / 60 / 24} {t("aval.details.days")}
                   </div>
 
                   <div>
-                    Monto fiat: ${(aval.montoFiat / 100).toFixed(2)} <b>USD</b>
+                    {t("aval.details.tranches-amount")}: {aval.cuotasCantidad}
+                  </div>
+
+                  <div>
+                    {t("aval.details.amount")}: ${(aval.montoFiat / 100).toFixed(2)} <b>USD</b>
                   </div>
 
                   <div>
                     <table>
                       <thead>
                         <tr>
-                          <th>Cuota #</th>
-                          <th>Vto</th>
-                          <th>Desbloqueo</th>
-                          <th>Monto</th>
+                          <th>{t("aval.details.tranche-number")}</th>
+                          <th>{t("aval.details.maturity-date")}</th>
+                          <th>{t("aval.details.unlock-date")}</th>
+                          <th>{t("aval.details.amount")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -174,7 +178,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                           {generateTranchesFromAval(aval)
                             .map((tranche: Tranche) => (
                               <tr key={tranche.index} className="font-mono">
-                                <td>Cuota {tranche.index} </td>
+                                <td>{t("aval.details.tranche")} {tranche.index} </td>
                                 <td>{format(new Date(tranche.maturityDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
                                 <td>{format(new Date(tranche.unlockDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
                                 <td>$ {(aval.montoFiat / 100 / aval.cuotasCantidad).toFixed(2)}</td>
@@ -204,7 +208,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
               {/* Información financiera */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Información Financiera</CardTitle>
+                  <CardTitle>{t("aval.details.financial-info")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
@@ -259,13 +263,13 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
               {/* Direcciones de Wallets */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Participantes</CardTitle>
+                  <CardTitle>{t("aval.details.participants")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
                     <p className="text-sm text-slate-600 flex items-center gap-2">
                       <UserCheck className="w-4 h-4" />
-                      Solicitante:
+                      {t("aval.details.applicant")}:
                     </p>
                     <p className="font-mono text-sm" title={aval.solicitanteAddress}>
                       {shortenAddress(aval.solicitanteAddress)}
@@ -274,7 +278,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                   <div>
                     <p className="text-sm text-slate-600 flex items-center gap-2">
                       <Store className="w-4 h-4" />
-                      Comerciante:
+                      {t("aval.details.merchant")}:
                     </p>
                     <p className="font-mono text-sm" title={aval.comercianteAddress}>
                       {shortenAddress(aval.comercianteAddress)}
@@ -283,7 +287,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                   <div>
                     <p className="text-sm text-slate-600 flex items-center gap-2">
                       <Shield className="w-4 h-4" />
-                      Avalado:
+                      {t("aval.details.avalado")}:
                     </p>
                     <p className="font-mono text-sm" title={aval.avaladoAddress}>
                       {shortenAddress(aval.avaladoAddress)}
@@ -292,7 +296,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                   <div>
                     <p className="text-sm text-slate-600 flex items-center gap-2">
                       <Users className="w-4 h-4" />
-                      AvalDAO:
+                      {t("aval.details.avaldao")}:
                     </p>
                     <p className="font-mono text-sm" title={aval.avaldaoAddress}>
                       {shortenAddress(aval.avaldaoAddress)}

@@ -1,9 +1,10 @@
 import getDb from "@/lib/mongodb";
 import { Aval, AvalRequest } from "@/types";
 import AvalModel from "@/lib/db/models/aval-model";
-import { getAddress, SignatureLike, verifyTypedData } from "ethers";
+import { getAddress, id, SignatureLike, verifyTypedData } from "ethers";
 import { getCurrentUser } from "@/lib/auth/authorization";
 import { use } from "react";
+import { pinata } from "@/lib/pinata";
 
 export type AvalRoleEnum = "avaldao" | "solicitante" | "comerciante" | "avalado";
 
@@ -75,8 +76,35 @@ export default class AvalesService {
     }));
   }
 
+  async _storeIpfs(avalId: string) {
+    let upload;
 
-  async saveAval(avalData: AvalRequest) {
+    const aval = await AvalModel.findById(avalId)
+      .select("-__v -avaladoAddress -comercianteAddress -solicitanteAddress -avaldaoAddress -createdAt -updatedAt -isTestnet -status")
+      .lean();
+    if (!aval) throw new Error("Aval not found");
+    try {
+      upload = await pinata.pinJSONToIPFS(aval, {
+        pinataMetadata: {
+          name: `aval-${aval._id.toString()}`,
+        },
+      })
+
+      await AvalModel.findByIdAndUpdate(avalId, {
+        $set: {
+          infoCid: upload.IpfsHash,
+        }
+      });
+
+    } catch (error) {
+      console.error("Error uploading to IPFS", error);
+    }
+
+    return upload;
+
+  }
+
+  async saveAval(avalData: AvalRequest, storeOnIpfs = false): Promise<Aval> {
     avalData.fechaInicio = new Date(avalData.fechaInicio);
     avalData.duracionCuotaSeconds = avalData.duracionCuotaDias * 24 * 60 * 60;
     avalData.montoFiat = avalData.montoFiat * 100; //lo guarda con 2 decimales
@@ -86,6 +114,11 @@ export default class AvalesService {
     });
 
     const result = await aval.save();
+
+    if (storeOnIpfs) {
+      await this._storeIpfs(result._id.toString());
+    }
+
     return result;
   }
 
