@@ -8,6 +8,12 @@ export default function useBlockchainTransaction(provider: Provider | null) {
     status: "waiting_approval",
   });
 
+  function clearTxState() {
+    setTxState({
+      step: 1,
+      status: "waiting_approval",
+    });
+  };
 
   function _handleSendingError(err: unknown) {
     console.error(err);
@@ -80,7 +86,8 @@ export default function useBlockchainTransaction(provider: Provider | null) {
 
   return {
     txState,
-    run
+    run,
+    clearTxState
   };
 }
 
