@@ -420,7 +420,7 @@ export const translations: Translations = {
     es: 'Comerciante',
     en: 'Merchant'
   },
-  "aval.details.avalDAO": {
+  "aval.details.avaldao": {
     es: 'AvalDAO',
     en: 'AvalDAO'
   },

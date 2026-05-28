@@ -81,7 +81,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
     return new BrowserProvider(walletProvider);
   }, [walletProvider]);
 
-  const { run, txState } = useBlockchainTransaction(provider);
+  const { run, txState, clearTxState } = useBlockchainTransaction(provider);
 
   useEffect(() => {
     async function fetchUserBalance() {
@@ -410,10 +410,10 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
     const sendTransaction = async () => {
       const { avaldao } = await getContracts(aval.chainId);
-      console.log(`Sending transaction to accept aval ${aval._id} on chain ${aval.chainId}...`);
+      console.log(`Sending transaction to accept aval ${aval._id} on chain ${aval.chainId}..., with infocid: ${aval.infoCid ?? ""}`);
       const tx = await avaldao.saveAval(
         aval._id,
-        "/ipfs/QmQZiVUdK7t5N8teghjQ3khcQ32W6bpFvuUpsU7p1wcBun",
+        aval.infoCid ?? "",
         [
           aval.avaldaoAddress,
           aval.solicitanteAddress,
@@ -460,7 +460,10 @@ export default function AvalActions({ aval }: { aval: Aval }) {
           }}
           explorerUrl={contractsAddress[aval.chainId]?.explorerUrl}
           txState={txState}
-          onClose={() => setShowTxTracker(false)}
+          onClose={() =>{ 
+            clearTxState();
+            setShowTxTracker(false);
+          }}
         />
       )}
 
