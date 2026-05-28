@@ -12,6 +12,8 @@ import { Aval } from "@/types";
 import { generateTranches, generateTranchesFromAval, getTranchesTs, Tranche } from "@/app/entities/aval.entity";
 import { getLanguageCookie } from "@/lib/cookies";
 import { translations } from "@/translations";
+import { contractsAddress } from "@/blockchain/contracts";
+import CopyAddress from "@/components/copy-address";
 
 
 interface AvalDetailsPageProps {
@@ -39,6 +41,12 @@ const getStatusText = (status: number) => {
     4: { text: "Finalizado", variant: "secondary" },
   };
   return statusMap[status] || { text: "Desconocido", variant: "outline" };
+};
+
+const getAddressExplorerUrl = (chainId: Aval["chainId"], address: string) => {
+  const baseUrl = contractsAddress[chainId]?.explorerUrl;
+  if (!baseUrl) return "#";
+  return `${baseUrl.replace(/\/$/, "")}/address/${address}`;
 };
 
 
@@ -271,36 +279,72 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                       <UserCheck className="w-4 h-4" />
                       {t("aval.details.applicant")}:
                     </p>
-                    <p className="font-mono text-sm" title={aval.solicitanteAddress}>
-                      {shortenAddress(aval.solicitanteAddress)}
-                    </p>
+                    <div className="flex items-center">
+                      <a
+                        className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
+                        href={getAddressExplorerUrl(aval.chainId, aval.solicitanteAddress)}
+                        title={aval.solicitanteAddress}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {shortenAddress(aval.solicitanteAddress)}
+                      </a>
+                      <CopyAddress address={aval.solicitanteAddress} />
+                    </div>
                   </div>
                   <div>
                     <p className="text-sm text-slate-600 flex items-center gap-2">
                       <Store className="w-4 h-4" />
                       {t("aval.details.merchant")}:
                     </p>
-                    <p className="font-mono text-sm" title={aval.comercianteAddress}>
-                      {shortenAddress(aval.comercianteAddress)}
-                    </p>
+                    <div className="flex items-center">
+                      <a
+                        className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
+                        href={getAddressExplorerUrl(aval.chainId, aval.comercianteAddress)}
+                        title={aval.comercianteAddress}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {shortenAddress(aval.comercianteAddress)}
+                      </a>
+                      <CopyAddress address={aval.comercianteAddress} />
+                    </div>
                   </div>
                   <div>
                     <p className="text-sm text-slate-600 flex items-center gap-2">
                       <Shield className="w-4 h-4" />
                       {t("aval.details.avalado")}:
                     </p>
-                    <p className="font-mono text-sm" title={aval.avaladoAddress}>
-                      {shortenAddress(aval.avaladoAddress)}
-                    </p>
+                    <div className="flex items-center">
+                      <a
+                        className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
+                        href={getAddressExplorerUrl(aval.chainId, aval.avaladoAddress)}
+                        title={aval.avaladoAddress}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {shortenAddress(aval.avaladoAddress)}
+                      </a>
+                      <CopyAddress address={aval.avaladoAddress} />
+                    </div>
                   </div>
                   <div>
                     <p className="text-sm text-slate-600 flex items-center gap-2">
                       <Users className="w-4 h-4" />
                       {t("aval.details.avaldao")}:
                     </p>
-                    <p className="font-mono text-sm" title={aval.avaldaoAddress}>
-                      {shortenAddress(aval.avaldaoAddress)}
-                    </p>
+                    <div className="flex items-center">
+                      <a
+                        className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
+                        href={getAddressExplorerUrl(aval.chainId, aval.avaldaoAddress)}
+                        title={aval.avaldaoAddress}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {shortenAddress(aval.avaldaoAddress)}
+                      </a>
+                      <CopyAddress address={aval.avaldaoAddress} />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
