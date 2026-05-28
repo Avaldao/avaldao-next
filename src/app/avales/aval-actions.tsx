@@ -353,57 +353,6 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   }
 
 
-  async function acceptAval() {
-    setTxHash(undefined);
-    setTxError(undefined);
-    setTxStep('waiting_wallet');
-    setTxModalOpen(true);
-    try {
-      const { avaldao } = await getContracts(aval.chainId);
-
-      const tx = await avaldao.saveAval(
-        aval._id,
-        "/ipfs/QmQZiVUdK7t5N8teghjQ3khcQ32W6bpFvuUpsU7p1wcBun",
-        [
-          aval.avaldaoAddress,
-          aval.solicitanteAddress,
-          aval.comercianteAddress,
-          aval.avaladoAddress,
-        ],
-        aval.montoFiat,
-        getTranchesTs(aval).map((ts: number) => `0x${ts.toString(16)}`),
-        {
-          gasLimit: BigInt(5_000_000)
-        }
-      );
-
-      setTxHash(tx.hash);
-      setTxStep('waiting_confirmation');
-
-      const receipt = await tx.wait();
-      console.log(receipt);
-
-      if (receipt?.status === 1) {
-        setTxStep('confirmed');
-        toast.success('Transacción confirmada exitosamente.');
-        router.refresh();
-      } else {
-        setTxStep('error');
-        setTxError('La transacción falló en la blockchain.');
-      }
-    } catch (err: any) {
-      console.log(err);
-      if (isUserRejection(err)) {
-        setTxModalOpen(false);
-        toast('Cancelaste la transacción.', { icon: '⚠️' });
-      } else {
-        setTxStep('error');
-        setTxError(err?.message ?? 'Error desconocido.');
-      }
-    }
-  }
-
-
   async function getTokenBalance() {
     try {
       console.log(`get token balances`);
@@ -456,7 +405,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   }
 
 
-  async function acceptAvalNewInterface() {
+  async function acceptAval() {
     setShowTxTracker(true);
 
     const sendTransaction = async () => {
@@ -537,11 +486,6 @@ export default function AvalActions({ aval }: { aval: Aval }) {
             {/* Botones dependiendo del estado del aval */}
 
             <Button onClick={acceptAval}>
-              Aceptar aval testnet
-            </Button>
-
-
-            <Button onClick={acceptAvalNewInterface}>
               Aceptar aval testnet(new interface)
             </Button>
 

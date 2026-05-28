@@ -14,39 +14,39 @@ export const translations: Translations = {
     en: 'Home'
   },
 
-  "slide1.title":{
+  "slide1.title": {
     es: 'Confiamos en vos',
     en: 'We trust you'
   },
-  "slide1.description":{
+  "slide1.description": {
     es: 'En dos clicks tenés la garantía que necesitás para tu crédito.',
     en: 'In two clicks you have the guarantee you need for your credit.'
   },
-  "slide1.btn":{
+  "slide1.btn": {
     es: 'Comenzar',
     en: 'Start'
   },
-  "slide2.title":{
+  "slide2.title": {
     es: 'Garantías rápidas y seguras',
     en: 'Fast and secure guarantees'
   },
-  "slide2.description":{
+  "slide2.description": {
     es: 'AvalDAO utiliza la revolucionaria tecnología de blockchain para otorgar garantías crediticias de forma ágil, seguras y transparentes.',
     en: 'AvalDAO uses revolutionary blockchain technology to provide credit guarantees quickly, securely, and transparently.'
   },
-  "slide2.btn":{
+  "slide2.btn": {
     es: 'Conocer más',
     en: 'Learn more'
   },
-  "slide3.title":{
+  "slide3.title": {
     es: 'Sumate a la comunidad AvalDAO',
     en: 'Join the AvalDAO community'
   },
-  "slide3.description":{
+  "slide3.description": {
     es: 'Únete a un nuevo tipo de empresa, más abierta y transparente, donde el control lo tienen quienes la usan y contribuyen.',
     en: 'Join a new type of company, more open and transparent, where control is in the hands of those who use and contribute.'
   },
-  "slide3.btn":{
+  "slide3.btn": {
     es: 'Sumate',
     en: 'Join'
   },
@@ -58,7 +58,7 @@ export const translations: Translations = {
     es: 'AvalDAO es la primera Sociedad de Garantía Recíproca (SGR) descentralizada. Una solución WEB3 que otorga garantías a los individuos y microempresas no bancarizadas o sin historial crediticio, para que puedan acceder a créditos comerciales convenientes.',
     en: 'AvalDAO is the first decentralized Reciprocal Guarantee Society (SGR). A WEB3 solution that provides guarantees to unbanked individuals and microenterprises or those without credit history, so they can access convenient commercial credits.'
   },
-  "about.avaldao.know-more":{
+  "about.avaldao.know-more": {
     es: 'Conocer Más',
     en: 'Learn More'
   },
@@ -102,6 +102,130 @@ export const translations: Translations = {
     es: '¿Tienes un comercio y quieres ampliar tus clientes? ¿Tienes un emprendimiento y necesitas una aval para obtener un crédito comercial?',
     en: 'Do you have a business and want to expand your customers? Do you have a venture and need a guarantee to get a commercial credit?'
   },
+  "how.eyebrow": {
+    es: 'Como funciona',
+    en: 'How it works'
+  },
+  "how.title": {
+    es: 'De la solicitud al respaldo automatico del fondo',
+    en: 'From the request to the fund\'s automatic backing'
+  },
+  "how.description": {
+    es: 'AvalDAO conecta a solicitantes, beneficiarios y comercios con un proceso claro para aprobar garantias y cubrir incumplimientos sin friccion.',
+    en: 'AvalDAO connects applicants, beneficiaries, and merchants through a clear process to approve guarantees and cover missed payments without friction.'
+  },
+  "how.step1.role": {
+    es: 'Solicitante',
+    en: 'Applicant'
+  },
+  "how.step1.title": {
+    es: 'Presenta al beneficiario y solicita la garantia',
+    en: 'Presents the beneficiary and requests the guarantee'
+  },
+  "how.step1.description": {
+    es: 'El solicitante carga la informacion del beneficiario, explica el destino del credito y activa la evaluacion inicial.',
+    en: 'The applicant submits the beneficiary\'s information, explains the credit purpose, and starts the initial review.'
+  },
+  "how.step2.role": {
+    es: 'AvalDAO',
+    en: 'AvalDAO'
+  },
+  "how.step2.title": {
+    es: 'Evalua y aprueba o rechaza la garantia',
+    en: 'Evaluates and approves or rejects the guarantee'
+  },
+  "how.step2.description": {
+    es: 'AvalDAO revisa identidad, reputacion y condiciones de riesgo para decidir si el fondo puede respaldar la operacion.',
+    en: 'AvalDAO reviews identity, reputation, and risk conditions to decide whether the fund can back the operation.'
+  },
+  "how.step3.role": {
+    es: 'Comerciante',
+    en: 'Merchant'
+  },
+  "how.step3.title": {
+    es: 'Acepta la garantia y otorga el credito en cuotas',
+    en: 'Accepts the guarantee and grants installment credit'
+  },
+  "how.step3.description": {
+    es: 'Con la garantia aprobada, el comerciante confirma la venta y habilita el financiamiento con condiciones acordadas.',
+    en: 'With the guarantee approved, the merchant confirms the sale and enables financing under the agreed terms.'
+  },
+  "how.step4.role": {
+    es: 'Beneficiario',
+    en: 'Beneficiary'
+  },
+  "how.step4.title": {
+    es: 'Accede al bien o servicio y paga las cuotas',
+    en: 'Accesses the good or service and pays the installments'
+  },
+  "how.step4.description": {
+    es: 'El beneficiario recibe el bien o servicio y cumple el plan de pagos mientras construye historial y reputacion.',
+    en: 'The beneficiary receives the good or service and follows the payment plan while building history and reputation.'
+  },
+  "how.step5.role": {
+    es: 'Fondo de garantias',
+    en: 'Guarantee fund'
+  },
+  "how.step5.title": {
+    es: 'Ante incumplimiento, el comerciante ejecuta la garantia',
+    en: 'If there is a default, the merchant executes the guarantee'
+  },
+  "how.step5.description": {
+    es: 'Si una cuota no se paga, el comerciante cobra desde el fondo de garantias y la cobertura se ejecuta automaticamente.',
+    en: 'If an installment is not paid, the merchant collects from the guarantee fund and the coverage is executed automatically.'
+  },
+  "faq.eyebrow": {
+    es: 'Preguntas frecuentes',
+    en: 'Frequently asked questions'
+  },
+  "faq.title": {
+    es: 'Respuestas claras para una garantia onchain',
+    en: 'Clear answers for an onchain guarantee'
+  },
+  "faq.description": {
+    es: 'Estas son las dudas mas comunes sobre el funcionamiento del fondo, los roles y la seguridad de las garantias dentro de AvalDAO.',
+    en: 'These are the most common questions about how the fund, the roles, and guarantee security work inside AvalDAO.'
+  },
+  "faq.item1.question": {
+    es: '¿Que es una garantia reciproca?',
+    en: 'What is a reciprocal guarantee?'
+  },
+  "faq.item1.answer": {
+    es: 'Es un respaldo emitido por AvalDAO para que una persona o microemprendimiento pueda acceder a credito comercial con mejores condiciones. El fondo cubre al comerciante si ocurre un incumplimiento previsto.',
+    en: 'It is a backing issued by AvalDAO so a person or microbusiness can access commercial credit under better terms. The fund covers the merchant if an expected default occurs.'
+  },
+  "faq.item2.question": {
+    es: '¿Quien puede solicitar una garantia?',
+    en: 'Who can request a guarantee?'
+  },
+  "faq.item2.answer": {
+    es: 'La solicitud la inicia un solicitante, como un tutor o referente, presentando al beneficiario o avalado. AvalDAO revisa el caso y define si la garantia puede ser aprobada.',
+    en: 'The process starts with an applicant, such as a tutor or sponsor, presenting the beneficiary. AvalDAO reviews the case and decides whether the guarantee can be approved.'
+  },
+  "faq.item3.question": {
+    es: '¿Que pasa si el beneficiario no puede pagar una cuota?',
+    en: 'What happens if the beneficiary cannot pay an installment?'
+  },
+  "faq.item3.answer": {
+    es: 'El comerciante puede ejecutar la garantia y recibir el pago desde el fondo de garantias segun las reglas aprobadas para esa operacion. Luego AvalDAO gestiona la recuperacion correspondiente.',
+    en: 'The merchant can execute the guarantee and receive payment from the guarantee fund according to the rules approved for that operation. AvalDAO then manages the corresponding recovery process.'
+  },
+  "faq.item4.question": {
+    es: '¿Como se financia el fondo de garantias?',
+    en: 'How is the guarantee fund financed?'
+  },
+  "faq.item4.answer": {
+    es: 'El fondo se sostiene con aportes de capital, herramientas de inversion y la administracion transparente de recursos onchain para mantener cobertura y solvencia.',
+    en: 'The fund is sustained through capital contributions, investment tools, and transparent onchain resource management to maintain coverage and solvency.'
+  },
+  "faq.item5.question": {
+    es: '¿Como se que mi garantia es valida y segura?',
+    en: 'How do I know my guarantee is valid and secure?'
+  },
+  "faq.item5.answer": {
+    es: 'Cada garantia queda registrada con reglas verificables y trazabilidad en blockchain. Eso permite auditar aprobaciones, condiciones y ejecuciones sin depender de procesos opacos.',
+    en: 'Each guarantee is recorded with verifiable rules and blockchain traceability. That makes approvals, terms, and executions auditable without relying on opaque processes.'
+  },
   "actors.investors.title": {
     es: 'Inversores',
     en: 'Investors'
@@ -127,44 +251,130 @@ export const translations: Translations = {
     en: 'Offer their goods and services with special credit conditions to customers with guarantees from AvalDAO.'
   },
 
-  "we-trust":{
+  "we-trust": {
     es: 'Confiamos en vos',
     en: 'We trust you'
   },
 
-  "dashboard.title":{
+  "dashboard.title": {
     es: 'Dashboard',
     en: 'Dashboard'
   },
-  "dashboard.description":{
+  "dashboard.description": {
     es: 'AvalDAO es transparente. Puedes conocer el estado de su economía interna en tiempo real.',
     en: 'AvalDAO is transparent. You can know the state of its internal economy in real time.'
   },
-  "dashboard.guarantee-fund.title":{
+  "dashboard.guarantee-fund.title": {
     es: 'Fondo de Garantía',
     en: 'Guarantee Fund'
   },
-  "dashboard.guarantee-fund.clarification":{
+  "dashboard.guarantee-fund.clarification": {
     es: '* Expresado en stablecoins equivalentes al dólar',
     en: '* Value expressed in dollar-pegged stablecoins'
   },
-  "dashboard.guarantee-fund.see-contract":{
+  "dashboard.guarantee-fund.see-contract": {
     es: 'Ver contrato AvalDAO',
     en: 'See AvalDAO contract'
   },
-  
-  "footer.description":{
+
+  "footer.description": {
     es: 'La primera Sociedad de Garantía Recíproca descentralizada',
     en: 'The first decentralized Reciprocal Guarantee Society'
   },
-  "footer.rights-reserved":{
+  "footer.rights-reserved": {
     es: 'Todos los derechos reservados.',
     en: 'All rights reserved.'
-  }
-  
+  },
 
+  "aval-not-found.title": {
+    es: 'Aval No Encontrado',
+    en: 'Aval Not Found'
+  },
+  "aval-not-found.description": {
+    es: 'El aval con ID {id} no existe o no pudo ser cargado.',
+    en: 'The aval with ID {id} does not exist or could not be loaded.'
+  },
+  "aval.details.objective": {
+    es: 'Objetivo del Proyecto',
+    en: 'Project Objective'
+  },
+  "aval.details.acquisition": {
+    es: 'Adquisición Planeada',
+    en: 'Planned Acquisition'
+  },
+  "aval.details.beneficiaries": {
+    es: 'Beneficiarios',
+    en: 'Beneficiaries'
+  },
+  "aval.details.schedule": {
+    es: 'Cuotas',
+    en: 'Schedule'
+  },
+  "aval.details.start-date": {
+    es: 'Fecha de Inicio',
+    en: 'Start Date'
+  },
+  "aval.details.end-date": {
+    es: 'Fecha de Fin',
+    en: 'End Date'
+  },
+  "aval.details.duration-tranche": {
+    es: 'Duración cuota',
+    en: 'Tranche Duration'
+  },
+  "aval.details.unlock": {
+    es: 'Desbloqueo',
+    en: 'Unlock'
+  },
+  "aval.details.tranches-amount": {
+    es: 'Cantidad de Cuotas',
+    en: 'Tranches Amount'
+  },
+  "aval.details.amount": {
+    es: 'Monto',
+    en: 'Amount'
+  },
+  "aval.details.tranche-number": {
+    es: 'Cuota #',
+    en: 'Tranche #'
+  },
+  "aval.details.maturity-date": {
+    es: 'Vencimiento',
+    en: 'Maturity Date'
+  },
+  "aval.details.unlock-date": {
+    es: 'Desbloqueo',
+    en: 'Unlock Date'
+  },
+  "aval.details.tranche": {
+    es: 'Cuota',
+    en: 'Tranche'
+  },
 
+  "aval.details.financial-info": {
+    es: 'Información Financiera',
+    en: 'Financial Information'
+  },
 
-
-
+  "aval.details.participants": {
+    es: 'Participantes',
+    en: 'Participants'
+  },
+  "aval.details.applicant": {
+    es: 'Solicitante',
+    en: 'Applicant'
+  },
+  "aval.details.avalado": {
+    es: 'Beneficiario',
+    en: 'Beneficiary'
+  },
+  "aval.details.merchant": {
+    es: 'Comerciante',
+    en: 'Merchant'
+  },
+  "aval.details.avalDAO": {
+    es: 'AvalDAO',
+    en: 'AvalDAO'
+  },
 }
+
