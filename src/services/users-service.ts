@@ -3,7 +3,7 @@ import { UserInfo, UserUpsert } from '@/types';
 import { ObjectId } from 'mongodb';
 import { getCurrentUser, requireRoles } from '@/lib/auth/authorization';
 import OnChainAuthorizationService from './onchain-authorization-service';
-
+import UsersModel from '@/lib/db/models/user-model';
 
 interface UserData {
   address: string;
@@ -17,40 +17,69 @@ class UsersService {
     console.log(`register user`, request);
 
     const db = await getDb();
-    const exists = await db.collection<UserInfo>("users").findOne({ "address": request.address });
+    const exists = await UsersModel.findOne({ "address": request.address });
     if (exists) {
       throw new Error("Address already registered");
-    } else {
-      //  id: string;
-      /* address: string;
-      email: string;
-      infoCid?: string;
-      name: string;
-      avatar: string;
-      roles: string[];
-      url?: string; //deprecated
-      website?: string;
-       */
-      /* await db.collection<UserInfo>("users").insertOne({ 
-
-
-        //pending status
-
-      }); */
     }
-
-
 
     return {};
   }
 
 
+  async cacheUserRoles(userId: string, chainId: number, roles: string[]) {
 
+      await UsersModel.findByIdAndUpdate(
+        userId,
+        {
+          $set: {
+            [`roles.${chainId}`]: {
+              roles: roles,
+              lastSyncedAt: new Date(),
+            },
+            updatedAt: new Date(),
+          },
+        },
+        { new: true }
+      );
+  }
 
-  
-  async getAll(): Promise<UserInfo[]> {
-    await requireRoles(["ADMIN_ROLE", "AVALDAO_ROLE"]); 
+  async clearUserRolesCache(userId: string, chainId: number) {
     
+    await UsersModel.findByIdAndUpdate(
+      userId,
+      {
+        $unset: {
+          [`roles.${chainId}`]: "",
+        },
+        updatedAt: new Date(),
+      },
+      { new: true }
+    );
+  }
+
+  async getUserRolesCache(userId: string, chainId: number): Promise<{ roles: string[], lastSyncedAt: Date } | null> {
+    
+    const user = await UsersModel.findById(userId);
+    if (!user) return null;
+
+    const cache = user.roles?.get(chainId.toString());
+    if (!cache) return null;
+
+    return {
+      roles: cache.roles,
+      lastSyncedAt: cache.lastSyncedAt,
+    };
+  }
+
+
+
+
+
+
+
+  async getAll(): Promise<UserInfo[]> {
+    await requireRoles(["ADMIN_ROLE", "AVALDAO_ROLE"]);
+
     const db = await getDb();
     const users = await db.collection<UserInfo>("users").find({}).toArray();
 
@@ -90,7 +119,7 @@ class UsersService {
 
     return user;
   }
-  
+
   async getUserByAddress(address: string): Promise<UserInfo | null> {
     const requester = await getCurrentUser();
     //Esta funcion se usa en el formulario de aval. Al momento de completar un address hace un lookup por address

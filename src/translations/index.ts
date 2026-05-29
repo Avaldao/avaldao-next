@@ -13,6 +13,30 @@ export const translations: Translations = {
     es: 'Inicio',
     en: 'Home'
   },
+  "nav.users": {
+    es: 'Usuarios',
+    en: 'Users'
+  },
+  "nav.avales": {
+    es: 'Avales',
+    en: 'Avals'
+  },
+  "nav.about": {
+    es: 'Qué es',
+    en: 'About'
+  },
+  "nav.dashboard": {
+    es: 'Dashboard',
+    en: 'Dashboard'
+  },
+  "nav.invest": {
+    es: 'Invertir',
+    en: 'Invest'
+  },
+  "nav.request-aval": {
+    es: 'Solicitar Aval',
+    en: 'Request Aval'
+  },
 
   "slide1.title": {
     es: 'Confiamos en vos',
@@ -53,6 +77,10 @@ export const translations: Translations = {
   "about.avaldao.title": {
     es: '¿Qué es AvalDAO?',
     en: 'What is AvalDAO?'
+  },
+  "about.avaldao.eyebrow": {
+    es: 'Sobre AvalDAO',
+    en: 'About AvalDAO'
   },
   "about.avaldao.description": {
     es: 'AvalDAO es la primera Sociedad de Garantía Recíproca (SGR) descentralizada. Una solución WEB3 que otorga garantías a los individuos y microempresas no bancarizadas o sin historial crediticio, para que puedan acceder a créditos comerciales convenientes.',

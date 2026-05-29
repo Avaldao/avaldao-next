@@ -27,7 +27,7 @@ export default async function Header() {
           </div>
 
           <div className="flex items-center md:gap-x-4 sm:gap-x-8">
-            <Nav />
+            <Nav language={language} />
             <HeaderAuth />
             <LanguageWrapper language={language}>
               <LanguageToggle theme="dark" />

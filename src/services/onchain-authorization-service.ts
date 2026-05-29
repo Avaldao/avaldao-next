@@ -5,9 +5,15 @@ import { Contract } from "ethers";
 export default class OnChainAuthorizationService {
 
   public admin: Contract;
+  chainId: number;
 
   constructor(chainId: number = Number(process.env.DEFAULT_CHAIN_ID!)) {
+    this.chainId = chainId;
     this.admin = ContractsFactory.getPermissionsContract(chainId);
+  }
+
+  getChainId() {
+    return this.chainId;
   }
 
   async hasRole(address: string, role: Role) {
