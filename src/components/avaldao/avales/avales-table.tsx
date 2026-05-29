@@ -6,6 +6,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { Aval } from "@/types";
 import { AvalStatusChip } from "./aval-status-chip";
+import { contractsAddress } from "@/blockchain/contracts";
 
 interface TableProps<T extends { _id: string }> {
   columns: ReactNode[];
@@ -122,8 +123,8 @@ export const Td = ({ className, children, colspan }: { className?: string, colsp
   )
 }
 
-// Componente para mostrar los avatares de los actores
-const ActorAvatars = ({
+// Componente para mostrar los avatares de los participantes
+const ParticipantAvatars = ({
   solicitante,
   comerciante,
   avalado
@@ -132,10 +133,6 @@ const ActorAvatars = ({
   comerciante: string;
   avalado: string;
 }) => {
-  const getInitials = (address: string) => {
-    return address.slice(2, 6).toUpperCase(); // Toma los primeros 4 caracteres después de "0x"
-  };
-
   const getColor = (address: string) => {
     const colors = [
       'bg-blue-500', 'bg-green-500', 'bg-purple-500',
@@ -145,21 +142,21 @@ const ActorAvatars = ({
     return colors[index];
   };
 
-  const actors = [
+  const participants = [
     { address: solicitante, label: 'Solicitante', initials: 'SOL' },
     { address: comerciante, label: 'Comerciante', initials: 'COM' },
     { address: avalado, label: 'Avalado', initials: 'AVA' }
   ];
 
   return (
-    <div className="flex items-center space-x-2">
-      {actors.map((actor, index) => (
+    <div className="inline-flex items-center -space-x-2">
+      {participants.map((participant, index) => (
         <div key={index} className="flex flex-col items-center">
           <div
-            className={`w-8 h-8 rounded-full ${getColor(actor.address)} flex items-center justify-center text-white text-xs font-bold cursor-help`}
-            title={`${actor.label}: ${actor.address}`}
+            className={`w-6 h-6 rounded-full border-2 border-white ${getColor(participant.address)} flex items-center justify-center text-white text-[9px] font-bold cursor-help`}
+            title={`${participant.label}: ${participant.address}`}
           >
-            {actor.initials}
+            {participant.initials}
           </div>
         </div>
       ))}
@@ -182,6 +179,23 @@ const Actions = ({ id }: { id: string }) => {
   );
 };
 
+const NetworkChip = ({ chainId }: { chainId: Aval["chainId"] }) => {
+  const isMainnet = chainId === 30;
+  const networkName = contractsAddress[chainId]?.networkName ?? `Chain ${chainId}`;
+
+  return (
+    <span
+      className={clsx(
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold",
+        isMainnet ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+      )}
+      title={networkName}
+    >
+      {networkName} ({chainId})
+    </span>
+  );
+};
+
 // Componente específico para la tabla de avales
 export const AvalTable = ({ avales }: { avales: Aval[] }) => {
   const columns = [
@@ -189,7 +203,8 @@ export const AvalTable = ({ avales }: { avales: Aval[] }) => {
     /* <Th key="beneficiario">Beneficiario</Th>, */
     <Th key="proyecto">Proyecto</Th>,
 
-    <Th key="actores">Actores</Th>,
+    <Th key="participantes" className="w-[1%]"></Th>,
+    <Th key="red">Red</Th>,
     <Th key="monto">Monto</Th>,
     <Th key="estado">Estado</Th>,
     <Th key="actions" className="text-center">Acciones</Th>,
@@ -202,18 +217,21 @@ export const AvalTable = ({ avales }: { avales: Aval[] }) => {
  /*    <Td key="beneficiario" className="border border-red-500 min-w-80 truncate">
       <UserByAddress address={aval.avaladoAddress}/>
     </Td>, */
-    <Td key="proyecto" className="max-w-lg truncate">
+    <Td key="proyecto" className="max-w-xs sm:max-w-sm md:max-w-md truncate">
       {aval.proyecto}
       <div className="line-clamp-2" title={aval.objetivo}>
         {aval.objetivo}
       </div>
     </Td>,
-    <Td key="actores">
-      <ActorAvatars
+    <Td key="participantes" className="w-[1%]">
+      <ParticipantAvatars
         solicitante={aval.solicitanteAddress}
         comerciante={aval.comercianteAddress}
         avalado={aval.avaladoAddress}
       />
+    </Td>,
+    <Td key="red">
+      <NetworkChip chainId={aval.chainId} />
     </Td>,
     <Td key="monto" className="text-right">
       <span className="font-semibold text-slate-600 ">

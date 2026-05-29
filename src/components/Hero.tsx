@@ -84,29 +84,33 @@ export default function Hero({ language }: HeroProps) {
       {/* Arrows */}
       <button
         onClick={scrollPrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full"
+        className="group absolute left-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-2xl text-white backdrop-blur-md transition-all duration-300 hover:border-violet-400/50 hover:bg-violet-600/90 hover:shadow-lg hover:shadow-violet-500/50 sm:left-4 sm:h-12 sm:w-12 sm:text-3xl"
+        aria-label="Previous slide"
       >
         ‹
       </button>
 
       <button
         onClick={scrollNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full"
+        className="group absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-2xl text-white backdrop-blur-md transition-all duration-300 hover:border-violet-400/50 hover:bg-violet-600/90 hover:shadow-lg hover:shadow-violet-500/50 sm:right-4 sm:h-12 sm:w-12 sm:text-3xl"
+        aria-label="Next slide"
       >
         ›
       </button>
 
       {/* Pagination dots */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3">
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 sm:bottom-6 sm:gap-3">
         {scrollSnaps.map((_, i) => (
           <button
             key={i}
             onClick={() => scrollTo(i)}
             className={`
-              w-3 h-3 rounded-full 
-              transition
-              ${i === selectedIndex ? "bg-slate-700" : "bg-gray-50"}
+              h-2 rounded-full transition-all duration-300
+              ${i === selectedIndex 
+                ? "w-8 bg-linear-to-r from-violet-600 to-fuchsia-600 shadow-md shadow-violet-500/50" 
+                : "w-2 bg-white/60 hover:bg-white/80"}
             `}
+            aria-label={`Go to slide ${i + 1}`}
           />
         ))}
       </div>
@@ -134,11 +138,14 @@ function Slide({ title, description, bg, btn }: SlideProps) {
       `}
     >
       <div className="
-          container mx-auto px-8 
+          container mx-auto 
+          
+          px-15 
+          md:px-8 
           flex flex-col justify-center items-start 
           max-w-lg 
           md:max-w-2xl 
-          lg:max-w-4xl pb-[20%]
+          lg:max-w-4xl lg:pb-[15%] xl:pb-[5%]
           xl:max-w-6xl 
           text-left ">
 
@@ -150,28 +157,9 @@ function Slide({ title, description, bg, btn }: SlideProps) {
           {description}
         </p>
 
-        <button className="
-        bg-secondary text-white 
-        inline-block 
-        px-5 py-2 rounded-full 
-        font-medium 
-        text-md 
-         cursor-pointer text-heading
-            shadow-lg 
-          shadow-secondary/30
-          hover:shadow-xl 
-          hover:shadow-secondary/50
-          hover:bg-secondary/90
-          transition-all 
-          duration-300 
-          select-none
-          uppercase
-          font-heading
-          
-          tracking-wide
-
-        ">
-          {btn}
+        <button className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 px-6 py-3 font-heading text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-violet-600/40 transition-all duration-300  hover:shadow-xl hover:shadow-violet-600/60 hover:from-violet-700 hover:to-fuchsia-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 sm:px-8 sm:py-3.5 sm:text-base">
+          <span className="relative z-10">{btn}</span>
+          <div className="absolute inset-0 -z-10 bg-linear-to-r from-violet-700 to-fuchsia-700 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
         </button>
       </div>
     </div>
