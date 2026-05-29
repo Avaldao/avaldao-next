@@ -38,9 +38,26 @@ async function connectMongoose() {
 
 connectMongoose();
 
+const globalWithMongoose = global as typeof globalThis & {
+  _usersMongooseConnection?: mongoose.Connection;
+};
 
+let usersMongooseConnection: mongoose.Connection;
 
+if (process.env.NODE_ENV === 'development') {
+  if (!globalWithMongoose._usersMongooseConnection) {
+    globalWithMongoose._usersMongooseConnection = mongoose.createConnection(uri, {
+      dbName: "efem-users-production"
+    });
+  }
+  usersMongooseConnection = globalWithMongoose._usersMongooseConnection;
+} else {
+  usersMongooseConnection = mongoose.createConnection(uri, {
+    dbName: "efem-users-production"
+  });
+}
 
+export { usersMongooseConnection };
 
 const getDb = async (db?: string) => {
   const client = await clientPromise;

@@ -1,8 +1,9 @@
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 import { ReactNode } from "react";
-import Header from "../Header";
-import Footer from "../Footer";
 
-export default function Page({ children }: { children?: ReactNode }) {
+
+export default async function Layout({ children }: { children?: ReactNode }) {
   return (
     <div className="min-h-screen grid grid-rows-[auto_1fr_auto] bg-white">
       <div className="row-start-1">

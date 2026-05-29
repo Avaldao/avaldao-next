@@ -10,16 +10,9 @@ const usersService = new UserService();
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user.id) throw new NotAuthenticatedError();
-
     const body = await request.json();
 
-    const result = await usersService.registerProfile({
-      ...body,
-      address: session.user.address
-    });
-
+    const result = await usersService.signup(body);
     return OkResponse(result);
 
   } catch (err) {

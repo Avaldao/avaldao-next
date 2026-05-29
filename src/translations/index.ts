@@ -332,6 +332,103 @@ export const translations: Translations = {
     en: 'We trust you'
   },
 
+  "signup.title": {
+    es: 'Creá tu cuenta',
+    en: 'Create your account'
+  },
+  "signup.description": {
+    es: 'Completá tu perfil para empezar a operar en AvalDAO. Podés cambiar tus datos y roles en cualquier momento desde tu perfil.',
+    en: 'Complete your profile to start operating on AvalDAO. You can update your details and roles at any time from your profile.'
+  },
+
+  // Signup form fields
+  "signup.form.account-type": { es: 'Tipo de cuenta', en: 'Account type' },
+  "signup.form.personal.firstName": { es: 'Nombre', en: 'First name' },
+  "signup.form.personal.firstName.placeholder": { es: 'Juan', en: 'John' },
+  "signup.form.personal.lastName": { es: 'Apellido', en: 'Last name' },
+  "signup.form.personal.lastName.placeholder": { es: 'Pérez', en: 'Smith' },
+  "signup.form.business.companyName": { es: 'Razón Social', en: 'Company name' },
+  "signup.form.business.companyName.placeholder": { es: 'Empresa S.A.', en: 'Acme Corp.' },
+  "signup.form.business.cuit": { es: 'CUIT', en: 'Tax ID' },
+  "signup.form.business.cuit.placeholder": { es: '20-12345678-9', en: '12-3456789-0' },
+  "signup.form.email": { es: 'Email', en: 'Email' },
+  "signup.form.wallet": { es: 'Wallet conectada', en: 'Connected wallet' },
+  "signup.form.wallet.placeholder": { es: 'Conectá tu wallet para ver la dirección', en: 'Connect your wallet to see the address' },
+  "signup.form.location": { es: 'Ubicación', en: 'Location' },
+  "signup.form.location.country": { es: 'País', en: 'Country' },
+  "signup.form.location.country.placeholder": { es: 'Seleccioná tu país', en: 'Select your country' },
+  "signup.form.location.city": { es: 'Localidad', en: 'City' },
+  "signup.form.location.city.placeholder": { es: 'Ciudad, Provincia…', en: 'City, State…' },
+  "signup.form.roles": { es: 'Roles en la plataforma', en: 'Platform roles' },
+  "signup.form.roles.hint": { es: 'Podés seleccionar más de uno. Siempre podés cambiarlos más adelante.', en: 'You can select more than one. You can always change them later.' },
+  "signup.form.legal": { es: 'Aceptación legal', en: 'Legal acceptance' },
+  "signup.form.legal.tyc.pre": { es: 'Acepto los', en: 'I accept the' },
+  "signup.form.legal.tyc.link": { es: 'Términos y Condiciones (v1.0)', en: 'Terms and Conditions (v1.0)' },
+  "signup.form.legal.privacy.pre": { es: 'Acepto la', en: 'I accept the' },
+  "signup.form.legal.privacy.label": { es: 'Política de Privacidad', en: 'Privacy Policy' },
+  "signup.form.legal.age.pre": { es: 'Confirmo tener', en: 'I confirm I am' },
+  "signup.form.legal.age.label": { es: '18 años o más', en: '18 years or older' },
+  "signup.form.submit": { es: 'Crear cuenta', en: 'Create account' },
+  "signup.form.success": { es: '¡Cuenta creada exitosamente!', en: 'Account created successfully!' },
+  "signup.form.error.required-fields": { es: 'Por favor completá todos los campos requeridos', en: 'Please complete all required fields' },
+  "signup.form.error.unexpected": { es: 'Ocurrió un error inesperado', en: 'An unexpected error occurred' },
+
+  // TyC content
+  "signup.tyc.title": { es: 'Términos y Condiciones de AvalDAO (v1.0)', en: 'AvalDAO Terms and Conditions (v1.0)' },
+  "signup.tyc.intro": { es: 'Estos son los términos y condiciones provisorios de la plataforma AvalDAO. El contenido definitivo estará disponible próximamente.', en: 'These are the provisional terms and conditions of the AvalDAO platform. The final content will be available soon.' },
+  "signup.tyc.s1.title": { es: '1. Uso de la plataforma', en: '1. Use of the platform' },
+  "signup.tyc.s1.body": { es: 'Al registrarte aceptás utilizar AvalDAO exclusivamente para los fines permitidos por la plataforma, en cumplimiento de la normativa vigente en tu jurisdicción.', en: 'By registering you agree to use AvalDAO exclusively for the purposes permitted by the platform, in compliance with the regulations in force in your jurisdiction.' },
+  "signup.tyc.s2.title": { es: '2. Fondo de garantías', en: '2. Guarantee fund' },
+  "signup.tyc.s2.body": { es: 'La participación en el fondo de garantías implica entender los riesgos asociados a operaciones de crédito descentralizadas. AvalDAO no garantiza retornos ni resultados específicos.', en: 'Participation in the guarantee fund implies understanding the risks associated with decentralized credit operations. AvalDAO does not guarantee returns or specific results.' },
+  "signup.tyc.s3.title": { es: '3. Roles y responsabilidades', en: '3. Roles and responsibilities' },
+  "signup.tyc.s3.body": { es: 'Cada rol dentro de la plataforma (Solicitante, Avalado, Comerciante) conlleva obligaciones específicas que serán detalladas en la documentación oficial.', en: 'Each role within the platform (Applicant, Endorsed, Merchant) entails specific obligations that will be detailed in the official documentation.' },
+  "signup.tyc.s4.title": { es: '4. Datos personales', en: '4. Personal data' },
+  "signup.tyc.s4.body": { es: 'El tratamiento de tus datos se rige por la Política de Privacidad de AvalDAO, disponible por separado.', en: 'The processing of your data is governed by the AvalDAO Privacy Policy, available separately.' },
+  "signup.tyc.s5.title": { es: '5. Jurisdicción', en: '5. Jurisdiction' },
+  "signup.tyc.s5.body": { es: 'Las disputas se resolverán bajo la legislación de la República Argentina, salvo acuerdo expreso en contrario.', en: 'Disputes will be resolved under the laws of the Argentine Republic, unless expressly agreed otherwise.' },
+  "signup.tyc.draft": { es: 'Versión 1.0 — Borrador provisional sujeto a cambios.', en: 'Version 1.0 — Provisional draft subject to changes.' },
+
+  // Sign modal
+  "signup.sign.badge": { es: 'Verificación de identidad', en: 'Identity verification' },
+  "signup.sign.idle.title": { es: 'Firmá el mensaje', en: 'Sign the message' },
+  "signup.sign.idle.description": { es: 'Para completar el registro necesitamos verificar que sos el dueño de esta wallet. No tiene ningún costo.', en: 'To complete registration we need to verify you own this wallet. This is free, no gas cost.' },
+  "signup.sign.waiting.title": { es: 'Esperando firma...', en: 'Waiting for signature...' },
+  "signup.sign.waiting.description": { es: 'Revisá tu wallet y firmá el mensaje para continuar.', en: 'Check your wallet and sign the message to continue.' },
+  "signup.sign.waiting.button": { es: 'Esperando tu wallet…', en: 'Waiting for your wallet…' },
+  "signup.sign.success.title": { es: 'Firma exitosa', en: 'Signature successful' },
+  "signup.sign.success.description": { es: 'Tu identidad fue verificada. Procesando registro...', en: 'Your identity was verified. Processing registration...' },
+  "signup.sign.error.title": { es: 'Firma rechazada', en: 'Signature rejected' },
+  "signup.sign.error.description": { es: 'Rechazaste la firma en tu wallet. Podés intentarlo de nuevo.', en: 'You rejected the signature in your wallet. You can try again.' },
+  "signup.sign.button": { es: 'Firmar mensaje', en: 'Sign message' },
+  "signup.sign.retry.button": { es: 'Reintentar firma', en: 'Retry signature' },
+  "signup.sign.info.wallet": { es: 'Wallet', en: 'Wallet' },
+  "signup.sign.info.message": { es: 'Mensaje', en: 'Message' },
+  "signup.sign.info.cost": { es: 'Costo', en: 'Cost' },
+  "signup.sign.info.cost.value": { es: 'Gratis — sin gas', en: 'Free — no gas' },
+  "signup.form.validation.accountType": { es: 'Seleccioná un tipo de cuenta', en: 'Select an account type' },
+  "signup.form.validation.firstName": { es: 'El nombre es requerido', en: 'First name is required' },
+  "signup.form.validation.lastName": { es: 'El apellido es requerido', en: 'Last name is required' },
+  "signup.form.validation.companyName": { es: 'La razón social es requerida', en: 'Company name is required' },
+  "signup.form.validation.cuit": { es: 'El CUIT es requerido', en: 'Tax ID is required' },
+  "signup.form.validation.email.required": { es: 'El email es requerido', en: 'Email is required' },
+  "signup.form.validation.email.invalid": { es: 'Ingresá un email válido', en: 'Enter a valid email' },
+  "signup.form.validation.country": { es: 'Seleccioná un país', en: 'Select a country' },
+  "signup.form.validation.location": { es: 'Ingresá tu localidad', en: 'Enter your city' },
+  "signup.form.validation.roles": { es: 'Seleccioná al menos un rol', en: 'Select at least one role' },
+  "signup.form.validation.tyc": { es: 'Debés aceptar los Términos y Condiciones', en: 'You must accept the Terms and Conditions' },
+  "signup.form.validation.privacy": { es: 'Debés aceptar la Política de Privacidad', en: 'You must accept the Privacy Policy' },
+  "signup.form.validation.age": { es: 'Debés confirmar que tenés 18 años o más', en: 'You must confirm you are 18 or older' },
+
+  // Platform roles (signup role selector)
+  "signup.role.applicant.name": { es: 'Solicitante', en: 'Applicant' },
+  "signup.role.applicant.description": { es: 'Presenta al beneficiario y solicita la garantía. Carga la información del beneficiario y activa la evaluación inicial del crédito.', en: 'Presents the beneficiary and requests the guarantee. Submits the beneficiary\'s information and starts the initial credit review.' },
+  "signup.role.endorsed.name": { es: 'Avalado', en: 'Endorsed' },
+  "signup.role.endorsed.description": { es: 'Accede al bien o servicio y paga las cuotas, construyendo historial y reputación dentro de la plataforma.', en: 'Accesses goods or services and pays installments, building history and reputation on the platform.' },
+  "signup.role.merchant.name": { es: 'Comerciante', en: 'Merchant' },
+  "signup.role.merchant.description": { es: 'Acepta la garantía aprobada y habilita el financiamiento en cuotas. Confirma la venta bajo las condiciones acordadas.', en: 'Accepts the approved guarantee and enables installment financing. Confirms the sale under the agreed terms.' },
+  "signup.role.investor.name": { es: 'Inversor', en: 'Investor' },
+  "signup.role.investor.description": { es: 'Aporta capital al fondo de garantías y obtiene rendimientos por respaldar operaciones de crédito dentro de la plataforma.', en: 'Provides capital to the guarantee fund and earns returns by backing credit operations on the platform.' },
+
   "dashboard.title": {
     es: 'Dashboard',
     en: 'Dashboard'
@@ -452,5 +549,114 @@ export const translations: Translations = {
     es: 'AvalDAO',
     en: 'AvalDAO'
   },
+
+  // Auth Modal
+  "auth.modal.title": {
+    es: 'Verificar Identidad',
+    en: 'Verify Identity'
+  },
+  "auth.modal.verify-identity":{
+    es: 'Verificar Identidad',
+    en: 'Verify Identity'
+  },
+  "auth.modal.step.connect-wallet": {
+    es: 'Conectar Wallet',
+    en: 'Connect Wallet'
+  },
+  "auth.modal.step.sign-message": {
+    es: 'Firmar Mensaje',
+    en: 'Sign Message'
+  },
+  "auth.modal.step.verified": {
+    es: 'Verificado',
+    en: 'Verified'
+  },
+  "auth.modal.connect.title": {
+    es: 'Conecta tu Wallet',
+    en: 'Connect Your Wallet'
+  },
+  "auth.modal.connect.description": {
+    es: 'Para comenzar, conecta tu wallet preferida. Esto nos permite identificar tu dirección de Ethereum de forma segura.',
+    en: 'To get started, connect your preferred wallet. This allows us to securely identify your Ethereum address.'
+  },
+  "auth.modal.connect.button": {
+    es: 'Conectar Wallet',
+    en: 'Connect Wallet'
+  },
+  "auth.modal.connected.title": {
+    es: 'Wallet Conectada',
+    en: 'Wallet Connected'
+  },
+  "auth.modal.connected.description": {
+    es: '¡Perfecto! Ahora necesitamos que firmes un mensaje para verificar que eres el propietario de esta wallet.',
+    en: 'Perfect! Now we need you to sign a message to verify that you own this wallet.'
+  },
+  "auth.modal.connected.sign-button": {
+    es: 'Firmar Mensaje',
+    en: 'Sign Message'
+  },
+  "auth.modal.connected.signing-button": {
+    es: 'Preparando...',
+    en: 'Preparing...'
+  },
+  "auth.modal.connected.change-wallet": {
+    es: 'Usar Otra Wallet',
+    en: 'Use Another Wallet'
+  },
+  "auth.modal.signing.title": {
+    es: 'Verificando Identidad',
+    en: 'Verifying Identity'
+  },
+  "auth.modal.signing.description": {
+    es: 'Por favor, confirma la firma del mensaje en tu wallet. Esto demuestra que eres el propietario legítimo.',
+    en: 'Please confirm the message signature in your wallet. This proves you are the legitimate owner.'
+  },
+  "auth.modal.signing.no-gas.title": {
+    es: 'No se requiere gas',
+    en: 'No gas required'
+  },
+  "auth.modal.signing.no-gas.description": {
+    es: 'Firmar un mensaje es gratis y no consume ETH',
+    en: 'Signing a message is free and does not consume ETH'
+  },
+  "auth.modal.verified.title": {
+    es: '¡Identidad Verificada!',
+    en: 'Identity Verified!'
+  },
+  "auth.modal.verified.description": {
+    es: 'Tu identidad ha sido verificada exitosamente. Ya puedes acceder a todas las funciones.',
+    en: 'Your identity has been successfully verified. You can now access all features.'
+  },
+  "auth.modal.verified.redirecting": {
+    es: 'Redirigiendo...',
+    en: 'Redirecting...'
+  },
+  "auth.modal.footer.title": {
+    es: 'Tu seguridad es importante',
+    en: 'Your security is important'
+  },
+  "auth.modal.footer.description": {
+    es: 'Solo verificamos tu propiedad de la wallet. No podemos realizar transacciones sin tu autorización.',
+    en: 'We only verify your wallet ownership. We cannot perform transactions without your authorization.'
+  },
+
+  "account-type.personal.name": {
+    es: 'Cuenta Individual',
+    en: 'Individual Account'
+  },
+  "account-type.business.name": {
+    es: 'Cuenta Comercial',
+    en: 'Business Account'
+  },
+
+  "account-type.personal.description": {
+    es: 'Para personas que desean solicitar avales para uso personal o como representantes de un negocio.',
+    en: 'For individuals who want to request guarantees for personal use or as representatives of a business.'
+  },
+  "account-type.business.description": {
+    es: 'Para empresas que buscan solicitar avales para sus operaciones comerciales o respaldar a sus clientes.',
+    en: 'For businesses seeking to request guarantees for their commercial operations or to back their customers.'  
+  },
+
 }
 

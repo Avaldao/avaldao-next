@@ -10,6 +10,8 @@ import { Eip1193Provider } from 'ethers';
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AccountDropdown } from './account-dropdown';
+import { AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/context/LanguageContext';
 
 
 export const truncateAddress = (addr: string) => {
@@ -20,16 +22,15 @@ type AuthStep = 'disconnected' | 'connected' | 'signing' | 'verified';
 
 const WalletAuth = () => {
   const { data: session, status } = useSession();
-
+  const { t, language } = useLanguage();
   const [authStep, setAuthStep] = useState<AuthStep>('disconnected');
   const [showAuthModal, setShowAuthModal] = useState(false);
+
   const { open } = useAppKit();
   const { walletProvider } = useAppKitProvider<Eip1193Provider>("eip155");
   const { isConnected, address } = useAppKitAccount();
   const { disconnect } = useDisconnect();
   const router = useRouter();
-
-
 
   useEffect(() => {
     if (status == "authenticated" && address) {
@@ -61,7 +62,7 @@ const WalletAuth = () => {
   const handleConnectWallet = async () => {
     try {
       setAuthStep('disconnected');
-      open({ view: 'Connect' });
+      await open({ view: 'Connect' });
     } catch (error) {
       console.error('Error connecting wallet:', error);
     }
@@ -90,6 +91,15 @@ const WalletAuth = () => {
       });
 
       if (response?.error != undefined) {
+        if (response.error == "USER_NOT_FOUND") {
+          localStorage.setItem("auth_message", message);
+          localStorage.setItem("auth_signature", signature);
+
+          localStorage.setItem("auth_ts", Date.now().toString());
+
+          router.push("/users/signup");
+        }
+
         console.log("handle errors", response.error)
       } else if (response?.ok) {
         router.refresh();
@@ -109,8 +119,8 @@ const WalletAuth = () => {
     }
   };
 
-  const handleDisconnect = () => {
-    disconnect();
+  const handleDisconnect = async () => {
+    await disconnect(); //await disconnect y llevarlo al punto 1
     setAuthStep('disconnected');
     setShowAuthModal(false);
   };
@@ -135,14 +145,14 @@ const WalletAuth = () => {
         return (
           <>
             <Wallet className="w-4 h-4" />
-            Verificar Identidad
+            {t('auth.modal.verify-identity')}
           </>
         );
       default:
         return (
           <>
             <Wallet className="w-4 h-4" />
-            Conectar Wallet
+            {t('auth.modal.connect.button')}
           </>
         );
     }
@@ -164,23 +174,24 @@ const WalletAuth = () => {
   return (
     <>
       {authStep == "verified" && address ? (
-        <AccountDropdown address={getAddress(address)} />
+        <AnimatePresence>
+          <AccountDropdown address={getAddress(address)} />
+        </AnimatePresence>
 
       ) : (
         <button
           onClick={handleOpenAuth}
           className={`
-          px-4 py-2 rounded-lg font-medium transition-all duration-300 min-w-[140px]
-          flex items-center justify-center gap-2
-          ${getButtonVariant() === 'success'
-              ? 'bg-success text-white hover:bg-success-accent'
+            flex min-w-35 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 shadow-md
+            ${getButtonVariant() === 'success'
+              ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30'
               : getButtonVariant() === 'loading'
-                ? 'bg-violet-400 text-white cursor-not-allowed'
+                ? 'cursor-not-allowed bg-violet-400 text-white'
                 : getButtonVariant() === 'primary'
-                  ? 'bg-secondary text-white hover:bg-secondary-accent'
-                  : 'bg-secondary text-gray-50 hover:bg-secondary-accent'
+                  ? 'bg-linear-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-lg hover:shadow-violet-500/40'
+                  : 'bg-linear-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-lg hover:shadow-violet-500/40'
             }
-        `}
+          `}
           disabled={authStep === 'signing'}
         >
           {getButtonContent()}
@@ -198,6 +209,7 @@ const WalletAuth = () => {
         onSignMessage={handleSignMessage}
         onDisconnect={handleDisconnect}
         isSigning={authStep === 'signing'}
+        language={language}
       />
     </>
   );
