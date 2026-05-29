@@ -18,28 +18,57 @@ export default function NavLinks({ language }: { language: Language }) {
   }, [status]);
 
   return (
-    <nav className="hidden md:flex space-x-8">
+    <nav className="hidden md:flex md:items-center md:gap-1 lg:gap-2">
       {status == "authenticated" ? (
         isAdmin ? (
           <>
-            <Link href="/staff/users" className="text-gray-600 hover:text-slate-800" >
+            <Link 
+              href="/staff/users" 
+              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+            >
               {t("nav.users")}
             </Link>
-            <Link href="/avales" className="text-gray-600 hover:text-slate-800" >
+            <Link 
+              href="/avales" 
+              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+            >
               {t("nav.avales")}
             </Link>
           </>
         ) : (
-          <Link href="/avales" className="text-gray-600 hover:text-slate-800" >
+          <Link 
+            href="/avales" 
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+          >
             {t("nav.avales")}
           </Link>
         )
       ) : (
         <>
-          <a href="#que-es" className="text-gray-600 hover:text-slate-800">{t("nav.about")}</a>
-          <a href="#dashboard" className="text-gray-600 hover:text-slate-800">{t("nav.dashboard")}</a>
-          <a href="#invertir" className="text-gray-600 hover:text-slate-800">{t("nav.invest")}</a>
-          <a href="#aval" className="text-gray-600 hover:text-slate-800">{t("nav.request-aval")}</a>
+          <a 
+            href="#que-es" 
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+          >
+            {t("nav.about")}
+          </a>
+          <a 
+            href="#dashboard" 
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+          >
+            {t("nav.dashboard")}
+          </a>
+          <a 
+            href="#invertir" 
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+          >
+            {t("nav.invest")}
+          </a>
+          <a 
+            href="#aval" 
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+          >
+            {t("nav.request-aval")}
+          </a>
         </>
       )}
     </nav>

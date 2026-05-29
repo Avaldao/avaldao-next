@@ -42,7 +42,11 @@ export const authOptions = {
           if (user) return user;
 
         } catch (err: any) {
-          throw new Error(err?.code || "Unknown");
+          if(err.message == "USER_NOT_FOUND"){
+           throw err;
+          } else { //Use this to hide details of other errors that can happen during login (like db connection issues, etc) 
+            throw new Error(err?.code || "Unknown");
+          }
         }
 
         return null;

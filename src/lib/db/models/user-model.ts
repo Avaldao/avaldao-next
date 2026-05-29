@@ -1,4 +1,5 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+import { usersMongooseConnection } from '@/lib/mongodb';
 const { Schema } = mongoose;
 
 export type Role =
@@ -6,12 +7,26 @@ export type Role =
   | "AVALDAO_ROLE"
   | "SOLICITANTE_ROLE"
   | "COMERCIANTE_ROLE"
-  | "AVALADO_ROLE";
+  | "AVALADO_ROLE"
+  | "INVERSOR_ROLE";
+
+export type UserStatus = "pending" | "approved" | "rejected" | "suspended";
 
 export interface IUser extends Document {
   address: string;
+  accountType?: "personal" | "business";
   name: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
+  companyName?: string;
+  cuit?: string;
+  country?: string;
+  location?: string;
+  platformRoles?: string[];
+  acceptTyC?: boolean;
+  acceptPrivacy?: boolean;
+  status?: UserStatus;
   url?: string;
   infoCid?: string;
   avatar?: string;
@@ -37,6 +52,11 @@ export const userSchema = new Schema<IUser>(
       unique: true,
       trim: true,
     },
+    accountType: {
+      type: String,
+      enum: ["personal", "business"],
+      trim: true,
+    },
     name: {
       type: String,
       required: true,
@@ -47,6 +67,47 @@ export const userSchema = new Schema<IUser>(
       required: true,
       lowercase: true,
       trim: true,
+    },
+    firstName: {
+      type: String,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      trim: true,
+    },
+    companyName: {
+      type: String,
+      trim: true,
+    },
+    cuit: {
+      type: String,
+      trim: true,
+    },
+    country: {
+      type: String,
+      trim: true,
+    },
+    location: {
+      type: String,
+      trim: true,
+    },
+    platformRoles: {
+      type: [String],
+      default: [],
+    },
+    acceptTyC: {
+      type: Boolean,
+      default: false,
+    },
+    acceptPrivacy: {
+      type: Boolean,
+      default: false,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected", "suspended"],
+      default: "pending",
     },
     url: {
       type: String,
@@ -69,7 +130,7 @@ export const userSchema = new Schema<IUser>(
       of: new Schema({
         roles: {
           type: [String],
-          enum: ["ADMIN_ROLE", "AVALDAO_ROLE", "SOLICITANTE_ROLE", "COMERCIANTE_ROLE", "AVALADO_ROLE"],
+          enum: ["ADMIN_ROLE", "AVALDAO_ROLE", "SOLICITANTE_ROLE", "COMERCIANTE_ROLE", "AVALADO_ROLE", "INVERSOR_ROLE"],
         },
         lastSyncedAt: {
           type: Date,
@@ -91,6 +152,6 @@ userSchema.methods.getRolesForNetwork = function (networkId: string): Role[] {
   return this.roles?.get(networkId)?.roles ?? [];
 };
 
-export default mongoose.models.User || mongoose.model('User', userSchema);
+export default usersMongooseConnection.models.User || usersMongooseConnection.model('User', userSchema);
 
 

@@ -4,22 +4,59 @@ import { ObjectId } from 'mongodb';
 import { getCurrentUser, requireRoles } from '@/lib/auth/authorization';
 import OnChainAuthorizationService from './onchain-authorization-service';
 import UsersModel from '@/lib/db/models/user-model';
+import { verifyMessage } from 'ethers';
 
 interface UserData {
-  address: string;
+
+  message: string;
+  signature: string;
+  accountType: "personal" | "business";
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  companyName?: string;
+  cuit?: string;
+  country?: string;
+  location?: string;
+  platformRoles: string[];
+  acceptTyC: boolean;
+  acceptPrivacy: boolean;
 }
 
 class UsersService {
 
 
-  //First check is address is already registered
-  async registerProfile(request: UserData) {
-    console.log(`register user`, request);
+  
+  async signup(request: UserData) {
+    
+    const address = verifyMessage(request.message, request.signature); //throws?
 
-    const db = await getDb();
-    const exists = await UsersModel.findOne({ "address": request.address });
+    const exists = await UsersModel.findOne({ "address": address });
+
+    console.log(exists);
     if (exists) {
       throw new Error("Address already registered");
+    } else {
+      const newUser = new UsersModel({
+        address: address,
+        accountType: request.accountType,
+        email: request.email,
+        name: request.accountType === "personal" ? `${request.firstName} ${request.lastName}` : request.companyName,
+        firstName: request.firstName,
+        lastName: request.lastName,
+        companyName: request.companyName,
+        cuit: request.cuit,
+        country: request.country,
+        location: request.location,
+        platformRoles: request.platformRoles,
+        acceptTyC: request.acceptTyC,
+        acceptPrivacy: request.acceptPrivacy,
+        status: "pending",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      await newUser.save();
     }
 
     return {};
@@ -28,23 +65,23 @@ class UsersService {
 
   async cacheUserRoles(userId: string, chainId: number, roles: string[]) {
 
-      await UsersModel.findByIdAndUpdate(
-        userId,
-        {
-          $set: {
-            [`roles.${chainId}`]: {
-              roles: roles,
-              lastSyncedAt: new Date(),
-            },
-            updatedAt: new Date(),
+    await UsersModel.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          [`roles.${chainId}`]: {
+            roles: roles,
+            lastSyncedAt: new Date(),
           },
+          updatedAt: new Date(),
         },
-        { new: true }
-      );
+      },
+      { new: true }
+    );
   }
 
   async clearUserRolesCache(userId: string, chainId: number) {
-    
+
     await UsersModel.findByIdAndUpdate(
       userId,
       {
@@ -58,7 +95,7 @@ class UsersService {
   }
 
   async getUserRolesCache(userId: string, chainId: number): Promise<{ roles: string[], lastSyncedAt: Date } | null> {
-    
+
     const user = await UsersModel.findById(userId);
     if (!user) return null;
 

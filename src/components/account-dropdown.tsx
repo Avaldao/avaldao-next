@@ -40,11 +40,7 @@ export function AccountDropdown({ address }: { address: string }) {
     <Menu>
       <MenuButton
         onDoubleClick={() => openAppkit()}
-        className={`
-          px-4 py-2 rounded-lg font-medium transition-all duration-300 min-w-[140px]
-          flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white 
-          shadow-sm hover:shadow-md
-        `}
+        className="flex min-w-35 items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30"
       >
         <>
           <CheckCircle2 className="w-4 h-4" />
@@ -54,13 +50,10 @@ export function AccountDropdown({ address }: { address: string }) {
 
       <MenuItems
         anchor="bottom end"
-        className={`
-          bg-white min-w-80 rounded-md shadow-xl border border-gray-200 z-50 
-          overflow-hidden mt-2
-        `}
+        className="z-50 mt-2 min-w-80 overflow-hidden rounded-2xl border border-violet-100/50 bg-white shadow-xl backdrop-blur-sm"
       >
         {/* User Info Section */}
-        <div className="border-b border-gray-100 pb-3 p-4 mb-1 bg-gray-50">
+        <div className="border-b border-violet-100/50 bg-linear-to-br from-violet-50/50 to-transparent p-4 pb-3 mb-1">
           <div className="flex items-center space-x-3">
             {session?.user.avatar ? (
               <Image
@@ -124,7 +117,7 @@ export function AccountDropdown({ address }: { address: string }) {
           <MenuItem>
             <Link
               href="/dashboard"
-              className="flex items-center hover:bg-emerald-400 hover:text-white transition duration-300 ease-in-out p-3 cursor-pointer text-sm text-gray-700"
+              className="flex items-center text-slate-700 transition duration-300 ease-in-out p-3 cursor-pointer text-sm hover:bg-violet-50 hover:text-violet-700"
             >
               <LayoutDashboard className="w-4 h-4 mr-3" />
               Dashboard
@@ -135,7 +128,7 @@ export function AccountDropdown({ address }: { address: string }) {
         <MenuItem>
           <Link
             href="/user/profile"
-            className="flex items-center hover:bg-emerald-400 hover:text-white transition duration-300 ease-in-out p-3 cursor-pointer text-sm text-gray-700"
+            className="flex cursor-pointer items-center p-3 text-sm text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700"
           >
             <UserIcon className="w-4 h-4 mr-3" />
             Profile
@@ -145,7 +138,7 @@ export function AccountDropdown({ address }: { address: string }) {
         <MenuItem>
           <Link
             href="/settings"
-            className="flex items-center hover:bg-emerald-400 hover:text-white transition duration-300 ease-in-out p-3 cursor-pointer text-sm text-gray-700"
+            className="flex cursor-pointer items-center p-3 text-sm text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700"
           >
             <Settings className="w-4 h-4 mr-3" />
             Settings
@@ -155,13 +148,13 @@ export function AccountDropdown({ address }: { address: string }) {
 
 
         {/* Divider */}
-        <div className="border-t border-gray-100 my-1" />
+        <div className="border-t border-violet-100/50 my-1" />
 
         {/* Sign Out */}
         <MenuItem>
           <button
             onClick={handleSignOut}
-            className="flex items-center w-full hover:bg-emerald-400 hover:text-white transition duration-300 ease-in-out p-3 cursor-pointer text-sm text-gray-700"
+            className="flex w-full cursor-pointer items-center p-3 text-sm text-red-600 transition-all duration-200 hover:bg-red-50 hover:text-red-700"
           >
             <LogOut className="w-4 h-4 mr-3" />
             Sign Out
