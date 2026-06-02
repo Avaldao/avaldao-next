@@ -12,6 +12,9 @@ type AuthUser = {
   infoCid?: string;
   avatar?: string;
   roles: Role[];
+  nroles: {
+    [chainId: number]: Role[];
+  }
 };
 
 declare module "next-auth" {
@@ -73,6 +76,7 @@ export const authOptions = {
         token.website = user.website;
         token.avatar = user.avatar;
         token.roles = user.roles;
+        token.nroles = user.nroles;
       } 
 
       return token;
@@ -87,7 +91,7 @@ export const authOptions = {
         session.user.roles = token.roles;
         session.user.avatar = token.avatar;
         session.user.website = token.website;
-
+        session.user.nroles = token.nroles;
 
       }
 

@@ -15,23 +15,33 @@ export class AuthService {
   async loginWithSignature(message: string, signature: string): Promise<UserInfo | null> {
     const address = verifyMessage(message, signature); //throws?
 
-
     const db = await getDb();
     const user = await db.collection<UserInfo>("users").findOne({ "address": address });
     const chainId = authorizationService.getChainId();
 
-
-    console.log("Users count?", await db.collection("users").countDocuments())
-
-
     if (user) {
       user.id = user._id.toString();
-      user.roles = await authorizationService.getRoles(address); //ahora los esta obteniendo sobre testnet
       user.website = user.url ?? user.website;
+      
+      const mainnetRoles = await (new OnChainAuthorizationService(30)).getRoles(address);
+      const testnetRoles = await (new OnChainAuthorizationService(31)).getRoles(address);
+
+      if(chainId == 30){
+        user.roles = mainnetRoles;
+      } else if(chainId == 31){
+        user.roles = testnetRoles;
+      } else {
+        user.roles = [];
+      }
+      
       user.nroles = {
-        [chainId]: user.roles
+        30: mainnetRoles,
+        31: testnetRoles
       };
-      await usersService.cacheUserRoles(user.id, chainId, user.roles);
+
+      await usersService.cacheUserRoles(user.id, 30, mainnetRoles);
+      await usersService.cacheUserRoles(user.id, 31, testnetRoles);
+
     } else {
       throw new Error("USER_NOT_FOUND");
     }

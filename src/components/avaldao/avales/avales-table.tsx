@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Aval } from "@/types";
 import { AvalStatusChip } from "./aval-status-chip";
 import { contractsAddress } from "@/blockchain/contracts";
+import { format } from "date-fns";
 
 interface TableProps<T extends { _id: string }> {
   columns: ReactNode[];
@@ -212,7 +213,7 @@ export const AvalTable = ({ avales }: { avales: Aval[] }) => {
 
   const getValues = (aval: Aval) => [
     <Td key="createdAt">
-      {new Date(aval.createdAt).toLocaleDateString('es-ES')}
+      {format(new Date(aval.createdAt), "dd/MM/yyyy HH:mm")}
     </Td>,
  /*    <Td key="beneficiario" className="border border-red-500 min-w-80 truncate">
       <UserByAddress address={aval.avaladoAddress}/>

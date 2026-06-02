@@ -36,8 +36,8 @@ export interface UserInfo {
   name: string;
   avatar: string;
   roles: Role[];
-  nroles?: {
-    [key: string]: Role[];
+  nroles: {
+    [chainId: number]: Role[];
   }
   url?: string; //deprecated
   website?: string;

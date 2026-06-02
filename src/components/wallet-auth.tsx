@@ -131,7 +131,7 @@ const WalletAuth = () => {
         return (
           <>
             <CheckCircle2 className="w-4 h-4" />
-            {truncateAddress(getAddress(address!))}
+            {address && truncateAddress(getAddress(address!))}
           </>
         );
       case 'signing':

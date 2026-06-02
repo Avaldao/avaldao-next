@@ -12,9 +12,10 @@ const avalesService = new AvalesService();
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
+    console.log(session.user)
     if (!session || !session.user.id) throw new NotAuthenticatedError();
-    console.log("Session user:", session.user); //No tiene roles. que raro
-    if (!session.user.roles.includes("SOLICITANTE_ROLE")) throw new MissingRoleError("SOLICITANTE_ROLE");
+    
+    //if (!session.user.roles.includes("SOLICITANTE_ROLE")) throw new MissingRoleError("SOLICITANTE_ROLE");
 
     const avalData: AvalRequest = await request.json();
 
