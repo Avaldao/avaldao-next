@@ -18,6 +18,7 @@ import { Language, translations } from "@/translations";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { useAppKit, useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
 import { BrowserProvider, Eip1193Provider } from "ethers";
+import { useRouter } from "next/navigation";
 
 // RFC 5322 email validation
 const RFC5322_EMAIL =
@@ -140,6 +141,7 @@ function CheckboxRow({
 function SignupFormInner({ language }: { language: Language }) {
   const t = useMemo(() => (key: string) => translations[key]?.[language] ?? key, [language]);
   const { data: session } = useSession();
+  const router = useRouter();
 
   const { address } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider<Eip1193Provider>("eip155");
@@ -276,6 +278,7 @@ function SignupFormInner({ language }: { language: Language }) {
 
       setTimeout(() => {
         setShowSignModal(false);
+        router.refresh();
       }, 1000);
 
 

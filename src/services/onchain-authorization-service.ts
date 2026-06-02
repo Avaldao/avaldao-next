@@ -17,7 +17,7 @@ export default class OnChainAuthorizationService {
   }
 
   async hasRole(address: string, role: Role) {
-    const role_ = roles.find(r => r.value === role);
+    const role_ = roles[this.chainId].find(r => r.value === role);
     if (!role_) throw new Error(`Invalid role value: ${role}`);
 
     const result = await this.admin.hasUserRole(address, role_.app, role_.hash);
@@ -25,12 +25,16 @@ export default class OnChainAuthorizationService {
   }
 
   async getRoles(address: string): Promise<Role[]> {
+    
     const userRoles = [];
-    for (const role of roles) {
+    for (const role of roles[this.chainId]) {
       if (await this.admin.hasUserRole(address, role.app, role.hash)) {
         userRoles.push(role);
       }
     }
+
+    console.log(`User roles: ${address} on ${this.chainId}`, userRoles.map(r => r.value));
+
     return userRoles.map(role => role.value) as Role[];
   }
 

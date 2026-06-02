@@ -1,6 +1,6 @@
 import { handleError, OkResponse } from "@/app/api/response-handler";
 import { defaultAvaldaoAddress } from "@/blockchain/contracts";
-import { NotAuthenticatedError, NotAuthorizedError } from "@/errors";
+import { MissingRoleError, NotAuthenticatedError, NotAuthorizedError } from "@/errors";
 import { authOptions } from "@/lib/auth";
 import AvalesService from "@/services/avales-service";
 import { AvalRequest } from "@/types";
@@ -13,7 +13,8 @@ export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user.id) throw new NotAuthenticatedError();
-    if (!session.user.roles.includes("SOLICITANTE_ROLE")) throw new NotAuthorizedError();
+    console.log("Session user:", session.user); //No tiene roles. que raro
+    if (!session.user.roles.includes("SOLICITANTE_ROLE")) throw new MissingRoleError("SOLICITANTE_ROLE");
 
     const avalData: AvalRequest = await request.json();
 
