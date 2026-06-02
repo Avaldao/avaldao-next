@@ -22,7 +22,6 @@ export const avalSchema = new Schema(
     avaladoSignature: { type: String },
     status: { type: Number, required: true, default: 0 },
     chainId: { type: Number, required: true },
-    isTestnet: { type: Boolean, default: false },
     infoCid: { type: String },
   },
   {

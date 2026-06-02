@@ -80,7 +80,7 @@ export default class AvalesService {
     let upload;
 
     const aval = await AvalModel.findById(avalId)
-      .select("-__v -avaladoAddress -comercianteAddress -solicitanteAddress -avaldaoAddress -createdAt -updatedAt -isTestnet -status")
+      .select("-__v -avaladoAddress -comercianteAddress -solicitanteAddress -avaldaoAddress -createdAt -updatedAt -status")
       .lean();
     if (!aval) throw new Error("Aval not found");
     try {
