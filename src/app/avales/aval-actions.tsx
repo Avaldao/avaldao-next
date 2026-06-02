@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Aval, AvalState } from "@/types";
 import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from "@reown/appkit/react";
-import { BrowserProvider, Contract, Eip1193Provider, getAddress, JsonRpcSigner } from "ethers";
+import { BrowserProvider, Contract, Eip1193Provider, getAddress, JsonRpcProvider, JsonRpcSigner } from "ethers";
 
 
 import { Wrench, PenLine, PlayCircle, Banknote } from "lucide-react";
@@ -65,15 +65,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   const { chainId } = useAppKitNetwork();
 
   const { address } = useAppKitAccount();
-
-  const [txModalOpen, setTxModalOpen] = useState(false);
-  const [txStep, setTxStep] = useState<TxStep>('waiting_wallet');
-  const [txHash, setTxHash] = useState<string | undefined>();
-  const [txError, setTxError] = useState<string | undefined>();
-
   const [showTxTracker, setShowTxTracker] = useState(false);
-
-
   const [balance, setBalance] = useState<string | null>(null);
 
   const provider = useMemo(() => {
@@ -141,8 +133,9 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
 
   async function getContracts(chainId: 30 | 31 = aval.chainId, { permissions = false }: GetContractsOptions = {}): Promise<ContractsResult> {
-    const ethersProvider = new BrowserProvider(walletProvider);
-    const signer = await ethersProvider.getSigner();
+    let ethersProvider = new BrowserProvider(walletProvider);
+    let signer = await ethersProvider.getSigner();
+    const provider = new JsonRpcProvider(contractsAddress[Number(chainId)].rpcUrl);
     const connectedChainId = signer.provider._network.chainId;
 
     if (Number(connectedChainId) !== chainId) {
@@ -150,22 +143,23 @@ export default function AvalActions({ aval }: { aval: Aval }) {
       if (!switched) {
         throw new Error(`Please switch to the correct network to interact with this aval. Target network chain id: ${chainId}`);
       }
+
+      // Re-create provider and signer after network switch
+      ethersProvider = new BrowserProvider(walletProvider);
+      signer = await ethersProvider.getSigner();
     }
-    //Tendriamos que comprobar si el signer esta en la misma red que el aval, y si no, ofrecer hacer switch de red. 
-    // Para simplificar el ejemplo, asumimos que ya esta en la red correcta
-    //console.log(`Network: ${signer.provider._network.chainId}`)
 
     const avaldaoAddress = contractsAddress[Number(chainId)].avaldao;
-    const avaldao = new Contract(avaldaoAddress, avaldaoAbi, signer);
+    const avaldao = new Contract(avaldaoAddress, avaldaoAbi, provider);
 
     const vaultAddress = await avaldao.vault();
-    const vault = new Contract(vaultAddress, vaultAbi, signer);
+    const vault = new Contract(vaultAddress, vaultAbi, provider);
 
     let avalAddress;
     let avalContract;
 
     if (aval._id) {
-      const avalAddress = await avaldao.getAvalAddress(aval._id);
+      avalAddress = await avaldao.getAvalAddress(aval._id);
       avalContract = new Contract(avalAddress, avalAbi, signer);
     }
 
@@ -174,10 +168,9 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
     if (permissions) {
       const permissionsAddress = contractsAddress[Number(chainId)].permissions;
-      console.log(`Permissions contract address: ${permissionsAddress}`)
       permissionsContract = new Contract(permissionsAddress, adminAbi, signer);
-
     }
+
 
     const result: ContractsResult = {
       avaldao,
@@ -223,14 +216,23 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
   async function signAval(aval: Aval, role: AvalRoleEnum) {
     const { avaldaoAddress, avalAddress, signer } = await getContracts(aval.chainId);
-    console.log(avaldaoAddress, signer);
-
-    aval.infoCid = "/ipfs/QmQZiVUdK7t5N8teghjQ3khcQ32W6bpFvuUpsU7p1wcBun"; //TODO: READ FROM BACKEND OR GENERATE
+    
+    aval.infoCid = aval.infoCid ?? ""; 
     aval.address = avalAddress!;
-
+    
+    if (!avalAddress) {
+      throw new Error("Aval address not found for aval " + aval._id);
+    }
+    
     const data = JSON.stringify(generateStructDataToSign(aval, avaldaoAddress));
+    console.log("Sign aval with role:", role, data);
 
-    console.log(aval, avaldaoAddress, data);
+    //Comprobar que walletProvider este bien conectado a la red que esperamos o pderile que cambie
+
+    /*     let ethersProvider = new BrowserProvider(walletProvider);
+        let signer = await ethersProvider.getSigner();
+        const connectedChainId = signer.provider._network.chainId; */
+
 
     const signature = await walletProvider.request({
       method: "eth_signTypedData_v4",
@@ -248,6 +250,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
       }
     );
     if (response.ok) {
+      toast.success(`Firma de ${role} registrada exitosamente`);
       router.refresh();
     }
   }
@@ -300,13 +303,44 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   }
 
 
+aval
 
 
   async function startAval() {
-    setTxHash(undefined);
-    setTxError(undefined);
-    setTxStep('waiting_wallet');
-    setTxModalOpen(true);
+
+    setShowTxTracker(true);
+
+    const sendTransaction = async () => {
+      const { avalContract } = await getContracts(aval.chainId);
+      if (!avalContract) {
+        console.log("Aval contract not found");
+        clearTxState();
+        setShowTxTracker(false);
+        return;
+      }
+      const signatures = getSignatures(aval);
+      if (!signatures) {
+        clearTxState();
+        setShowTxTracker(false);
+        return;
+      }
+      const [r, v, s] = signatures;
+
+      console.log(r,v,s)
+
+      const tx = await avalContract.sign(r, v, s, {
+        gasLimit: BigInt(5_000_000)
+      });
+
+
+      return tx;
+
+    };
+
+    await run(sendTransaction);
+
+
+/* 
     try {
       const { avalContract } = await getContracts(aval.chainId);
       if (!avalContract) {
@@ -314,7 +348,6 @@ export default function AvalActions({ aval }: { aval: Aval }) {
         setTxModalOpen(false);
         return;
       }
-
       const signatures = getSignatures(aval);
       if (!signatures) {
         setTxModalOpen(false);
@@ -349,7 +382,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
         setTxStep('error');
         setTxError(err?.message ?? 'Error desconocido.');
       }
-    }
+    } */
   }
 
 
@@ -437,7 +470,6 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
 
 
-
   return (
     <>
       {/*       <TxModal
@@ -460,7 +492,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
           }}
           explorerUrl={contractsAddress[aval.chainId]?.explorerUrl}
           txState={txState}
-          onClose={() =>{ 
+          onClose={() => {
             clearTxState();
             setShowTxTracker(false);
           }}
@@ -490,6 +522,11 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
             <Button onClick={acceptAval}>
               Aceptar aval testnet(new interface)
+            </Button>
+
+            <Button onClick={startAval}>
+              <PlayCircle className="mr-2 h-4 w-4" />
+              Iniciar aval
             </Button>
 
 
@@ -569,14 +606,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
             </div>
 
 
-            <div className="mt-4"> {/* Only if aval is aceptado - after creation on chain, the status should be updated offchain
-            we should keep a copy of the aval address
-             */}
-              <Button onClick={startAval}>
-                <PlayCircle className="mr-2 h-4 w-4" />
-                Iniciar aval
-              </Button>
-            </div>
+
 
 
 

@@ -14,6 +14,8 @@ import { getLanguageCookie } from "@/lib/cookies";
 import { translations } from "@/translations";
 import { contractsAddress } from "@/blockchain/contracts";
 import CopyAddress from "@/components/copy-address";
+import { Contract, getAddress, JsonRpcProvider } from "ethers";
+import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
 
 
 interface AvalDetailsPageProps {
@@ -79,322 +81,355 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
       );
     }
 
+    let explorer;
+    let address;
+
+    try {
+
+      const provider = new JsonRpcProvider(contractsAddress[aval.chainId].rpcUrl);
+      const avaldaoAddress = contractsAddress[aval.chainId].avaldao;
+
+      const avaldaoContract = new Contract(avaldaoAddress, avaldaoAbi, provider);
+      let addressRaw = await avaldaoContract.getAvalAddress(aval._id);
+      if(addressRaw != "0x0000000000000000000000000000000000000000"){
+        address = getAddress(addressRaw);
+        explorer = getAddressExplorerUrl(aval.chainId, address);
+      }
+
+
+
+
+    } catch (err) {
+      console.error("Error fetching additional data for aval:", err);
+    }
+
+
+
     const statusInfo = getStatusText(aval.status);
 
     return (
-        <div className="container mx-auto p-6 space-y-6">
-          {/* Header con información básica */}
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                    <Shield className="w-6 h-6 text-blue-600" />
-                    {aval.proyecto}
-                  </CardTitle>
-                  <p className="text-slate-600 mt-2">ID: {aval._id}</p>
-                </div>
-                <Badge variant={statusInfo.variant}>
-                  {statusInfo.text}
-                </Badge>
+      <div className="container mx-auto p-6 space-y-6">
+        {/* Header con información básica */}
+        <Card>
+          <CardHeader className="pb-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                  <Shield className="w-6 h-6 text-blue-600" />
+                  {aval.proyecto}
+                </CardTitle>
+                <p className="text-slate-600 mt-2">ID: {aval._id}</p>
+                <p className="text-slate-600">Chain ID: {aval.chainId}</p>
+                {address && (
+                  <p>Address:&nbsp; 
+                    <a href={explorer} target="_blank" rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  
+                  >{address}</a></p>
+
+                )}
               </div>
-            </CardHeader>
-          </Card>
+              <Badge variant={statusInfo.variant}>
+                {statusInfo.text}
+              </Badge>
+            </div>
+          </CardHeader>
+        </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Columna izquierda - Información principal */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Objetivo del proyecto */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-green-600" />
-                    {t("aval.details.objective")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-slate-700 whitespace-pre-line">{aval.objetivo}</p>
-                </CardContent>
-              </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Columna izquierda - Información principal */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Objetivo del proyecto */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-green-600" />
+                  {t("aval.details.objective")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700 whitespace-pre-line">{aval.objetivo}</p>
+              </CardContent>
+            </Card>
 
-              {/* Adquisición */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-purple-600" />
-                    {t("aval.details.acquisition")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-slate-700">{aval.adquisicion}</p>
-                </CardContent>
-              </Card>
+            {/* Adquisición */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-purple-600" />
+                  {t("aval.details.acquisition")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700">{aval.adquisicion}</p>
+              </CardContent>
+            </Card>
 
-              {/* Beneficiarios */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-orange-600" />
-                    {t("aval.details.beneficiaries")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-slate-700">{aval.beneficiarios}</p>
-                </CardContent>
-              </Card>
+            {/* Beneficiarios */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-orange-600" />
+                  {t("aval.details.beneficiaries")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-700">{aval.beneficiarios}</p>
+              </CardContent>
+            </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CalendarClock className="w-5 h-5 text-orange-600" />
-                    {t("aval.details.schedule")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div>
-                    {t("aval.details.start-date")}: {aval.fechaInicio.toISOString()}
-                  </div>
-                  <div>
-                    {t("aval.details.duration")}: {aval.duracionCuotaSeconds / 60 / 60 / 24} {t("aval.details.days")}
-                  </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CalendarClock className="w-5 h-5 text-orange-600" />
+                  {t("aval.details.schedule")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div>
+                  {t("aval.details.start-date")}: {aval.fechaInicio.toISOString()}
+                </div>
+                <div>
+                  {t("aval.details.duration")}: {aval.duracionCuotaSeconds / 60 / 60 / 24} {t("aval.details.days")}
+                </div>
 
-                  <div>
-                    {t("aval.details.unlock")}: {aval.desbloqueoSeconds / 60 / 60 / 24} {t("aval.details.days")}
-                  </div>
+                <div>
+                  {t("aval.details.unlock")}: {aval.desbloqueoSeconds / 60 / 60 / 24} {t("aval.details.days")}
+                </div>
 
-                  <div>
-                    {t("aval.details.tranches-amount")}: {aval.cuotasCantidad}
-                  </div>
+                <div>
+                  {t("aval.details.tranches-amount")}: {aval.cuotasCantidad}
+                </div>
 
-                  <div>
-                    {t("aval.details.amount")}: ${(aval.montoFiat / 100).toFixed(2)} <b>USD</b>
-                  </div>
+                <div>
+                  {t("aval.details.amount")}: ${(aval.montoFiat / 100).toFixed(2)} <b>USD</b>
+                </div>
 
-                  <div>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>{t("aval.details.tranche-number")}</th>
-                          <th>{t("aval.details.maturity-date")}</th>
-                          <th>{t("aval.details.unlock-date")}</th>
-                          <th>{t("aval.details.amount")}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <>
-
-                          {generateTranchesFromAval(aval)
-                            .map((tranche: Tranche) => (
-                              <tr key={tranche.index} className="font-mono">
-                                <td>{t("aval.details.tranche")} {tranche.index} </td>
-                                <td>{format(new Date(tranche.maturityDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
-                                <td>{format(new Date(tranche.unlockDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
-                                <td>$ {(aval.montoFiat / 100 / aval.cuotasCantidad).toFixed(2)}</td>
-                              </tr>
-                            ))
-                          }
-                        </>
-                      </tbody>
-                    </table>
-                  </div>
-
-
-                  {/* I need to generate cuotas with aval data */}
+                <div>
                   <table>
+                    <thead>
+                      <tr>
+                        <th>{t("aval.details.tranche-number")}</th>
+                        <th>{t("aval.details.maturity-date")}</th>
+                        <th>{t("aval.details.unlock-date")}</th>
+                        <th>{t("aval.details.amount")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <>
 
+                        {generateTranchesFromAval(aval)
+                          .map((tranche: Tranche) => (
+                            <tr key={tranche.index} className="font-mono">
+                              <td>{t("aval.details.tranche")} {tranche.index} </td>
+                              <td>{format(new Date(tranche.maturityDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
+                              <td>{format(new Date(tranche.unlockDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
+                              <td>$ {(aval.montoFiat / 100 / aval.cuotasCantidad).toFixed(2)}</td>
+                            </tr>
+                          ))
+                        }
+                      </>
+                    </tbody>
                   </table>
-                </CardContent>
-              </Card>
+                </div>
 
 
-              <AvalActionsWrapper aval={aval} />
+                {/* I need to generate cuotas with aval data */}
+                <table>
 
-            </div>
+                </table>
+              </CardContent>
+            </Card>
 
-            {/* Columna derecha - Información técnica y financiera */}
-            <div className="space-y-6">
-              {/* Información financiera */}
+
+            <AvalActionsWrapper aval={aval} />
+
+          </div>
+
+          {/* Columna derecha - Información técnica y financiera */}
+          <div className="space-y-6">
+            {/* Información financiera */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("aval.details.financial-info")}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Monto FIAT:</span>
+                  <span className="font-bold text-green-600">
+                    $ {(aval.montoFiat / 100).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Cantidad de Cuotas:</span>
+                  <span className="font-semibold">{aval.cuotasCantidad}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Duración Cuota:</span>
+                  <span className="font-semibold">
+                    {Math.round(aval.duracionCuotaSeconds / 86400)} días
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Tiempo Desbloqueo:</span>
+                  <span className="font-semibold">
+                    {Math.round(aval.desbloqueoSeconds / 86400)} días
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Fechas */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-blue-600" />
+                  Fechas
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <p className="text-sm text-slate-600">Fecha de Inicio:</p>
+                  <p className="font-semibold">{formatDate(aval.fechaInicio)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600">Creado:</p>
+                  <p className="font-semibold">{formatDate(aval.createdAt)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600">Actualizado:</p>
+                  <p className="font-semibold">{formatDate(aval.updatedAt)}</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Direcciones de Wallets */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("aval.details.participants")}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <p className="text-sm text-slate-600 flex items-center gap-2">
+                    <UserCheck className="w-4 h-4" />
+                    {t("aval.details.applicant")}:
+                  </p>
+                  <div className="flex items-center">
+                    <a
+                      className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
+                      href={getAddressExplorerUrl(aval.chainId, aval.solicitanteAddress)}
+                      title={aval.solicitanteAddress}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {shortenAddress(aval.solicitanteAddress)}
+                    </a>
+                    <CopyAddress address={aval.solicitanteAddress} />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 flex items-center gap-2">
+                    <Store className="w-4 h-4" />
+                    {t("aval.details.merchant")}:
+                  </p>
+                  <div className="flex items-center">
+                    <a
+                      className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
+                      href={getAddressExplorerUrl(aval.chainId, aval.comercianteAddress)}
+                      title={aval.comercianteAddress}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {shortenAddress(aval.comercianteAddress)}
+                    </a>
+                    <CopyAddress address={aval.comercianteAddress} />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    {t("aval.details.avalado")}:
+                  </p>
+                  <div className="flex items-center">
+                    <a
+                      className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
+                      href={getAddressExplorerUrl(aval.chainId, aval.avaladoAddress)}
+                      title={aval.avaladoAddress}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {shortenAddress(aval.avaladoAddress)}
+                    </a>
+                    <CopyAddress address={aval.avaladoAddress} />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    {t("aval.details.avaldao")}:
+                  </p>
+                  <div className="flex items-center">
+                    <a
+                      className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
+                      href={getAddressExplorerUrl(aval.chainId, aval.avaldaoAddress)}
+                      title={aval.avaldaoAddress}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {shortenAddress(aval.avaldaoAddress)}
+                    </a>
+                    <CopyAddress address={aval.avaldaoAddress} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Firmas (si existen) */}
+            {(aval.solicitanteSignature || aval.avaladoSignature || aval.comercianteSignature || aval.avaldaoSignature) && (
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("aval.details.financial-info")}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Monto FIAT:</span>
-                    <span className="font-bold text-green-600">
-                      $ {(aval.montoFiat / 100).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Cantidad de Cuotas:</span>
-                    <span className="font-semibold">{aval.cuotasCantidad}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Duración Cuota:</span>
-                    <span className="font-semibold">
-                      {Math.round(aval.duracionCuotaSeconds / 86400)} días
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Tiempo Desbloqueo:</span>
-                    <span className="font-semibold">
-                      {Math.round(aval.desbloqueoSeconds / 86400)} días
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Fechas */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-blue-600" />
-                    Fechas
-                  </CardTitle>
+                  <CardTitle>Firmas Digitales</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div>
-                    <p className="text-sm text-slate-600">Fecha de Inicio:</p>
-                    <p className="font-semibold">{formatDate(aval.fechaInicio)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">Creado:</p>
-                    <p className="font-semibold">{formatDate(aval.createdAt)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">Actualizado:</p>
-                    <p className="font-semibold">{formatDate(aval.updatedAt)}</p>
-                  </div>
+                  {aval.solicitanteSignature && (
+                    <div>
+                      <p className="text-sm text-slate-600">Firma Solicitante:</p>
+                      <p className="font-mono text-xs truncate" title={aval.solicitanteSignature}>
+                        {shortenAddress(aval.solicitanteSignature)}
+                      </p>
+                    </div>
+                  )}
+                  {aval.avaladoSignature && (
+                    <div>
+                      <p className="text-sm text-slate-600">Firma Avalado:</p>
+                      <p className="font-mono text-xs truncate" title={aval.avaladoSignature}>
+                        {shortenAddress(aval.avaladoSignature)}
+                      </p>
+                    </div>
+                  )}
+                  {aval.comercianteSignature && (
+                    <div>
+                      <p className="text-sm text-slate-600">Firma Comerciante:</p>
+                      <p className="font-mono text-xs truncate" title={aval.comercianteSignature}>
+                        {shortenAddress(aval.comercianteSignature)}
+                      </p>
+                    </div>
+                  )}
+                  {aval.avaldaoSignature && (
+                    <div>
+                      <p className="text-sm text-slate-600">Firma AvalDAO:</p>
+                      <p className="font-mono text-xs truncate" title={aval.avaldaoSignature}>
+                        {shortenAddress(aval.avaldaoSignature)}
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-
-              {/* Direcciones de Wallets */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("aval.details.participants")}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <p className="text-sm text-slate-600 flex items-center gap-2">
-                      <UserCheck className="w-4 h-4" />
-                      {t("aval.details.applicant")}:
-                    </p>
-                    <div className="flex items-center">
-                      <a
-                        className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
-                        href={getAddressExplorerUrl(aval.chainId, aval.solicitanteAddress)}
-                        title={aval.solicitanteAddress}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {shortenAddress(aval.solicitanteAddress)}
-                      </a>
-                      <CopyAddress address={aval.solicitanteAddress} />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600 flex items-center gap-2">
-                      <Store className="w-4 h-4" />
-                      {t("aval.details.merchant")}:
-                    </p>
-                    <div className="flex items-center">
-                      <a
-                        className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
-                        href={getAddressExplorerUrl(aval.chainId, aval.comercianteAddress)}
-                        title={aval.comercianteAddress}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {shortenAddress(aval.comercianteAddress)}
-                      </a>
-                      <CopyAddress address={aval.comercianteAddress} />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600 flex items-center gap-2">
-                      <Shield className="w-4 h-4" />
-                      {t("aval.details.avalado")}:
-                    </p>
-                    <div className="flex items-center">
-                      <a
-                        className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
-                        href={getAddressExplorerUrl(aval.chainId, aval.avaladoAddress)}
-                        title={aval.avaladoAddress}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {shortenAddress(aval.avaladoAddress)}
-                      </a>
-                      <CopyAddress address={aval.avaladoAddress} />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600 flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      {t("aval.details.avaldao")}:
-                    </p>
-                    <div className="flex items-center">
-                      <a
-                        className="font-mono text-sm text-blue-700 hover:text-blue-800 hover:underline"
-                        href={getAddressExplorerUrl(aval.chainId, aval.avaldaoAddress)}
-                        title={aval.avaldaoAddress}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {shortenAddress(aval.avaldaoAddress)}
-                      </a>
-                      <CopyAddress address={aval.avaldaoAddress} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Firmas (si existen) */}
-              {(aval.solicitanteSignature || aval.avaladoSignature || aval.comercianteSignature || aval.avaldaoSignature) && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Firmas Digitales</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {aval.solicitanteSignature && (
-                      <div>
-                        <p className="text-sm text-slate-600">Firma Solicitante:</p>
-                        <p className="font-mono text-xs truncate" title={aval.solicitanteSignature}>
-                          {shortenAddress(aval.solicitanteSignature)}
-                        </p>
-                      </div>
-                    )}
-                    {aval.avaladoSignature && (
-                      <div>
-                        <p className="text-sm text-slate-600">Firma Avalado:</p>
-                        <p className="font-mono text-xs truncate" title={aval.avaladoSignature}>
-                          {shortenAddress(aval.avaladoSignature)}
-                        </p>
-                      </div>
-                    )}
-                    {aval.comercianteSignature && (
-                      <div>
-                        <p className="text-sm text-slate-600">Firma Comerciante:</p>
-                        <p className="font-mono text-xs truncate" title={aval.comercianteSignature}>
-                          {shortenAddress(aval.comercianteSignature)}
-                        </p>
-                      </div>
-                    )}
-                    {aval.avaldaoSignature && (
-                      <div>
-                        <p className="text-sm text-slate-600">Firma AvalDAO:</p>
-                        <p className="font-mono text-xs truncate" title={aval.avaldaoSignature}>
-                          {shortenAddress(aval.avaldaoSignature)}
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+            )}
           </div>
         </div>
-      
+      </div>
+
     );
   } catch (error) {
     return (

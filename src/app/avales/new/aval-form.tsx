@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import InputDatePicker from "@/components/ui/input-date-picker";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 
 interface FieldErrors {
@@ -48,6 +49,7 @@ interface AvalFields {
 export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string }) {
   const { data: session } = useSession();
   const user = session?.user;
+  const router = useRouter();
 
   const [form, setForm] = useState<AvalFields>({
     proyecto: "",
@@ -219,6 +221,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
         });
         setComerciante(null);
         setAvalado(null);
+        router.push("/avales"); //Redirect to avales list after creation. We can consider redirecting to the newly created aval details page in the future.
         // setSuccess(true);  
       } else {
         const errorData = await res.json();

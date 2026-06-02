@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAppKitAccount, useAppKitNetwork, useWalletInfo } from "@reown/appkit/react";
-import { AbiCoder, BrowserProvider, ContractTransactionReceipt, ContractTransactionResponse, EthersError, Provider, TransactionReceipt, isError } from "ethers";
+import { AbiCoder, BrowserProvider, ContractTransactionReceipt, ContractTransactionResponse, EthersError, Provider, TransactionReceipt, getAddress, isError } from "ethers";
 import {
   CheckCircle2,
   AlertTriangle,
@@ -95,7 +95,7 @@ export default function TransactionTracker({
             <span className="text-xs text-zinc-400 dark:text-zinc-500">Account</span>
             {address ? (
               <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200 font-mono">
-                {shortAddress(address)}
+                {shortAddress(getAddress(address))}
               </span>
             ) : (
               <span className="w-16 h-4 rounded bg-zinc-300 dark:bg-zinc-700 animate-pulse inline-block" />
@@ -178,14 +178,16 @@ export default function TransactionTracker({
               <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
               <div className="text-xs text-red-600 dark:text-red-400 w-full">
                 {txState.errReason && (
-                  <button
-                    type="button"
-                    onClick={handleCopyErrorReason}
-                    className="mb-2 inline-flex items-center gap-1 rounded-md border border-red-200 dark:border-red-800 px-2 py-1 text-[11px] font-medium text-red-700 dark:text-red-300 hover:bg-red-100/70 dark:hover:bg-red-900/40 transition-colors"
-                  >
-                    <Copy className="w-3 h-3" />
-                    {copiedReason ? "Copied" : "Copy reason"}
-                  </button>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={handleCopyErrorReason}
+                      className="mb-1 inline-flex items-center gap-1 rounded-md border border-red-200 dark:border-red-800 px-2 py-1 text-[11px] font-medium text-red-700 dark:text-red-300 hover:bg-red-100/70 dark:hover:bg-red-900/40 transition-colors"
+                    >
+                      <Copy className="w-3 h-3" />
+                      {copiedReason ? "Copied" : "Copy reason"}
+                    </button>
+                  </div>
                 )}
 
                 {currentStatus === "expired"
