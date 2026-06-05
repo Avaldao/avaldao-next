@@ -119,8 +119,15 @@ const WalletAuth = () => {
     }
   };
 
+  const handleChangeWallet = async () => {
+    await disconnect();
+    setAuthStep('disconnected');
+    localStorage.removeItem("signup_message");
+    localStorage.removeItem("signup_signature");
+  }
+
   const handleDisconnect = async () => {
-    await disconnect(); //await disconnect y llevarlo al punto 1
+    await disconnect(); 
     setAuthStep('disconnected');
     setShowAuthModal(false);
   };
@@ -207,6 +214,7 @@ const WalletAuth = () => {
         address={address}
         onConnectWallet={handleConnectWallet}
         onSignMessage={handleSignMessage}
+        onChangeWallet={handleChangeWallet}
         onDisconnect={handleDisconnect}
         isSigning={authStep === 'signing'}
         language={language}

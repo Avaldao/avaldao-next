@@ -10,6 +10,7 @@ import AccountTypeSelector, { AccountType, accountTypes } from "@/app/register/a
 import PlatformRoleSelector, { PlatformRole } from "./platform-role-selector";
 import { TyCDialog } from "@/app/register/tyc-dialog";
 import SignModal, { SignStatus } from "./sign-modal";
+import SuccessfulRegistration from "@/components/ui/successful-registration";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ import Spinner from "@/components/ui/spinner";
 import { Language, translations } from "@/translations";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { useAppKit, useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
-import { BrowserProvider, Eip1193Provider } from "ethers";
+import { BrowserProvider, Eip1193Provider, getAddress } from "ethers";
 import { useRouter } from "next/navigation";
 
 // RFC 5322 email validation
@@ -150,9 +151,11 @@ function SignupFormInner({ language }: { language: Language }) {
   const [signStatus, setSignStatus] = useState<SignStatus>("idle");
   const [signError, setSignError] = useState<string | undefined>();
   const [showSignModal, setShowSignModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
 
   const [accountType, setAccountType] = useState<AccountType | undefined>(accountTypes[0]);
+  const [animateAccountTypeFields, setAnimateAccountTypeFields] = useState(false);
   const [platformRoles, setPlatformRoles] = useState<PlatformRole[]>([]);
 
   const [firstName, setFirstName] = useState("");
@@ -184,6 +187,10 @@ function SignupFormInner({ language }: { language: Language }) {
     if (platformRoles.length > 0)
       setErrors((e) => ({ ...e, platformRoles: undefined }));
   }, [platformRoles]);
+
+  useEffect(() => {
+    setAnimateAccountTypeFields(true);
+  }, []);
 
   const validate = (): boolean => {
     const next: FormErrors = {};
@@ -312,14 +319,31 @@ function SignupFormInner({ language }: { language: Language }) {
       body: JSON.stringify(payload),
     });
 
+    localStorage.removeItem("signup_message");
+    localStorage.removeItem("signup_signature");
+    
     if (response.ok) {
-      toast.success(t("signup.form.success"));
-      localStorage.removeItem("signup_message");
-      localStorage.removeItem("signup_signature");
+      setShowSuccessModal(true);
     } else {
-      const { message: errMsg } = await response.json();
-      toast.error(errMsg ?? t("signup.form.error.unexpected"));
+      let msg;
+      try{
+        const responseJson = await response.json();
+        const { message: errMsg } = responseJson;
+        msg = errMsg;
+      } catch {
+        msg = undefined;
+      }
+
+      if(!msg) {
+        msg = await response.text();  
+        console.log(msg);
+      }
+      
+      toast.error(msg ?? t("signup.form.error.unexpected"));
     }
+
+
+
   };
 
 
@@ -348,7 +372,7 @@ function SignupFormInner({ language }: { language: Language }) {
           {accountType?.value === "personal" && (
             <motion.div
               key="personal"
-              initial={{ opacity: 0, y: -10 }}
+              initial={animateAccountTypeFields ? { opacity: 0, y: -10 } : false}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.25 }}
@@ -380,7 +404,7 @@ function SignupFormInner({ language }: { language: Language }) {
           {accountType?.value === "business" && (
             <motion.div
               key="business"
-              initial={{ opacity: 0, y: -10 }}
+              initial={animateAccountTypeFields ? { opacity: 0, y: -10 } : false}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.25 }}
@@ -428,7 +452,7 @@ function SignupFormInner({ language }: { language: Language }) {
           <Label>{t("signup.form.wallet")}</Label>
           <Input
             readOnly
-            value={address}
+            value={address ? getAddress(address) : "" }
             className="bg-slate-100 cursor-not-allowed text-slate-500 font-mono"
             placeholder={t("signup.form.wallet.placeholder")}
           />
@@ -572,6 +596,12 @@ function SignupFormInner({ language }: { language: Language }) {
           t={t}
         />
       )}
+
+      <SuccessfulRegistration
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        t={t}
+      />
 
 
     </>

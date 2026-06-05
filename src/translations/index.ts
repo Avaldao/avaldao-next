@@ -370,6 +370,8 @@ export const translations: Translations = {
   "signup.form.legal.age.label": { es: '18 años o más', en: '18 years or older' },
   "signup.form.submit": { es: 'Crear cuenta', en: 'Create account' },
   "signup.form.success": { es: '¡Cuenta creada exitosamente!', en: 'Account created successfully!' },
+  "signup.success-modal.title": { es: 'Recibimos tu solicitud con éxito', en: 'We have received your application' },
+  "signup.success-modal.description": { es: 'Gracias por registrarte. Vamos a evaluar tu solicitud y te avisaremos por email cuando sea aprobada.', en: 'Thank you for signing up. We will review your application and notify you by email once it is approved.' },
   "signup.form.error.required-fields": { es: 'Por favor completá todos los campos requeridos', en: 'Please complete all required fields' },
   "signup.form.error.unexpected": { es: 'Ocurrió un error inesperado', en: 'An unexpected error occurred' },
 

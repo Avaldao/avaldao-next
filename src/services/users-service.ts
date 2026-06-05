@@ -1,10 +1,16 @@
 import getDb from '@/lib/mongodb';
-import { UserInfo, UserUpsert } from '@/types';
+import { PaginatedResult, UserInfo, UserUpsert } from '@/types';
 import { ObjectId } from 'mongodb';
 import { getCurrentUser, requireRoles } from '@/lib/auth/authorization';
 import OnChainAuthorizationService from './onchain-authorization-service';
-import UsersModel from '@/lib/db/models/user-model';
+import UsersModel, { UserStatus } from '@/lib/db/models/user-model';
 import { verifyMessage } from 'ethers';
+
+interface GetAllUsersFilter {
+  status?: UserStatus;
+  page?: number;
+  pageSize?: number;
+}
 
 interface UserData {
 
@@ -23,19 +29,19 @@ interface UserData {
   acceptPrivacy: boolean;
 }
 
-class UsersService {
-
-
+export default class UsersService {
   
   async signup(request: UserData) {
     
     const address = verifyMessage(request.message, request.signature); //throws?
 
-    const exists = await UsersModel.findOne({ "address": address });
+    const addressExists = await UsersModel.findOne({ "address": address });
+    const emailExists = await UsersModel.findOne({ "email": request.email });
 
-    console.log(exists);
-    if (exists) {
-      throw new Error("Address already registered");
+    if (addressExists) {
+      throw new Error(`Address already registered: ${address}`);
+    } else if(emailExists) {
+      throw new Error("Email already registered");
     } else {
       const newUser = new UsersModel({
         address: address,
@@ -109,22 +115,36 @@ class UsersService {
   }
 
 
-
-
-
-
-
-  async getAll(): Promise<UserInfo[]> {
+  async getAll(filter: GetAllUsersFilter = {}): Promise<PaginatedResult<UserInfo>> {
     await requireRoles(["ADMIN_ROLE", "AVALDAO_ROLE"]);
 
     const db = await getDb();
-    const users = await db.collection<UserInfo>("users").find({}).toArray();
+    const query = filter.status ? { status: filter.status } : {};
+    const page = filter.page && filter.page > 0 ? Math.floor(filter.page) : 1;
+    const pageSize = filter.pageSize && filter.pageSize > 0 ? Math.floor(filter.pageSize) : 10;
+    const skip = (page - 1) * pageSize;
 
-    return users.map(user => ({
-      ...user,
-      id: user._id.toString(), // Convertir ObjectId a string
-      roles: []
-    }));
+    const [totalItems, users] = await Promise.all([
+      db.collection<UserInfo>("users").countDocuments(query),
+      db.collection<UserInfo>("users")
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(pageSize)
+        .toArray(),
+    ]);
+
+    return {
+      items: users.map(user => ({
+        ...user,
+        id: user._id.toString(),
+        roles: [] //a estos los voy a buscar onchain.
+      })),
+      page,
+      pageSize,
+      totalItems,
+      totalPages: Math.max(1, Math.ceil(totalItems / pageSize)),
+    };
   }
 
 
@@ -242,5 +262,3 @@ class UsersService {
   }
 }
 
-
-export default UsersService;

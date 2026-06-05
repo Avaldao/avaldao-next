@@ -1,4 +1,13 @@
+import type { UserStatus } from "./lib/db/models/user-model";
 import { Role } from "./roles";
+
+export interface PaginatedResult<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+}
 
 export interface Aval {
   _id: string;
@@ -35,12 +44,14 @@ export interface UserInfo {
   infoCid?: string;
   name: string;
   avatar: string;
+  status?: UserStatus;
   roles: Role[];
   nroles: {
     [chainId: number]: Role[];
   }
   url?: string; //deprecated
   website?: string;
+  platformRoles: string[];
 }
 
 export interface UserUpsert {

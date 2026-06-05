@@ -58,6 +58,7 @@ export default function Hero({ language }: HeroProps) {
               description={t("slide1.description")}
               bg="bg-[url('/images/slide-bg1.jpg')]"
               btn={t("slide1.btn")}
+              headingLevel="h1"
             />
           </div>
 
@@ -67,6 +68,7 @@ export default function Hero({ language }: HeroProps) {
               description={t("slide2.description")}
               bg="bg-[url('/images/slide-bg2.jpg')]"
               btn={t("slide2.btn")}
+              headingLevel="h2"
             />
           </div>
 
@@ -76,6 +78,7 @@ export default function Hero({ language }: HeroProps) {
               description={t("slide3.description")}
               bg="bg-[url('/images/slide-bg3.jpg')]"
               btn={t("slide3.btn")}
+              headingLevel="h2"
             />
           </div>
         </div>
@@ -124,9 +127,12 @@ interface SlideProps {
   description: string;
   bg: string;
   btn: string;
+  headingLevel: "h1" | "h2";
 }
 
-function Slide({ title, description, bg, btn }: SlideProps) {
+function Slide({ title, description, bg, btn, headingLevel }: SlideProps) {
+  const HeadingTag = headingLevel;
+
   return (
     <div
       className={`
@@ -149,9 +155,9 @@ function Slide({ title, description, bg, btn }: SlideProps) {
           xl:max-w-6xl 
           text-left ">
 
-        <p className="font-heading text-3xl md:text-4xl text-primary mb-4 font-bold leading-11 select-none">
+        <HeadingTag className="font-heading text-3xl md:text-4xl text-primary mb-4 font-bold leading-11 select-none">
           {title}
-        </p>
+        </HeadingTag>
 
         <p className="text-md md:text-lg text-slate-700 mb-12 max-w-xl select-none">
           {description}
