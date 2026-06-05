@@ -1,23 +1,56 @@
-import { shortenAddress } from "@/utils";
 import Page from "@/components/layout/page";
 import UsersService from "@/services/users-service";
-import { AlertCircle, ChevronRight } from "lucide-react";
-import Link from "next/link";
-import IPFSUserAvatar from "./ipfs-user-avatar";
-import { Suspense } from "react";
-import CopyAddress from "@/components/copy-address";
-import { guardPage } from "@/lib/auth/page-guards";
+import { AlertCircle } from "lucide-react";
 import { handleError } from "@/lib/auth/page-guards";
+import type { UserStatus } from "@/lib/db/models/user-model";
+import type { PaginatedResult, UserInfo } from "@/types";
+import UsersTabs from "./users-tabs";
 
 export const dynamic = 'force-dynamic';
 
+const userStatuses: UserStatus[] = ["pending", "active", "rejected", "suspended"];
+const defaultStatus: UserStatus = "pending";
+const defaultPageSize = 10;
+
+function parsePageParam(value: string | string[] | undefined) {
+  const rawValue = Array.isArray(value) ? value[0] : value;
+  const page = Number(rawValue);
+
+  if (!Number.isFinite(page) || page < 1) {
+    return 1;
+  }
+
+  return Math.floor(page);
+}
+
 /* First check roles. Necesita ser un admin para ver todos los usarios de la plataforma */
-export default async function UsersPage() {
-  let users;
-  let error;
+export default async function UsersPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const rawStatus = resolvedSearchParams.status;
+  const selectedStatus = userStatuses.includes(rawStatus as UserStatus)
+    ? rawStatus as UserStatus
+    : defaultStatus;
+
+  let usersByStatus: Record<UserStatus, PaginatedResult<UserInfo>> | undefined;
 
   try{
-    users = await new UsersService().getAll();
+    const usersService = new UsersService();
+    const users = await Promise.all(
+      userStatuses.map(async (status) => ([
+        status,
+        await usersService.getAll({
+          status,
+          page: parsePageParam(resolvedSearchParams[`${status}Page`]),
+          pageSize: defaultPageSize,
+        })
+      ] as const))
+    );
+
+    usersByStatus = Object.fromEntries(users) as Record<UserStatus, PaginatedResult<UserInfo>>;
   } catch(err){
     handleError(err);
   }
@@ -29,73 +62,10 @@ export default async function UsersPage() {
         Users
       </div>
 
-      {!error && users && (
-        <div className="text-slate-800">
-          <table>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Address</th>
-                <th>Roles</th>
-                <th>
-                  <div className="opacity-0">
-                    Actions
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(user => (
-                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="truncate">
-                    <div className="flex flex-row gap-x-3 items-center ">
-                      <div className="min-w-[45]">
-                        <Suspense fallback={<div className="bg-slate-500 w-10 h-10 rounded-full animate-pulse" />}>
-                          <IPFSUserAvatar username={user.name} infoCid={user.infoCid} />
-                        </Suspense>
-
-
-                      </div>
-                      {user.name}
-
-                    </div>
-                  </td>
-                  <td>
-                    {user.email}
-                  </td>
-                  <td className="font-mono group">
-                    <div className=" flex items-center">
-
-                      <span className="select-none">
-                        {shortenAddress(user.address)}
-                      </span>
-                      <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 ease-in-out">
-                        <CopyAddress address={user.address} />
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="min-w-80"></div>
-                  </td>
-                  <td>
-                    <div className="flex justify-center items-center">
-                      <Link
-                        href={`/staff/users/${user.id}`}
-                        className="inline-flex items-center justify-center p-2 bg-secondary hover:bg-secondary-accent text-white rounded-lg transition-colors duration-200"
-                        title="Ver detalles del usuario"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {usersByStatus && (
+        <UsersTabs usersByStatus={usersByStatus} selectedStatus={selectedStatus} />
       )}
-      {error != undefined && (
+      {!usersByStatus && (
         <div className="bg-red-100 text-red-500 rounded-xl p-4 max-w-lg flex gap-x-2 items-center">
           <AlertCircle className="w-15 h-15" />
           No podemos recuperar los usuarios en este momento. Intenta nuevamente más tarde

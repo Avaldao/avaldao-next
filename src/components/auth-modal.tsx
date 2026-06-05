@@ -22,6 +22,7 @@ interface AuthModalProps {
   address?: string;
   onConnectWallet: () => void;
   onSignMessage: () => void;
+  onChangeWallet: () => void;
   onDisconnect: () => void;
   isSigning?: boolean;
   language?: Language;
@@ -34,6 +35,7 @@ export const AuthModal = ({
   address,
   onConnectWallet,
   onSignMessage,
+  onChangeWallet,
   onDisconnect,
   isSigning = false,
   language = 'es'
@@ -205,7 +207,7 @@ export const AuthModal = ({
                   {isSigning ? t('auth.modal.connected.signing-button') : t('auth.modal.connected.sign-button')}
                 </button>
                 <button
-                  onClick={onDisconnect}
+                  onClick={onChangeWallet}
                   className="w-full rounded-xl py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <Wallet className="w-4 h-4" />

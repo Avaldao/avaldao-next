@@ -10,7 +10,7 @@ export type Role =
   | "AVALADO_ROLE"
   | "INVERSOR_ROLE";
 
-export type UserStatus = "pending" | "approved" | "rejected" | "suspended";
+export type UserStatus = "pending" | "active" | "rejected" | "suspended";
 
 export interface IUser extends Document {
   address: string;
@@ -106,7 +106,7 @@ export const userSchema = new Schema<IUser>(
     },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "suspended"],
+      enum: ["pending", "active", "rejected", "suspended"],
       default: "pending",
     },
     url: {
