@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 
@@ -29,10 +29,19 @@ export default function SuccessfulRegistration({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-3xl overflow-hidden rounded-[28px] border border-violet-100 bg-white shadow-2xl"
+        className="w-full max-w-3xl overflow-hidden rounded-[28px] border border-violet-100 bg-white shadow-2xl relative"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="bg-[linear-gradient(180deg,#f8f7ff_0%,#ffffff_42%,#f4f7fb_100%)]">
+
+          <div className="absolute right-4 top-4 ">
+            <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-gray-200 p-2">
+
+              <X className="h-6 w-6 cursor-pointer text-slate-500" onClick={onClose} />
+            </button>
+          </div>
+
+
           <div className="px-6 pt-8 pb-6 sm:px-10 sm:pt-10 sm:pb-8">
             <div className="mx-auto flex max-w-lg flex-col items-center text-center">
               <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-violet-100">
@@ -56,7 +65,7 @@ export default function SuccessfulRegistration({
                 backgroundImage: "url('/images/unnamed.png')"
               }}
             />
-            
+
           </div>
         </div>
       </div>

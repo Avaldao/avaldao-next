@@ -13,7 +13,6 @@ interface GetAllUsersFilter {
 }
 
 interface UserData {
-
   message: string;
   signature: string;
   accountType: "personal" | "business";
@@ -27,6 +26,7 @@ interface UserData {
   platformRoles: string[];
   acceptTyC: boolean;
   acceptPrivacy: boolean;
+  language: string; 
 }
 
 export default class UsersService {
@@ -60,6 +60,7 @@ export default class UsersService {
         status: "pending",
         createdAt: new Date(),
         updatedAt: new Date(),
+        language: request.language
       });
 
       await newUser.save();
