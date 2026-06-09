@@ -5,6 +5,12 @@ import { getCurrentUser, requireRoles } from '@/lib/auth/authorization';
 import OnChainAuthorizationService from './onchain-authorization-service';
 import UsersModel, { UserStatus } from '@/lib/db/models/user-model';
 import { verifyMessage } from 'ethers';
+import { sendMail } from '@/lib/email';
+
+import path from 'path';
+import fs from 'fs';
+import { translations } from '@/translations';
+
 
 interface GetAllUsersFilter {
   status?: UserStatus;
@@ -26,13 +32,13 @@ interface UserData {
   platformRoles: string[];
   acceptTyC: boolean;
   acceptPrivacy: boolean;
-  language: string; 
+  language: string;
 }
 
 export default class UsersService {
-  
+
   async signup(request: UserData) {
-    
+
     const address = verifyMessage(request.message, request.signature); //throws?
 
     const addressExists = await UsersModel.findOne({ "address": address });
@@ -40,7 +46,7 @@ export default class UsersService {
 
     if (addressExists) {
       throw new Error(`Address already registered: ${address}`);
-    } else if(emailExists) {
+    } else if (emailExists) {
       throw new Error("Email already registered");
     } else {
       const newUser = new UsersModel({
@@ -68,6 +74,32 @@ export default class UsersService {
 
     return {};
   }
+
+  async sendActivationEmail(email: string, language: "en" | "es" = "en") {
+    //Necesitamos configurar el correo
+    const activationToken = Math.random().toString(36).substring(2); // Generate a random token
+    const activationLink = `${process.env.NEXT_PUBLIC_SITE_URL}/activate?token=${activationToken}`;
+
+    const t = (key: string) => translations[key]?.[language] ?? key;
+
+
+    const templatePath = path.join(process.cwd(), 'emails', language, 'activation-email.html');
+    const html = fs.readFileSync(templatePath, 'utf-8')
+      .replace(/\{\{ACTIVATION_LINK\}\}/g, activationLink);
+
+    await sendMail({
+      to: email,
+      subject: t("email.activation.subject"),
+      text: `${t("email.activation.body")} ${activationLink}`,
+      html: html,
+    });
+
+
+
+  }
+
+
+
 
 
   async cacheUserRoles(userId: string, chainId: number, roles: string[]) {
