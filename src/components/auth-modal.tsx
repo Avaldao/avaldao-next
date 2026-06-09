@@ -161,7 +161,7 @@ export const AuthModal = ({
                 <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
                   {t('auth.modal.connect.title')}
                 </h3>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="text-sm text  -zinc-500 dark:text-zinc-400">
                   {t('auth.modal.connect.description')}
                 </p>
               </div>

@@ -33,6 +33,7 @@ export interface IUser extends Document {
   website?: string;
   updatedAt?: Date;
   createdAt?: Date;
+  language?: string;
   roles:{
     [key:string]: {
       roles: Role[]
@@ -124,6 +125,11 @@ export const userSchema = new Schema<IUser>(
     website: {
       type: String,
       trim: true,
+    },
+    language: {
+      type: String,
+      trim: true,
+      enum: ["en","es"],
     },
     roles: {
       type: Map,

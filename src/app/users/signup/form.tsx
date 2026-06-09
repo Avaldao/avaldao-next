@@ -17,9 +17,12 @@ import { Button } from "@/components/ui/button";
 import Spinner from "@/components/ui/spinner";
 import { Language, translations } from "@/translations";
 import { LanguageProvider } from "@/context/LanguageContext";
-import { useAppKit, useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
+import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect } from "@reown/appkit/react";
 import { BrowserProvider, Eip1193Provider, getAddress } from "ethers";
 import { useRouter } from "next/navigation";
+import AskConnectionModal from "./ask-connection-modal";
+import AppkitContextProvider from "@/context/appkit-context";
+import { Power, PowerOff } from "lucide-react";
 
 // RFC 5322 email validation
 const RFC5322_EMAIL =
@@ -144,7 +147,10 @@ function SignupFormInner({ language }: { language: Language }) {
   const { data: session } = useSession();
   const router = useRouter();
 
-  const { address } = useAppKitAccount();
+  const { open } = useAppKit();
+  const { isConnected, address } = useAppKitAccount();
+  const { disconnect } = useDisconnect();
+
   const { walletProvider } = useAppKitProvider<Eip1193Provider>("eip155");
 
   const [signChallenge, setSignChallenge] = useState<string | null>(null);
@@ -152,7 +158,8 @@ function SignupFormInner({ language }: { language: Language }) {
   const [signError, setSignError] = useState<string | undefined>();
   const [showSignModal, setShowSignModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-
+  const [showAskConnectionModal, setShowAskConnectionModal] = useState(false);
+  const [shouldAskSignature, setShouldAskSignature] = useState(false);
 
   const [accountType, setAccountType] = useState<AccountType | undefined>(accountTypes[0]);
   const [animateAccountTypeFields, setAnimateAccountTypeFields] = useState(false);
@@ -191,6 +198,16 @@ function SignupFormInner({ language }: { language: Language }) {
   useEffect(() => {
     setAnimateAccountTypeFields(true);
   }, []);
+
+  useEffect(() => {
+    if (shouldAskSignature && address && isConnected) {
+      setShouldAskSignature(false);
+      askSignature();
+    }
+  }, [shouldAskSignature, address, isConnected]);
+
+
+
 
   const validate = (): boolean => {
     const next: FormErrors = {};
@@ -244,26 +261,44 @@ function SignupFormInner({ language }: { language: Language }) {
     return true;
   };
 
+
+  const askSignature = async () => {
+
+    if (!address) {
+      throw new Error("No address connected");
+    }
+    const res = await fetch(`/api/challenges?address=${address}`);
+    const { message: challenge } = await res.json();
+    setSignChallenge(challenge);
+    setSignStatus("idle");
+    setSignError(undefined);
+    setShowSignModal(true);
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate() || loading) return;
 
     try {
       setLoading(true);
+
+      if (!isConnected || !address) {
+        localStorage.removeItem("signup_message");
+        localStorage.removeItem("signup_signature");
+        setShowAskConnectionModal(true);
+        return;
+
+      }
+
       const cached_message = localStorage.getItem("signup_message");
       const cached_signature = localStorage.getItem("signup_signature");
 
       if (cached_message && cached_signature) {
         await submitPayload(cached_message, cached_signature);
         return;
+      } else {
+        await askSignature();
       }
-
-      const res = await fetch(`/api/challenges?address=${address}`);
-      const { message: challenge } = await res.json();
-      setSignChallenge(challenge);
-      setSignStatus("idle");
-      setSignError(undefined);
-      setShowSignModal(true);
     } catch {
       toast.error(t("signup.form.error.unexpected"));
     } finally {
@@ -311,6 +346,7 @@ function SignupFormInner({ language }: { language: Language }) {
       acceptPrivacy,
       message,
       signature,
+      language
     };
 
     const response = await fetch("/api/users/signup", {
@@ -321,12 +357,12 @@ function SignupFormInner({ language }: { language: Language }) {
 
     localStorage.removeItem("signup_message");
     localStorage.removeItem("signup_signature");
-    
+
     if (response.ok) {
       setShowSuccessModal(true);
     } else {
       let msg;
-      try{
+      try {
         const responseJson = await response.json();
         const { message: errMsg } = responseJson;
         msg = errMsg;
@@ -334,11 +370,11 @@ function SignupFormInner({ language }: { language: Language }) {
         msg = undefined;
       }
 
-      if(!msg) {
-        msg = await response.text();  
+      if (!msg) {
+        msg = await response.text();
         console.log(msg);
       }
-      
+
       toast.error(msg ?? t("signup.form.error.unexpected"));
     }
 
@@ -351,237 +387,268 @@ function SignupFormInner({ language }: { language: Language }) {
   return (
     <>
 
-    <form onSubmit={handleSubmit} noValidate className="space-y-4 max-w-5xl">
-      {/* ── Tipo de cuenta ─────────────────────────────── */}
-      <section className="-mb-1">
+      <form onSubmit={handleSubmit} noValidate className="space-y-4 max-w-5xl">
+        {/* ── Tipo de cuenta ─────────────────────────────── */}
+        <section className="-mb-1">
 
-        <SectionTitle>{t("signup.form.account-type")}</SectionTitle>
-        <AccountTypeSelector
-          language={language}
-          ref={(el) => {
-            accountTypeRef.current = el;
-          }}
-          initialType="personal"
-          onTypeSelected={setAccountType}
-        />
-        {errors.accountType && (
-          <p className="text-red-500 text-sm mt-1">{errors.accountType}</p>
-        )}
-
-        <AnimatePresence mode="wait">
-          {accountType?.value === "personal" && (
-            <motion.div
-              key="personal"
-              initial={animateAccountTypeFields ? { opacity: 0, y: -10 } : false}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.25 }}
-              className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2"
-            >
-              <div>
-                <Label required>{t("signup.form.personal.firstName")}</Label>
-                <Input
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  error={errors.firstName}
-                  placeholder={t("signup.form.personal.firstName.placeholder")}
-                  required
-                />
-              </div>
-              <div>
-                <Label required>{t("signup.form.personal.lastName")}</Label>
-                <Input
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  error={errors.lastName}
-                  placeholder={t("signup.form.personal.lastName.placeholder")}
-                  required
-                />
-              </div>
-            </motion.div>
+          <SectionTitle>{t("signup.form.account-type")}</SectionTitle>
+          <AccountTypeSelector
+            language={language}
+            ref={(el) => {
+              accountTypeRef.current = el;
+            }}
+            initialType="personal"
+            onTypeSelected={setAccountType}
+          />
+          {errors.accountType && (
+            <p className="text-red-500 text-sm mt-1">{errors.accountType}</p>
           )}
 
-          {accountType?.value === "business" && (
-            <motion.div
-              key="business"
-              initial={animateAccountTypeFields ? { opacity: 0, y: -10 } : false}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.25 }}
-              className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2"
-            >
-              <div>
-                <Label required>{t("signup.form.business.companyName")}</Label>
-                <Input
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  error={errors.companyName}
-                  placeholder={t("signup.form.business.companyName.placeholder")}
-                  required
-                />
-              </div>
-              <div>
-                <Label required>{t("signup.form.business.cuit")}</Label>
-                <Input
-                  value={cuit}
-                  onChange={(e) => setCuit(e.target.value)}
-                  error={errors.cuit}
-                  placeholder={t("signup.form.business.cuit.placeholder")}
-                  required
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </section>
-
-      {/* ── Contacto ───────────────────────────────────── */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 -mb-1">
-        <div>
-          <Label required>{t("signup.form.email")}</Label>
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            error={errors.email}
-            placeholder="tu@email.com"
-            required
-          />
-        </div>
-        <div>
-          <Label>{t("signup.form.wallet")}</Label>
-          <Input
-            readOnly
-            value={address ? getAddress(address) : "" }
-            className="bg-slate-100 cursor-not-allowed text-slate-500 font-mono"
-            placeholder={t("signup.form.wallet.placeholder")}
-          />
-        </div>
-      </section>
-
-      {/* ── Ubicación ──────────────────────────────────── */}
-      <section>
-        <SectionTitle>{t("signup.form.location")}</SectionTitle>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <Label required>{t("signup.form.location.country")}</Label>
-            <select
-              value={country}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val === "──────────────") return;
-                setCountry(val);
-                if (val) setErrors((er) => ({ ...er, country: undefined }));
-              }}
-              className={`bg-gray-50 border text-slate-800 text-sm rounded-lg block w-full p-2.5 focus:ring-1 focus:ring-secondary focus:border-secondary focus-visible:ring-1 focus-visible:ring-secondary focus-visible:border-secondary focus-visible:outline-none ${errors.country
-                ? "border-red-300 focus:ring-red-300 focus:border-red-300"
-                : "border-gray-300"
-                }`}
-            >
-              <option value="">{t("signup.form.location.country.placeholder")}</option>
-              {COUNTRIES.map((c) => (
-                <option key={c} value={c} disabled={c === "──────────────"}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            {errors.country && (
-              <p className="text-sm text-red-500 mt-1 mb-2 ml-1">{errors.country}</p>
+          <AnimatePresence mode="wait">
+            {accountType?.value === "personal" && (
+              <motion.div
+                key="personal"
+                initial={animateAccountTypeFields ? { opacity: 0, y: -10 } : false}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.25 }}
+                className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2"
+              >
+                <div>
+                  <Label required>{t("signup.form.personal.firstName")}</Label>
+                  <Input
+                    autoComplete="given-name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    error={errors.firstName}
+                    placeholder={t("signup.form.personal.firstName.placeholder")}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label required>{t("signup.form.personal.lastName")}</Label>
+                  <Input
+                    autoComplete="family-name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    error={errors.lastName}
+                    placeholder={t("signup.form.personal.lastName.placeholder")}
+                    required
+                  />
+                </div>
+              </motion.div>
             )}
-          </div>
+
+            {accountType?.value === "business" && (
+              <motion.div
+                key="business"
+                initial={animateAccountTypeFields ? { opacity: 0, y: -10 } : false}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.25 }}
+                className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2"
+              >
+                <div>
+                  <Label required>{t("signup.form.business.companyName")}</Label>
+                  <Input
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    error={errors.companyName}
+                    placeholder={t("signup.form.business.companyName.placeholder")}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label required>{t("signup.form.business.cuit")}</Label>
+                  <Input
+                    value={cuit}
+                    onChange={(e) => setCuit(e.target.value)}
+                    error={errors.cuit}
+                    placeholder={t("signup.form.business.cuit.placeholder")}
+                    required
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </section>
+
+        {/* ── Contacto ───────────────────────────────────── */}
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 -mb-1">
           <div>
-            <Label required>{t("signup.form.location.city")}</Label>
+            <Label required>{t("signup.form.email")}</Label>
             <Input
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              error={errors.location}
-              placeholder={t("signup.form.location.city.placeholder")}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={errors.email}
+              placeholder="tu@email.com"
               required
             />
           </div>
-        </div>
-      </section>
+          <div>
+            <Label>{t("signup.form.wallet")}</Label>
+            <div className="relative">
 
-      {/* ── Roles en la plataforma ─────────────────────── */}
-      <section>
-        <SectionTitle>{t("signup.form.roles")}</SectionTitle>
-        <p className="text-sm text-slate-500 mb-1">
-          {t("signup.form.roles.hint")}
-        </p>
-        <PlatformRoleSelector
-          language={language}
-          ref={(el) => {
-            platformRolesRef.current = el;
-          }}
-          onRolesSelected={setPlatformRoles}
-        />
-        {errors.platformRoles && (
-          <p className="text-red-500 text-sm mt-1">{errors.platformRoles}</p>
-        )}
-      </section>
+              <Input
+                readOnly
+                value={address ? getAddress(address) : ""}
+                className="bg-slate-100 cursor-not-allowed text-slate-500 font-mono"
+                placeholder={t("signup.form.wallet.placeholder")}
+              />
+              {isConnected && (
+                <div className="absolute right-0 top-0 bottom-0 text-red-300 p-2 flex flex-col justify-center pb-5">
+                  <button
+                    title="Disconnect"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      await disconnect();
 
-      {/* ── Aceptación legal ───────────────────────────── */}
-      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 space-y-4">
-        <SectionTitle>{t("signup.form.legal")}</SectionTitle>
-        <div className="h-1"></div>
-        <CheckboxRow
-          checked={acceptTyC}
-          onChange={(v) => {
-            if (v) {
-              setShowTyCDialog(true);
-            } else {
-              setAcceptTyC(false);
-            }
-          }}
-          error={errors.acceptTyC}
-        >
-          {t("signup.form.legal.tyc.pre")}{" "}
-          <button
-            type="button"
-            onClick={() => setShowTyCDialog(true)}
-            className="font-semibold text-secondary underline-offset-2 hover:underline"
+                    }}>
+                    <PowerOff className="h-4 w-4 cursor-pointer hover:text-red-600 transition-colors" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Ubicación ──────────────────────────────────── */}
+        <section>
+          <SectionTitle>{t("signup.form.location")}</SectionTitle>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <Label required>{t("signup.form.location.country")}</Label>
+              <select
+                value={country}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "──────────────") return;
+                  setCountry(val);
+                  if (val) setErrors((er) => ({ ...er, country: undefined }));
+                }}
+                className={`bg-gray-50 border text-slate-800 text-sm rounded-lg block w-full p-2.5 focus:ring-1 focus:ring-secondary focus:border-secondary focus-visible:ring-1 focus-visible:ring-secondary focus-visible:border-secondary focus-visible:outline-none ${errors.country
+                  ? "border-red-300 focus:ring-red-300 focus:border-red-300"
+                  : "border-gray-300"
+                  }`}
+              >
+                <option value="">{t("signup.form.location.country.placeholder")}</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c} value={c} disabled={c === "──────────────"}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+              {errors.country && (
+                <p className="text-sm text-red-500 mt-1 mb-2 ml-1">{errors.country}</p>
+              )}
+            </div>
+            <div>
+              <Label required>{t("signup.form.location.city")}</Label>
+              <Input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                error={errors.location}
+                placeholder={t("signup.form.location.city.placeholder")}
+                required
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ── Roles en la plataforma ─────────────────────── */}
+        <section>
+          <SectionTitle>{t("signup.form.roles")}</SectionTitle>
+          <p className="text-sm text-slate-500 mb-1">
+            {t("signup.form.roles.hint")}
+          </p>
+          <PlatformRoleSelector
+            language={language}
+            ref={(el) => {
+              platformRolesRef.current = el;
+            }}
+            onRolesSelected={setPlatformRoles}
+          />
+          {errors.platformRoles && (
+            <p className="text-red-500 text-sm mt-1">{errors.platformRoles}</p>
+          )}
+        </section>
+
+        {/* ── Aceptación legal ───────────────────────────── */}
+        <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 space-y-4">
+          <SectionTitle>{t("signup.form.legal")}</SectionTitle>
+          <div className="h-1"></div>
+          <CheckboxRow
+            checked={acceptTyC}
+            onChange={(v) => {
+              if (v) {
+                setShowTyCDialog(true);
+              } else {
+                setAcceptTyC(false);
+              }
+            }}
+            error={errors.acceptTyC}
           >
-            {t("signup.form.legal.tyc.link")}
-          </button>
-        </CheckboxRow>
+            {t("signup.form.legal.tyc.pre")}{" "}
+            <button
+              type="button"
+              onClick={() => setShowTyCDialog(true)}
+              className="font-semibold text-secondary underline-offset-2 hover:underline"
+            >
+              {t("signup.form.legal.tyc.link")}
+            </button>
+          </CheckboxRow>
 
-        <CheckboxRow
-          checked={acceptPrivacy}
-          onChange={(v) => {
-            setAcceptPrivacy(v);
-            if (v) setErrors((e) => ({ ...e, acceptPrivacy: undefined }));
+          <CheckboxRow
+            checked={acceptPrivacy}
+            onChange={(v) => {
+              setAcceptPrivacy(v);
+              if (v) setErrors((e) => ({ ...e, acceptPrivacy: undefined }));
+            }}
+            error={errors.acceptPrivacy}
+          >
+            {t("signup.form.legal.privacy.pre")}{" "}
+            <span className="font-semibold text-slate-700">{t("signup.form.legal.privacy.label")}</span>
+          </CheckboxRow>
+
+
+        </section>
+
+        {/* ── Submit ─────────────────────────────────────── */}
+        <Button type="submit" loading={loading} className="w-full sm:w-auto px-10">
+          {loading && <Spinner variant="sm" />}
+          {t("signup.form.submit")}
+        </Button>
+
+        {showTyCDialog && (
+          <TyCDialog
+            tyc={buildTyC(t)}
+            setShowTyCDialog={setShowTyCDialog}
+            onAccept={() => {
+              setAcceptTyC(true);
+              setErrors((e) => ({ ...e, acceptTyC: undefined }));
+              setShowTyCDialog(false);
+            }}
+            onDecline={() => {
+              setAcceptTyC(false);
+              setShowTyCDialog(false);
+            }}
+          />
+        )}
+      </form>
+      {showAskConnectionModal && (
+        <AskConnectionModal
+          onConnect={async () => {
+            setShowAskConnectionModal(false);
+            await open({ view: 'Connect' });
+            setShouldAskSignature(true);
           }}
-          error={errors.acceptPrivacy}
-        >
-          {t("signup.form.legal.privacy.pre")}{" "}
-          <span className="font-semibold text-slate-700">{t("signup.form.legal.privacy.label")}</span>
-        </CheckboxRow>
-
-
-      </section>
-
-      {/* ── Submit ─────────────────────────────────────── */}
-      <Button type="submit" loading={loading} className="w-full sm:w-auto px-10">
-        {loading && <Spinner variant="sm" />}
-        {t("signup.form.submit")}
-      </Button>
-
-      {showTyCDialog && (
-        <TyCDialog
-          tyc={buildTyC(t)}
-          setShowTyCDialog={setShowTyCDialog}
-          onAccept={() => {
-            setAcceptTyC(true);
-            setErrors((e) => ({ ...e, acceptTyC: undefined }));
-            setShowTyCDialog(false);
+          onSkip={() => {
+            setShowAskConnectionModal(false);
           }}
-          onDecline={() => {
-            setAcceptTyC(false);
-            setShowTyCDialog(false);
-          }}
+          t={t}
         />
       )}
-    </form>
       {showSignModal && (
         <SignModal
           address={address}
@@ -599,7 +666,10 @@ function SignupFormInner({ language }: { language: Language }) {
 
       <SuccessfulRegistration
         isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push("/");
+        }}
         t={t}
       />
 
@@ -611,9 +681,11 @@ function SignupFormInner({ language }: { language: Language }) {
 export default function SignupForm({ language }: { language: Language }) {
   return (
     <SessionProvider>
-      <LanguageProvider initialLanguage={language}>
-        <SignupFormInner language={language} />
-      </LanguageProvider>
+      <AppkitContextProvider>
+        <LanguageProvider initialLanguage={language}>
+          <SignupFormInner language={language} />
+        </LanguageProvider>
+      </AppkitContextProvider>
     </SessionProvider>
   );
 }

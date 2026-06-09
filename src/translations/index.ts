@@ -659,6 +659,26 @@ export const translations: Translations = {
     es: 'Para empresas que buscan solicitar avales para sus operaciones comerciales o respaldar a sus clientes.',
     en: 'For businesses seeking to request guarantees for their commercial operations or to back their customers.'  
   },
+  "signup.create-account":{
+    es: 'Crea tu cuenta',
+    en: 'Create your account'
+  },
+  "signup.form.askConnection.title":{
+    es: 'Conectá tu wallet',
+    en: 'Connect your wallet'
+  },
+  "signup.form.askConnection.description":{
+    es: 'Algunas funcionalidades de AvalDAO requieren una wallet conectada. Si bien no es obligatorio ahora, sugerimos hacerlo para tener la mejor experiencia posible en la plataforma.',
+    en: 'Some features of AvalDAO require a connected wallet. While it is not mandatory now, we suggest doing it for the best possible experience on the platform.'
+  },
+  "signup.form.askConnection.connect":{
+    es: 'Conectar ahora',
+    en: 'Connect now'
+  },
+  "signup.form.askConnection.cancel":{
+    es: 'Conectar más tarde',
+    en: 'Connect later'
 
+}
 }
 
