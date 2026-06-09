@@ -557,7 +557,7 @@ export const translations: Translations = {
     es: 'Verificar Identidad',
     en: 'Verify Identity'
   },
-  "auth.modal.verify-identity":{
+  "auth.modal.verify-identity": {
     es: 'Verificar Identidad',
     en: 'Verify Identity'
   },
@@ -657,28 +657,34 @@ export const translations: Translations = {
   },
   "account-type.business.description": {
     es: 'Para empresas que buscan solicitar avales para sus operaciones comerciales o respaldar a sus clientes.',
-    en: 'For businesses seeking to request guarantees for their commercial operations or to back their customers.'  
+    en: 'For businesses seeking to request guarantees for their commercial operations or to back their customers.'
   },
-  "signup.create-account":{
+  "signup.create-account": {
     es: 'Crea tu cuenta',
     en: 'Create your account'
   },
-  "signup.form.askConnection.title":{
+  "signup.form.askConnection.title": {
     es: 'Conectá tu wallet',
     en: 'Connect your wallet'
   },
-  "signup.form.askConnection.description":{
+  "signup.form.askConnection.description": {
     es: 'Algunas funcionalidades de AvalDAO requieren una wallet conectada. Si bien no es obligatorio ahora, sugerimos hacerlo para tener la mejor experiencia posible en la plataforma.',
     en: 'Some features of AvalDAO require a connected wallet. While it is not mandatory now, we suggest doing it for the best possible experience on the platform.'
   },
-  "signup.form.askConnection.connect":{
+  "signup.form.askConnection.connect": {
     es: 'Conectar ahora',
     en: 'Connect now'
   },
-  "signup.form.askConnection.cancel":{
+  "signup.form.askConnection.cancel": {
     es: 'Conectar más tarde',
     en: 'Connect later'
-
+  },
+  "email.activation.subject": {
+    es: 'Activa tu cuenta',
+    en: 'Activate your account'
+  },
+  "email.activation.body": {
+    es: "Por favor, haz clic en el siguiente enlace para activar tu cuenta:",
+    en: "Please click the following link to activate your account:"
+  }
 }
-}
-
