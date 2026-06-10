@@ -52,6 +52,7 @@ export interface UserInfo {
   url?: string; //deprecated
   website?: string;
   platformRoles: string[];
+  password?: string;
 }
 
 export interface UserUpsert {

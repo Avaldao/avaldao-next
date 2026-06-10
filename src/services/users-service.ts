@@ -9,6 +9,10 @@ import { sendMail } from '@/lib/email';
 
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
+
+
+
 import { translations } from '@/translations';
 
 
@@ -35,11 +39,24 @@ interface UserData {
   language: string;
 }
 
+interface ActivationAccountData {
+  token: string;
+  authMethods: ("email" | "web3")[];
+  password?: string;
+  signature?: string;
+  message?: string;
+}
+
+
+
+
 export default class UsersService {
 
   async signup(request: UserData) {
 
-    const address = verifyMessage(request.message, request.signature); //throws?
+    const address = verifyMessage(request.message, request.signature); //throws? //Esta linea nos pide que si o si tenga un mensaje firmado
+    //Tenemos que ver si permitimos que se registre con el email por ahora
+    //Contemplar el skip
 
     const addressExists = await UsersModel.findOne({ "address": address });
     const emailExists = await UsersModel.findOne({ "email": request.email });
@@ -75,10 +92,10 @@ export default class UsersService {
     return {};
   }
 
-  async sendActivationEmail(email: string, language: "en" | "es" = "en") {
-    //Necesitamos configurar el correo
-    const activationToken = Math.random().toString(36).substring(2); // Generate a random token
-    const activationLink = `${process.env.NEXT_PUBLIC_SITE_URL}/activate?token=${activationToken}`;
+  async sendActivationEmail(user: UserInfo, language: "en" | "es" = "en") {
+
+    const activationToken = crypto.randomUUID();
+    const activationLink = `${process.env.NEXT_PUBLIC_SITE_URL}/account/activate?token=${activationToken}`;
 
     const t = (key: string) => translations[key]?.[language] ?? key;
 
@@ -88,17 +105,68 @@ export default class UsersService {
       .replace(/\{\{ACTIVATION_LINK\}\}/g, activationLink);
 
     await sendMail({
-      to: email,
+      to: user.email,
       subject: t("email.activation.subject"),
       text: `${t("email.activation.body")} ${activationLink}`,
       html: html,
     });
 
-
-
+    // Store the activation token in the database or cache for later verification
+    await UsersModel.updateOne(
+      { _id: user.id },
+      {
+        activationToken: activationToken,
+        activationTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24hs
+      }
+    )
   }
 
 
+
+  async activateAccount(data: ActivationAccountData) {
+    const { token, authMethods, password, signature, message } = data;
+    let recoveredAddress: string | undefined;
+
+    if (authMethods.includes("web3")) {
+      if (!signature || !message) {
+        throw new Error("Signature and message are required for web3 authentication");
+      }
+      recoveredAddress = verifyMessage(message, signature);
+    }
+    if (authMethods.includes("email")) {
+      if (!password) {
+        throw new Error("Password is required for email authentication");
+      }
+      //Podria agregar validaciones de password strength
+    }
+
+    const user = await UsersModel.findOne({ activationToken: token, activationTokenExpiry: { $gt: new Date() } });
+    if (!user) {
+      throw new Error("Invalid or expired activation token");
+    }
+
+    user.emailVerified = true;
+    user.authMethods = authMethods;
+
+    if (authMethods.includes("email")) {
+      user.password = crypto.createHash('sha256').update(password!).digest('hex');
+    }
+    if (recoveredAddress) {
+      user.address = recoveredAddress!;
+    }
+    
+    user.activationToken = undefined;
+    user.activationTokenExpiry = undefined;
+    await user.save();
+
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+    };//return user id and basic info
+
+
+  }
 
 
 
@@ -233,7 +301,10 @@ export default class UsersService {
     return user;
   }
 
-
+  static verifyUserPassword(stored: string, password: string): boolean {
+    const hashed = crypto.createHash('sha256').update(password).digest('hex');
+    return hashed === stored;
+  }
 
   async updateProfile(data: UserUpsert) {
 

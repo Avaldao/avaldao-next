@@ -18,8 +18,8 @@ type AuthUser = {
 };
 
 declare module "next-auth" {
-  interface User extends DefaultUser, AuthUser {}
-  
+  interface User extends DefaultUser, AuthUser { }
+
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & AuthUser;
   }
@@ -29,7 +29,36 @@ declare module "next-auth" {
 export const authOptions = {
   providers: [
 
-    //TODO: we can support login with credentials/social
+    CredentialsProvider({
+      id: "credentials",
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        try {
+          const user = await new AuthService().loginWithCredentials(
+            credentials.email,
+            credentials.password
+          );
+
+          if (user) {
+            return user;
+          }
+
+          return null;
+        } catch (err: any) {
+          console.log(err);
+          throw new Error(err?.message || "Unknown");
+        }
+      },
+    }),
+    
     CredentialsProvider({
       id: "message-signature",
       name: "MessageSignature",
@@ -45,8 +74,8 @@ export const authOptions = {
           if (user) return user;
 
         } catch (err: any) {
-          if(err.message == "USER_NOT_FOUND"){
-           throw err;
+          if (err.message == "USER_NOT_FOUND") {
+            throw err;
           } else { //Use this to hide details of other errors that can happen during login (like db connection issues, etc) 
             throw new Error(err?.code || "Unknown");
           }
@@ -77,7 +106,7 @@ export const authOptions = {
         token.avatar = user.avatar;
         token.roles = user.roles;
         token.nroles = user.nroles;
-      } 
+      }
 
       return token;
     },

@@ -15,6 +15,7 @@ interface SignModalProps {
   onSign: () => void;
   onClose: () => void;
   t: (key: string) => string;
+  canClose?: boolean;
 }
 
 function SpinnerRing({ status }: { status: SignStatus }) {
@@ -61,12 +62,12 @@ function SpinnerRing({ status }: { status: SignStatus }) {
   );
 }
 
-export default function SignModal({ address, message, status, errorMessage, onSign, onClose, t }: SignModalProps) {
+export default function SignModal({ address, message, status, errorMessage, onSign, onClose, t, canClose: propCanClose }: SignModalProps) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
 
-  const canClose = status === "idle" || status === "error";
+  const canClose = propCanClose ?? (status === "idle" || status === "error" || status === "success");
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
