@@ -2,6 +2,7 @@ import mongoose, { Document } from 'mongoose';
 import { usersMongooseConnection } from '@/lib/mongodb';
 const { Schema } = mongoose;
 
+type AuthMethod = "email" | "web3";
 export type Role =
   | "ADMIN_ROLE"
   | "AVALDAO_ROLE"
@@ -34,8 +35,13 @@ export interface IUser extends Document {
   updatedAt?: Date;
   createdAt?: Date;
   language?: string;
-  roles:{
-    [key:string]: {
+  emailVerified?: boolean;
+  password?: string;
+  activationToken?: string;
+  activationTokenExpiry?: Date;
+  authMethods: string[];
+  roles: {
+    [key: string]: {
       roles: Role[]
       lastSyncedAt: Date
     }
@@ -129,8 +135,25 @@ export const userSchema = new Schema<IUser>(
     language: {
       type: String,
       trim: true,
-      enum: ["en","es"],
+      enum: ["en", "es"],
     },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    password: {
+      type: String,
+      
+    },
+    activationToken: String,
+    activationTokenExpiry: Date,
+
+    authMethods: {
+      type: [String],
+      enum: ["email", "web3"],
+      default: [],
+    },
+
     roles: {
       type: Map,
       of: new Schema({

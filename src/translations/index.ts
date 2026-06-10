@@ -686,5 +686,51 @@ export const translations: Translations = {
   "email.activation.body": {
     es: "Por favor, haz clic en el siguiente enlace para activar tu cuenta:",
     en: "Please click the following link to activate your account:"
-  }
+  },
+
+  "login.title": {
+    es: 'Iniciar sesión',
+    en: 'Log in'
+  },
+  "login.description": {
+    es: 'Bienvenido de nuevo. Por favor, ingresa tus credenciales para acceder a tu cuenta.',
+    en: 'Welcome back. Please enter your credentials to access your account.'
+  },
+  "login.email": {
+    es: 'Email',
+    en: 'Email'
+  },
+  "login.password": {
+    es: 'Contraseña',
+    en: 'Password'
+  },
+    "login.or": {
+    es: 'o',
+    en: 'or'
+  },
+   "login.email.placeholder": {
+    es: 'juanperez@gmail.com',
+    en: 'johndoe@gmail.com'
+  },
+  "login.password.placeholder": {
+    es: 'Contraseña',
+    en: 'Password'
+  },
+  "login.submit": {
+    es: 'Iniciar sesión',
+    en: 'Log in'
+  },
+  "login.submit.wallet": {
+    es: 'Iniciar sesión con Wallet',
+    en: 'Log in with Wallet'
+  },
+  "login.forgot-password": {
+    es: '¿Olvidaste tu contraseña?',
+    en: 'Forgot your password?'
+  },
+  "login.error.invalid-credentials": {
+    es: 'Credenciales inválidas. Por favor, intenta de nuevo.',
+    en: 'Invalid credentials. Please try again.'
+  },
+
 }

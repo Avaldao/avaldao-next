@@ -4,8 +4,8 @@ import { OkResponse } from "../response-handler";
 export async function GET(request: Request) {
   try {
     const usersService = new UsersService();
-     await usersService.sendActivationEmail("jonatanduttweiler@gmail.com","en");
-      await usersService.sendActivationEmail("jonatanduttweiler@gmail.com","es");
+   /*   await usersService.sendActivationEmail("jonatanduttweiler@gmail.com","en");
+      await usersService.sendActivationEmail("jonatanduttweiler@gmail.com","es"); */
 
     
     return OkResponse({});
