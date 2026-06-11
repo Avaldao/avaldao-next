@@ -51,7 +51,7 @@ export class AuthService {
 
   async loginWithSignature(message: string, signature: string): Promise<UserInfo | null> {
     const usersService = new UsersService();
-    const address = verifyMessage(message, signature); //throws?
+    const address = verifyMessage(message, signature); 
 
     const db = await getDb();
     const user = await db.collection<UserInfo>("users").findOne({ "address": address });

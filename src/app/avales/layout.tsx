@@ -1,12 +1,6 @@
-import Page from "@/components/layout/page";
+import StaffLayout from "@/components/ui/layout/staff-layout";
 import { ReactNode } from "react";
 
 export default function Layout({ children }: { children: ReactNode }) {
-  return (
-    <Page>
-      <div className="mt-5 mb-15">
-        {children}
-      </div>
-    </Page>
-  );
+  return <StaffLayout>{children}</StaffLayout>;
 }
