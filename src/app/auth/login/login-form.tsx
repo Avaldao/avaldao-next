@@ -6,6 +6,7 @@ import { ArrowRight, Eye, EyeOff, Wallet } from "lucide-react";
 import { useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import LoginWithWallet from "./login-with-wallet";
 
 
 export default function LoginForm({ language }: { language: Language }) {
@@ -18,6 +19,8 @@ export default function LoginForm({ language }: { language: Language }) {
   const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string>();
+
+
 
   const handleLogin = async () => {
     try {
@@ -163,21 +166,7 @@ export default function LoginForm({ language }: { language: Language }) {
       </div>
       <div>
         <div className="flex justify-center">
-          <button
-            className="w-full max-w-md 
-            bg-linear-to-r from-violet-600 to-fuchsia-600 
-            hover:from-violet-700 hover:to-fuchsia-700
-
-            cursor-pointer
-            active:scale-[0.98] text-white font-semibold text-sm py-3.5 rounded-2xl 
-          flex items-center justify-center gap-2 transition-all shadow-md shadow-violet-200
-          disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none"
-
-          >
-            <Wallet className="w-4 h-4" />
-            {t("login.submit.wallet")}
-
-          </button>
+        <LoginWithWallet language={language} />
         </div>
       </div>
 

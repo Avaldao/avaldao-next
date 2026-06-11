@@ -332,7 +332,10 @@ function SignupFormInner({ language }: { language: Language }) {
     }
   };
 
-  const submitPayload = async (message: string, signature: string) => {
+  const submitPayload = async (message?: string, signature?: string) => {
+
+    setLoading(true);
+
     const payload = {
       accountType: accountType!.value,
       ...(accountType!.value === "personal"
@@ -346,7 +349,7 @@ function SignupFormInner({ language }: { language: Language }) {
       acceptPrivacy,
       message,
       signature,
-      language
+      language,
     };
 
     const response = await fetch("/api/users/signup", {
@@ -359,8 +362,11 @@ function SignupFormInner({ language }: { language: Language }) {
     localStorage.removeItem("signup_signature");
 
     if (response.ok) {
+      setLoading(false);
       setShowSuccessModal(true);
     } else {
+      setLoading(false);
+
       let msg;
       try {
         const responseJson = await response.json();
@@ -376,6 +382,8 @@ function SignupFormInner({ language }: { language: Language }) {
       }
 
       toast.error(msg ?? t("signup.form.error.unexpected"));
+      
+
     }
 
 
@@ -616,8 +624,8 @@ function SignupFormInner({ language }: { language: Language }) {
 
         {/* ── Submit ─────────────────────────────────────── */}
         <Button type="submit" loading={loading} className="w-full sm:w-auto px-10">
-          {loading && <Spinner variant="sm" />}
           {t("signup.form.submit")}
+          {loading && <Spinner variant="sm" />}
         </Button>
 
         {showTyCDialog && (
@@ -645,6 +653,9 @@ function SignupFormInner({ language }: { language: Language }) {
           }}
           onSkip={() => {
             setShowAskConnectionModal(false);
+            //Submit the form without message, without signature and skip wallet connection
+            submitPayload();
+
           }}
           t={t}
         />

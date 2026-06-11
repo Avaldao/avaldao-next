@@ -11,12 +11,12 @@ export class AuthService {
 
   async loginWithCredentials(email: string, password: string): Promise<UserInfo | null> {
     const db = await getDb();
-    const user = await db.collection<UserInfo>("users").findOne({ "email": email , "emailVerified": true, "authMethods": { $in: ["email"] } });
-
-    console.log("AAA")
-    console.log(user);
-
-
+    const user = await db.collection<UserInfo>("users").findOne({ 
+      "email": email , 
+      "emailVerified": true, 
+      "authMethods": { $in: ["email"] } 
+    });
+    
     if (user && user.password != undefined) {
       //check password hash
       const isPasswordValid = UsersService.verifyUserPassword(user.password, password);
@@ -27,17 +27,20 @@ export class AuthService {
       user.id = user._id.toString();
       user.website = user.url ?? user.website;
 
-      const mainnetRoles = await (new OnChainAuthorizationService(30)).getRoles(user.address);
-      const testnetRoles = await (new OnChainAuthorizationService(31)).getRoles(user.address);
+      if(user.address){
+        const mainnetRoles = await (new OnChainAuthorizationService(30)).getRoles(user.address);
+        const testnetRoles = await (new OnChainAuthorizationService(31)).getRoles(user.address);
+  
+        user.roles = mainnetRoles;
+        user.nroles = {
+          30: mainnetRoles,
+          31: testnetRoles
+        };
+  
+        await (new UsersService()).cacheUserRoles(user.id, 30, mainnetRoles);
+        await (new UsersService()).cacheUserRoles(user.id, 31, testnetRoles);
+      }
 
-      user.roles = mainnetRoles;
-      user.nroles = {
-        30: mainnetRoles,
-        31: testnetRoles
-      };
-
-      await (new UsersService()).cacheUserRoles(user.id, 30, mainnetRoles);
-      await (new UsersService()).cacheUserRoles(user.id, 31, testnetRoles);
 
     } else {
       throw new Error("USER_NOT_FOUND");
