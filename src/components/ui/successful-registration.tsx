@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, X } from "lucide-react";
+import { CheckCircle2, MailCheck, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 
@@ -45,7 +45,7 @@ export default function SuccessfulRegistration({
           <div className="px-6 pt-8 pb-6 sm:px-10 sm:pt-10 sm:pb-8">
             <div className="mx-auto flex max-w-lg flex-col items-center text-center">
               <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-violet-100">
-                <CheckCircle2 className="h-10 w-10 text-violet-600" />
+                <MailCheck className="h-10 w-10 text-violet-600" />
               </div>
 
               <h3 className="text-3xl font-semibold tracking-tight text-slate-950">
@@ -59,8 +59,9 @@ export default function SuccessfulRegistration({
           </div>
 
           <div className="relative h-32 overflow-hidden bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.95)_0%,rgba(226,232,240,0.9)_48%,rgba(203,213,225,0.95)_100%)] sm:h-40">
+            
             <div
-              className="absolute inset-0 bg-cover bg-center opacity-40"
+              className="absolute inset-0 bg-cover bg-center opacity-40 "
               style={{
                 backgroundImage: "url('/images/unnamed.png')"
               }}

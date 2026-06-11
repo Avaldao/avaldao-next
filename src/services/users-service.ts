@@ -23,8 +23,9 @@ interface GetAllUsersFilter {
 }
 
 interface UserData {
-  message: string;
-  signature: string;
+  id?: string;
+  message?: string;
+  signature?: string;
   accountType: "personal" | "business";
   email: string;
   firstName?: string;
@@ -38,6 +39,8 @@ interface UserData {
   acceptPrivacy: boolean;
   language: string;
 }
+
+type ActivationEmailUser = Pick<UserInfo, "id" | "email">;
 
 interface ActivationAccountData {
   token: string;
@@ -53,49 +56,66 @@ interface ActivationAccountData {
 export default class UsersService {
 
   async signup(request: UserData) {
+    const { message, signature, email } = request;
 
-    const address = verifyMessage(request.message, request.signature); //throws? //Esta linea nos pide que si o si tenga un mensaje firmado
-    //Tenemos que ver si permitimos que se registre con el email por ahora
-    //Contemplar el skip
-
-    const addressExists = await UsersModel.findOne({ "address": address });
-    const emailExists = await UsersModel.findOne({ "email": request.email });
-
-    if (addressExists) {
-      throw new Error(`Address already registered: ${address}`);
-    } else if (emailExists) {
-      throw new Error("Email already registered");
-    } else {
-      const newUser = new UsersModel({
-        address: address,
-        accountType: request.accountType,
-        email: request.email,
-        name: request.accountType === "personal" ? `${request.firstName} ${request.lastName}` : request.companyName,
-        firstName: request.firstName,
-        lastName: request.lastName,
-        companyName: request.companyName,
-        cuit: request.cuit,
-        country: request.country,
-        location: request.location,
-        platformRoles: request.platformRoles,
-        acceptTyC: request.acceptTyC,
-        acceptPrivacy: request.acceptPrivacy,
-        status: "pending",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        language: request.language
-      });
-
-      await newUser.save();
+    if (!(message && signature) && !email) {
+      throw new Error("Either wallet connection or email is required for signup");
     }
 
-    return {};
+    let address: string | undefined;
+    let addressExists = false;
+
+    if (message && signature) {
+      address = verifyMessage(message, signature);
+      addressExists = await UsersModel.findOne({ "address": address }) ?? false;
+      if (addressExists) {
+        throw new Error(`Address already registered: ${address}`);
+      }
+    }
+
+    const emailExists = await UsersModel.findOne({ "email": request.email });
+
+    if (emailExists) {
+      throw new Error("Email already registered");
+    }
+
+    const newUser = new UsersModel({
+      address: address,
+      accountType: request.accountType,
+      email: request.email,
+      name: request.accountType === "personal" ? `${request.firstName} ${request.lastName}` : request.companyName,
+      firstName: request.firstName,
+      lastName: request.lastName,
+      companyName: request.companyName,
+      cuit: request.cuit,
+      country: request.country,
+      location: request.location,
+      platformRoles: request.platformRoles,
+      acceptTyC: request.acceptTyC,
+      acceptPrivacy: request.acceptPrivacy,
+      status: "pending",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      language: request.language
+    });
+
+    await newUser.save();
+
+    await this.sendActivationEmail({
+      id: newUser._id.toString(),
+      email: newUser.email,
+    }, request.language as "en" | "es");
+
+    return {
+      id: newUser._id.toString(),
+      email: newUser.email,
+    };
   }
 
-  async sendActivationEmail(user: UserInfo, language: "en" | "es" = "en") {
+  async sendActivationEmail(user: ActivationEmailUser, language: "en" | "es" = "en") {
 
     const activationToken = crypto.randomUUID();
-    const activationLink = `${process.env.NEXT_PUBLIC_SITE_URL}/account/activate?token=${activationToken}`;
+    const activationLink = `${process.env.NEXT_PUBLIC_SITE_URL}/activate-account/${activationToken}`;
 
     const t = (key: string) => translations[key]?.[language] ?? key;
 
@@ -154,7 +174,7 @@ export default class UsersService {
     if (recoveredAddress) {
       user.address = recoveredAddress!;
     }
-    
+
     user.activationToken = undefined;
     user.activationTokenExpiry = undefined;
     await user.save();

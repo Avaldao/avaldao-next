@@ -14,7 +14,7 @@ export type Role =
 export type UserStatus = "pending" | "active" | "rejected" | "suspended";
 
 export interface IUser extends Document {
-  address: string;
+  address?: string;
   accountType?: "personal" | "business";
   name: string;
   email: string;
@@ -55,7 +55,7 @@ export const userSchema = new Schema<IUser>(
     address: {
       type: String,
       match: /^0x[a-fA-F0-9]{40}$/,
-      required: true,
+      required: false,
       unique: true,
       trim: true,
     },

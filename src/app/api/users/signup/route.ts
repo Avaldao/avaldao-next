@@ -1,10 +1,7 @@
 
 import { handleError, OkResponse } from "@/app/api/response-handler";
-import { NotAuthenticatedError } from "@/errors";
-import { authOptions } from "@/lib/auth";
-
 import UserService from "@/services/users-service";
-import { getServerSession } from "next-auth";
+
 
 const usersService = new UserService();
 

@@ -370,8 +370,15 @@ export const translations: Translations = {
   "signup.form.legal.age.label": { es: '18 años o más', en: '18 years or older' },
   "signup.form.submit": { es: 'Crear cuenta', en: 'Create account' },
   "signup.form.success": { es: '¡Cuenta creada exitosamente!', en: 'Account created successfully!' },
-  "signup.success-modal.title": { es: 'Recibimos tu solicitud con éxito', en: 'We have received your application' },
-  "signup.success-modal.description": { es: 'Gracias por registrarte. Vamos a evaluar tu solicitud y te avisaremos por email cuando sea aprobada.', en: 'Thank you for signing up. We will review your application and notify you by email once it is approved.' },
+  "signup.success-modal.title": {
+    es: "Revisa tu correo electrónico",
+    en: "Check your email"
+  },
+
+  "signup.success-modal.description": {
+    es: "Gracias por registrarte. Te enviamos un correo electrónico para verificar tu cuenta. Sigue las instrucciones del mensaje para completar el registro.",
+    en: "Thank you for signing up. We have sent you an email to verify your account. Please follow the instructions in the email to complete your registration."
+  },
   "signup.form.error.required-fields": { es: 'Por favor completá todos los campos requeridos', en: 'Please complete all required fields' },
   "signup.form.error.unexpected": { es: 'Ocurrió un error inesperado', en: 'An unexpected error occurred' },
 
@@ -704,11 +711,11 @@ export const translations: Translations = {
     es: 'Contraseña',
     en: 'Password'
   },
-    "login.or": {
+  "login.or": {
     es: 'o',
     en: 'or'
   },
-   "login.email.placeholder": {
+  "login.email.placeholder": {
     es: 'juanperez@gmail.com',
     en: 'johndoe@gmail.com'
   },
@@ -732,5 +739,9 @@ export const translations: Translations = {
     es: 'Credenciales inválidas. Por favor, intenta de nuevo.',
     en: 'Invalid credentials. Please try again.'
   },
+  "login.error.user-not-found-wallet": {
+    es: 'No se encontró un usuario asociado a esta wallet. Por favor, regístrate primero.',
+    en: 'No user found associated with this wallet. Please register first.'
+  }
 
 }
