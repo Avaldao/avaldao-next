@@ -26,14 +26,14 @@ export default class AvalesService {
 
     const filter = isAdmin
       ? {}
-      : {
+      : user.address ? {
         $or: [
           { avaldaoAddress: user.address },
           { solicitanteAddress: user.address },
           { comercianteAddress: user.address },
           { avaladoAddress: user.address },
         ],
-      };
+      }: { _id: null }; //algun filtro que no devuelva nada
 
     const avales = await AvalModel.find(filter)
       .sort({ createdAt: -1 })

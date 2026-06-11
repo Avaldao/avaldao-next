@@ -742,6 +742,18 @@ export const translations: Translations = {
   "login.error.user-not-found-wallet": {
     es: 'No se encontró un usuario asociado a esta wallet. Por favor, regístrate primero.',
     en: 'No user found associated with this wallet. Please register first.'
+  },
+  "sidebar.dashboard": {
+    es: 'Inicio',
+    en: 'Dashboard'
+  },
+  "sidebar.users": {
+    es: 'Usuarios',
+    en: 'Users'
+  },
+  "sidebar.avales": {
+    es: 'Avales',
+    en: 'Guarantees'
   }
 
 }

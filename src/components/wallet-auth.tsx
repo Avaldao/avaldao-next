@@ -126,7 +126,7 @@ const WalletAuth = ({ buttonContent, onSuccessLogin, onErrorLogin, forceButton =
           setShowAuthModal(false);
           onSuccessLogin();
         } else {
-          router.refresh();
+          router.push("/dashboard");
         }
       }
 
