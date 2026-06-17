@@ -56,7 +56,7 @@ export default class AvalesService {
     const isAdmin = user.roles.includes("AVALDAO_ROLE") ||
       user.roles.includes("ADMIN_ROLE");
 
-    const isOwner = getAddress(user.address) == getAddress(address);
+    const isOwner = user.address.toLowerCase() === address.toLowerCase();
 
     if (!isAdmin && !isOwner) {
       throw new Error("Unauthorized");
@@ -143,8 +143,8 @@ export default class AvalesService {
       }
     }
 
-    const storedAddress = getAddress((await AvalModel.findById(avalId))[`${role}Address`]);
-    if (storedAddress != signer) {
+    const storedAddress = getAddress((await AvalModel.findById(avalId))[`${role}Address`].toLowerCase());
+    if (storedAddress.toLowerCase() != signer.toLowerCase()) {
       throw new Error(`Invalid request. Signer and role doesn't match. Stored ${role}: ${storedAddress} - signer: ${signer}`)
     }
 
@@ -164,20 +164,30 @@ export default class AvalesService {
     const aval = await AvalModel.findById(avalId);
     if (!aval) throw new Error("Aval not found");
 
-    if (getAddress(aval.avaldaoAddress) == address) {
+    const addr = address.toLowerCase();
+    if (aval.avaldaoAddress?.toLowerCase() === addr) {
       return "avaldao";
-    } else if (getAddress(aval.solicitanteAddress) == address) {
+    } else if (aval.solicitanteAddress?.toLowerCase() === addr) {
       return "solicitante";
-    } else if (getAddress(aval.avaladoAddress) == address) {
+    } else if (aval.avaladoAddress?.toLowerCase() === addr) {
       return "avalado";
-    } else if (getAddress(aval.comercianteAddress) == address) {
+    } else if (aval.comercianteAddress?.toLowerCase() === addr) {
       return "comerciante";
     }
     return;
 
   }
 
-  async getAval(id: string): Promise<Aval | null> {
+  async getAval(id: string, forceSync: boolean): Promise<Aval | null> {
+    if(forceSync){  
+      try{
+        await this.syncAvalOnChain(id);
+      } catch(err){
+        console.log(err); //do nothing
+      }
+    }
+
+
     const aval = await AvalModel.findOne({ _id: id });
     const serializedAval = {
       ...aval.toObject(), // Convert Mongoose document to plain object
@@ -219,6 +229,21 @@ export default class AvalesService {
 
 
 
+  async rejectAval(avalId: string, reason: string): Promise<void> {
+    const user = await getCurrentUser();
+    if (!user.roles.includes("AVALDAO_ROLE")) {
+      throw new Error("Unauthorized: missing AVALDAO_ROLE");
+    }
+
+    const aval = await AvalModel.findById(avalId);
+    if (!aval) throw new Error("Aval not found");
+    if (aval.status !== 0) throw new Error("Solo se pueden rechazar avales en estado Solicitado");
+
+    await AvalModel.findByIdAndUpdate(avalId, {
+      $set: { status: 1, rejectReason: reason },
+    });
+  }
+
   async syncAvalOnChain(avalId: string): Promise<void> {
     const local = await AvalModel.findById(avalId);
     if (!local) throw new Error("Aval not found");
@@ -229,10 +254,6 @@ export default class AvalesService {
 
     if (!onChainAvalIds.includes(avalId)) {
       throw new Error("Aval not found on chain");
-    }
-
-    if (local.status == 0 || local.status == 1) {
-      throw new Error("Aval not yet accepted on chain, cannot sync");
     }
 
     const onChainAddress = await avaldao.getAvalAddress(avalId);

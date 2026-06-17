@@ -754,6 +754,82 @@ export const translations: Translations = {
   "sidebar.avales": {
     es: 'Avales',
     en: 'Guarantees'
-  }
+  },
+  "aval.details.duration": {
+    es: 'Duración',
+    en: 'Duration'
+  },
+  "aval.details.days": {
+    es: 'días',
+    en: 'days'
+  },
+  "aval.network": {
+    es: 'Red',
+    en: 'Network'
+  },
+  "aval.loading.error": {
+    es: 'Error al Cargar Aval',
+    en: 'Error Loading Aval'
+  },
+  "aval.loading.error-description": {
+    es: 'No se pudo cargar la información del aval. Por favor, intenta recargar la página o vuelve más tarde.',
+    en: 'Could not load the aval information. Please try refreshing the page or come back later.'
+  },
+  "aval.error.badge":{
+    es: 'Error del sistema',
+    en: 'System error'
+  },
+
+  // Aval status badge texts
+  "aval.status.requested": { es: "Solicitado", en: "Requested" },
+  "aval.status.rejected": { es: "Rechazado", en: "Rejected" },
+  "aval.status.accepted": { es: "Aceptado", en: "Accepted" },
+  "aval.status.active": { es: "Vigente", en: "Active" },
+  "aval.status.finalized": { es: "Finalizado", en: "Finalized" },
+  "aval.status.unknown": { es: "Desconocido", en: "Unknown" },
+
+  // Aval not-found badge
+  "aval-not-found.badge": { es: "ID Inválido", en: "Invalid ID" },
+
+  // Aval address label
+  "aval.address": { es: "Dirección", en: "Address" },
+
+  // Aval actions panel
+  "aval.actions.pending-review.title": { es: "Aval pendiente de revisión", en: "Aval pending review" },
+  "aval.actions.pending-review.description": { es: "Revisá los detalles y decidí si aceptar o rechazar este aval.", en: "Review the details and decide whether to accept or reject this aval." },
+  "aval.actions.accept": { es: "Aceptar aval", en: "Accept aval" },
+  "aval.actions.reject": { es: "Rechazar", en: "Reject" },
+  "aval.actions.reject.reason.placeholder": { es: "Motivo del rechazo…", en: "Reason for rejection…" },
+  "aval.actions.reject.confirm": { es: "Confirmar rechazo", en: "Confirm rejection" },
+  "aval.actions.cancel": { es: "Cancelar", en: "Cancel" },
+  "aval.actions.evaluation.title": { es: "Aval en evaluación", en: "Aval under review" },
+  "aval.actions.evaluation.description": { es: "El equipo de AvalDAO está revisando este aval. Serás notificado cuando haya cambios.", en: "The AvalDAO team is reviewing this aval. You will be notified when there are changes." },
+  "aval.actions.rejected.title": { es: "Aval rechazado", en: "Aval rejected" },
+  "aval.actions.rejected.reason": { es: "Motivo: {{reason}}", en: "Reason: {{reason}}" },
+  "aval.sign.badge": { es: "Firma del aval", en: "Aval signature" },
+  "aval.sign.idle.title": { es: "Firmá los datos del aval", en: "Sign the aval data" },
+  "aval.sign.idle.description": { es: "Tu firma confirma que estás de acuerdo con los términos del aval. No tiene ningún costo en gas.", en: "Your signature confirms you agree with the aval terms. There is no gas cost." },
+
+  "aval.actions.signatures.title": { es: "Firmas recolectadas", en: "Collected signatures" },
+  "aval.actions.signatures.description": { es: "El aval ya está desplegado en la blockchain. Para que pueda iniciarse, todos los participantes deben firmarlo.", en: "The aval is already deployed on the blockchain. For it to start, all participants must sign it." },
+  "aval.actions.sign-as": { es: "Firmar como {{role}}", en: "Sign as {{role}}" },
+  "aval.actions.already-signed": { es: "Ya registraste tu firma como {{role}}.", en: "You already registered your signature as {{role}}." },
+  "aval.actions.all-signed.description": { es: "Todas las firmas están registradas. Podés enviarlas al contrato para iniciar el aval.", en: "All signatures are registered. You can submit them to the contract to start the aval." },
+  "aval.actions.start-aval": { es: "Iniciar aval en blockchain", en: "Start aval on blockchain" },
+  "aval.actions.waiting-avaldao": { es: "Todas las firmas recolectadas. Esperando que AvalDAO inicie el aval.", en: "All signatures collected. Waiting for AvalDAO to start the aval." },
+  "aval.actions.active.title": { es: "Aval activo en blockchain", en: "Aval active on blockchain" },
+  "aval.actions.active.description": { es: "El aval está vigente y registrado en el contrato inteligente.", en: "The aval is active and registered in the smart contract." },
+  "aval.actions.finalized.title": { es: "Aval finalizado", en: "Aval finalized" },
+  "aval.actions.finalized.description": { es: "Este aval ha concluido exitosamente.", en: "This aval has concluded successfully." },
+  "aval.actions.reject.validation": { es: "Por favor ingresá un motivo de rechazo.", en: "Please enter a reason for rejection." },
+  "aval.actions.reject.success": { es: "Aval rechazado.", en: "Aval rejected." },
+  "aval.actions.sign.success": { es: "Firma registrada exitosamente", en: "Signature registered successfully" },
+  "aval.actions.sign.error": { es: "Error al firmar: {{error}}", en: "Error signing: {{error}}" },
+  "aval.actions.wrong-network": { es: "Por favor cambiá a la red correcta. Chain ID requerido: {{chainId}}", en: "Please switch to the correct network. Required Chain ID: {{chainId}}" },
+  "aval.actions.aval-address-not-found": { es: "Dirección del aval no encontrada para {{id}}", en: "Aval address not found for {{id}}" },
+  "aval.actions.contract-not-found": { es: "Contrato del aval no encontrado", en: "Aval contract not found" },
+  "aval.actions.incomplete-signatures": { es: "Firmas incompletas", en: "Incomplete signatures" },
+  "aval.actions.unknown-error": { es: "Error desconocido", en: "Unknown error" },
+  "aval.actions.reject-aval-error": { es: "Error al rechazar el aval", en: "Error rejecting the aval" },
 
 }

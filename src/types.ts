@@ -34,6 +34,7 @@ export interface Aval {
   comercianteSignature?: string;
   avaldaoSignature?: string;
   chainId: 30 | 31;
+  rejectReason?: string;
 }
 
 
