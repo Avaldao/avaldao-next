@@ -4,6 +4,7 @@ import { Loader2, PenLine, CheckCircle2, XCircle, ShieldCheck, Wallet, X } from 
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { shortAddress } from "@/components/blockchain/transaction-tracker/utils";
+import { getAddress } from "ethers/address";
 
 export type SignStatus = "idle" | "waiting" | "success" | "error";
 
@@ -16,6 +17,9 @@ interface SignModalProps {
   onClose: () => void;
   t: (key: string) => string;
   canClose?: boolean;
+  badgeKey?: string;
+  idleTitleKey?: string;
+  idleDescKey?: string;
 }
 
 function SpinnerRing({ status }: { status: SignStatus }) {
@@ -62,7 +66,7 @@ function SpinnerRing({ status }: { status: SignStatus }) {
   );
 }
 
-export default function SignModal({ address, message, status, errorMessage, onSign, onClose, t, canClose: propCanClose }: SignModalProps) {
+export default function SignModal({ address, message, status, errorMessage, onSign, onClose, t, canClose: propCanClose, badgeKey = "signup.sign.badge", idleTitleKey = "signup.sign.idle.title", idleDescKey = "signup.sign.idle.description" }: SignModalProps) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
@@ -78,7 +82,7 @@ export default function SignModal({ address, message, status, errorMessage, onSi
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-medium text-violet-500 bg-violet-50 dark:bg-violet-950 dark:text-violet-300 px-3 py-1 rounded-full">
               <ShieldCheck className="w-3.5 h-3.5" />
-              {t("signup.sign.badge")}
+              {t(badgeKey)}
             </div>
             {canClose && (
               <button
@@ -100,7 +104,7 @@ export default function SignModal({ address, message, status, errorMessage, onSi
                   ? t("signup.sign.success.title")
                   : status === "error"
                     ? t("signup.sign.error.title")
-                    : t("signup.sign.idle.title")}
+                    : t(idleTitleKey)}
             </h2>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
               {status === "waiting"
@@ -109,7 +113,7 @@ export default function SignModal({ address, message, status, errorMessage, onSi
                   ? t("signup.sign.success.description")
                   : status === "error"
                     ? (errorMessage ?? t("signup.sign.error.description"))
-                    : t("signup.sign.idle.description")}
+                    : t(idleDescKey)}
             </p>
           </div>
         </div>
@@ -119,7 +123,7 @@ export default function SignModal({ address, message, status, errorMessage, onSi
           <div className="flex items-center justify-between px-4 py-3">
             <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("signup.sign.info.wallet")}</span>
             <span className="text-xs font-medium text-zinc-700 dark:text-zinc-200 font-mono">
-              {address ? shortAddress(address) : "—"}
+              {address ? shortAddress(getAddress(address)) : "—"}
             </span>
           </div>
           {message && (

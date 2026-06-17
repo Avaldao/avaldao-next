@@ -41,6 +41,7 @@ export const avalSchema = new Schema(
     },
     chainId: { type: Number, required: true },
     infoCid: { type: String },
+    rejectReason: { type: String },
   },
   {
     timestamps: true,
