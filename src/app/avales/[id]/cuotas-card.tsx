@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { CalendarClock } from "lucide-react";
 import { format } from "date-fns";
 import { Aval, AvalState } from "@/types";
@@ -101,22 +100,22 @@ export default async function CuotasCard({ aval, avalAddress, language }: Props)
                       <td className="py-2 pr-8">{format(new Date(cuota.timestampDesbloqueo * 1000), "dd/MM/yyyy HH:mm")}</td>
                       <td className="py-2 pr-8">
                         {cuota.status === 0 && (
-                          <Badge variant="outline" className="text-slate-600 gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0" />
+                          <span className="inline-flex items-center gap-1.5 text-xs text-slate-600">
+                            <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0" />
                             {t("aval.details.cuota-status.pending")}
-                          </Badge>
+                          </span>
                         )}
                         {cuota.status === 1 && (
-                          <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100 gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
+                          <span className="inline-flex items-center gap-1.5 text-xs text-green-700">
+                            <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
                             {t("aval.details.cuota-status.cancelled")}
-                          </Badge>
+                          </span>
                         )}
                         {cuota.status === 2 && (
-                          <Badge className="bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100 gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                          <span className="inline-flex items-center gap-1.5 text-xs text-amber-700">
+                            <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
                             {t("aval.details.cuota-status.executed")}
-                          </Badge>
+                          </span>
                         )}
                       </td>
                       <td className="py-2 pr-8 text-right">$ {(cuota.montoFiat / 100).toFixed(2)}</td>
