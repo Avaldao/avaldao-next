@@ -9,8 +9,8 @@ export default async function GuaranteesPage() {
   const avales = await (new AvalesService()).getAvales();
 
   return (
-    <div className="max-w-6xl pt-6 pl-10">
-      <div className="mt-2 mb-6 flex flex-row justify-between items-center">
+    <div className="max-w-8xl pt-6 pl-10">
+      <div className="mt-2 mb-6 flex flex-row justify-between items-center max-w-7xl mx-auto">
         <div className="text-2xl text-slate-800 text-heading ">
           Avales
         </div>
