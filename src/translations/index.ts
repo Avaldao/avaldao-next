@@ -532,6 +532,46 @@ export const translations: Translations = {
     es: 'Cuota',
     en: 'Tranche'
   },
+  "aval.details.status": {
+    es: 'Estado',
+    en: 'Status'
+  },
+  "aval.details.cuota-status.pending": {
+    es: 'Pendiente',
+    en: 'Pending'
+  },
+  "aval.details.cuota-status.cancelled": {
+    es: 'Garantía Cancelada',
+    en: 'Guarantee Cancelled'
+  },
+  "aval.details.cuota-status.executed": {
+    es: 'Garantía Ejecutada',
+    en: 'Guarantee Executed'
+  },
+  "aval.details.claims": {
+    es: 'Reclamos',
+    en: 'Claims'
+  },
+  "aval.details.claim-number": {
+    es: 'Reclamo #',
+    en: 'Claim #'
+  },
+  "aval.details.creation-date": {
+    es: 'Fecha de creación',
+    en: 'Creation Date'
+  },
+  "aval.details.claim-status.active": {
+    es: 'Vigente',
+    en: 'Active'
+  },
+  "aval.details.claim-status.closed": {
+    es: 'Cerrado',
+    en: 'Closed'
+  },
+  "aval.details.no-claims": {
+    es: 'Sin reclamos. En caso de que se encuentren, los visualizarás aquí.',
+    en: 'No claims. If any are found, you will see them here.'
+  },
 
   "aval.details.financial-info": {
     es: 'Información Financiera',

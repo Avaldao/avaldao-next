@@ -1,15 +1,14 @@
+import { Suspense } from "react";
 import AvalesService from "@/services/avales-service";
 import UsersService from "@/services/users-service";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Users, Target, FileText, UserCheck, Store, Shield, CalendarClock, CheckCircle2 } from "lucide-react";
+import { Users, Target, FileText, UserCheck, Store, Shield, CheckCircle2 } from "lucide-react";
 import { shortenAddress } from "@/utils";
 
 import AvalActionsWrapper from "../aval-actions-wrapper";
-import { format } from "date-fns";
 import { Aval } from "@/types";
-import { generateTranchesFromAval, Tranche } from "@/app/entities/aval.entity";
 import { getLanguageCookie } from "@/lib/cookies";
 import { translations } from "@/translations";
 import { contractsAddress } from "@/blockchain/contracts";
@@ -17,7 +16,8 @@ import CopyAddress from "@/components/copy-address";
 import { Contract, getAddress, JsonRpcProvider } from "ethers";
 import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
 import IPFSUserAvatar from "@/app/staff/users/ipfs-user-avatar";
-
+import CuotasCard from "./cuotas-card";
+import ReclamosCard from "./reclamos-card";
 
 interface AvalDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -40,6 +40,20 @@ const getAddressExplorerUrl = (chainId: Aval["chainId"], address: string) => {
   return `${baseUrl.replace(/\/$/, "")}/address/${address}`;
 };
 
+const CuotasSkeleton = () => (
+  <Card>
+    <CardHeader>
+      <div className="h-5 w-32 bg-slate-100 rounded animate-pulse" />
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-8 bg-slate-50 rounded animate-pulse" />
+        ))}
+      </div>
+    </CardContent>
+  </Card>
+);
 
 export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) {
   const { id } = await params;
@@ -107,7 +121,6 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
       (r) => (r.status === "fulfilled" ? r.value : null)
     );
 
-    
     const statusInfo = getStatusText(aval.status, t);
 
     const participants = [
@@ -171,7 +184,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
         {/* Acciones según estado y rol */}
         <AvalActionsWrapper aval={aval} language={language} />
 
-        {/* Participantes — ancho completo, fila horizontal */}
+        {/* Participantes */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -239,7 +252,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="flex items-center gap-1.5 text-xs font-medium text-slate-400 mb-1">
-                    <DollarSign className="w-3.5 h-3.5" />
+                    <Target className="w-3.5 h-3.5" />
                     {t("aval.details.acquisition")}
                   </p>
                   <p className="text-slate-700">{aval.adquisicion}</p>
@@ -255,62 +268,15 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
             </CardContent>
           </Card>
 
-          {/* Cronograma y cuotas */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CalendarClock className="w-5 h-5 text-orange-600" />
-                {t("aval.details.schedule")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-x-6 gap-y-3 text-sm">
-                <div>
-                  <p className="text-slate-500">{t("aval.details.start-date")}</p>
-                  <p className="font-semibold">{format(aval.fechaInicio, "dd/MM/yyyy")}</p>
-                </div>
-                <div>
-                  <p className="text-slate-500">{t("aval.details.amount")}</p>
-                  <p className="font-semibold text-green-600">$ {(aval.montoFiat / 100).toFixed(2)} USD</p>
-                </div>
-                <div>
-                  <p className="text-slate-500">{t("aval.details.tranches-amount")}</p>
-                  <p className="font-semibold">{aval.cuotasCantidad}</p>
-                </div>
-                <div>
-                  <p className="text-slate-500">{t("aval.details.duration")}</p>
-                  <p className="font-semibold">{aval.duracionCuotaSeconds / 86400} {t("aval.details.days")}</p>
-                </div>
-                <div>
-                  <p className="text-slate-500">{t("aval.details.unlock")}</p>
-                  <p className="font-semibold">{aval.desbloqueoSeconds / 86400} {t("aval.details.days")}</p>
-                </div>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm xl:max-w-4xl">
-                  <thead>
-                    <tr className="text-left text-slate-500 border-b">
-                      <th className="pb-2  pr-12 font-medium">{t("aval.details.tranche-number")}</th>
-                      <th className="pb-2  pr-12 font-medium">{t("aval.details.maturity-date")}</th>
-                      <th className="pb-2  pr-12 font-medium">{t("aval.details.unlock-date")}</th>
-                      <th className="pb-2  pr-12 font-medium text-right">{t("aval.details.amount")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {generateTranchesFromAval(aval).map((tranche: Tranche) => (
-                      <tr key={tranche.index} className="font-mono border-b border-slate-50 hover:bg-gray-50 transition-colors">
-                        <td className="py-2 pr-8">{t("aval.details.tranche")} {tranche.index}</td>
-                        <td className="py-2 pr-8">{format(new Date(tranche.maturityDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
-                        <td className="py-2 pr-8">{format(new Date(tranche.unlockDateSeconds * 1000), "dd/MM/yyyy HH:mm")}</td>
-                        <td className="py-2 pr-8 text-right">$ {(aval.montoFiat / 100 / aval.cuotasCantidad).toFixed(2)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Cronograma y cuotas — streamed desde el contrato si vigente */}
+          <Suspense fallback={<CuotasSkeleton />}>
+            <CuotasCard aval={aval} avalAddress={address} language={language} />
+          </Suspense>
 
+          {/* Reclamos — streamed desde el contrato si vigente y existen */}
+          <Suspense fallback={null}>
+            <ReclamosCard aval={aval} avalAddress={address} language={language} />
+          </Suspense>
         </div>
       </div>
     );
