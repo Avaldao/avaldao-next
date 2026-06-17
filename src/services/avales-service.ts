@@ -1,10 +1,13 @@
 import getDb from "@/lib/mongodb";
 import { Aval, AvalRequest } from "@/types";
 import AvalModel from "@/lib/db/models/aval-model";
-import { getAddress, id, SignatureLike, verifyTypedData } from "ethers";
+import { Contract, getAddress, id, JsonRpcProvider, SignatureLike, verifyTypedData } from "ethers";
 import { getCurrentUser } from "@/lib/auth/authorization";
 import { use } from "react";
 import { pinata } from "@/lib/pinata";
+import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
+import { contractsAddress } from "@/blockchain/contracts";
+import avalAbi from "@/blockchain/contracts/avaldao/aval.abi";
 
 export type AvalRoleEnum = "avaldao" | "solicitante" | "comerciante" | "avalado";
 
@@ -33,7 +36,7 @@ export default class AvalesService {
           { comercianteAddress: user.address },
           { avaladoAddress: user.address },
         ],
-      }: { _id: null }; //algun filtro que no devuelva nada
+      } : { _id: null }; //algun filtro que no devuelva nada
 
     const avales = await AvalModel.find(filter)
       .sort({ createdAt: -1 })
@@ -119,7 +122,7 @@ export default class AvalesService {
       await this._storeIpfs(result._id.toString());
     } else {
       console.log("Aval created on testnet, skipping IPFS upload");
-      
+
     }
 
     return result;
@@ -194,6 +197,67 @@ export default class AvalesService {
       _id: a._id.toString(),
       montoFiat: a.montoFiat / 100 //se guarda con 2 decimales
     }));
+  }
+
+  private async _getAvaldao(chainId: Number): Promise<Contract> {
+    const rpcUrl = chainId === 30 ? process.env.MAINNET_RPC_URL : chainId === 31 ? process.env.TESTNET_RPC_URL : null;
+    if (!rpcUrl) throw new Error("Unsupported chainId");
+
+    const provider = new JsonRpcProvider(rpcUrl);
+    const address = contractsAddress[chainId as 30 | 31].avaldao;
+    return new Contract(address, avaldaoAbi, provider);
+  }
+
+
+  private async _getAval(chainId: Number, address: string): Promise<Contract> {
+    const rpcUrl = chainId === 30 ? process.env.MAINNET_RPC_URL : chainId === 31 ? process.env.TESTNET_RPC_URL : null;
+    if (!rpcUrl) throw new Error("Unsupported chainId");
+
+    const provider = new JsonRpcProvider(rpcUrl);
+    return new Contract(address, avalAbi, provider);
+  }
+
+
+
+  async syncAvalOnChain(avalId: string): Promise<void> {
+    const local = await AvalModel.findById(avalId);
+    if (!local) throw new Error("Aval not found");
+
+    const avaldao = await this._getAvaldao(local.chainId);
+
+    const onChainAvalIds: string[] = await avaldao.getAvalIds();
+
+    if (!onChainAvalIds.includes(avalId)) {
+      throw new Error("Aval not found on chain");
+    }
+
+    if (local.status == 0 || local.status == 1) {
+      throw new Error("Aval not yet accepted on chain, cannot sync");
+    }
+
+    const onChainAddress = await avaldao.getAvalAddress(avalId);
+    const aval = await this._getAval(local.chainId, onChainAddress);
+
+    const onChainStatus = Number(await aval.status());
+
+    if (local.address == undefined) {
+      await AvalModel.findByIdAndUpdate(avalId, {
+        $set: {
+          address: onChainAddress,
+          onChainStatus: onChainStatus,
+          status: onChainStatus,
+          syncOnChain: new Date()
+        }
+      });
+    } else if (local.address != undefined) {
+      await AvalModel.findByIdAndUpdate(avalId, {
+        $set: {
+          onChainStatus: onChainStatus,
+          status: onChainStatus,
+          syncOnChain: new Date()
+        }
+      });
+    }
   }
 
 

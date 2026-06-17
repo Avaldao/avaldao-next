@@ -26,6 +26,7 @@ import { TxModal, TxStep } from "@/components/tx-modal";
 import TransactionTracker from "@/components/blockchain/transaction-tracker/transaction-tracker";
 
 import useBlockchainTransaction from "@/hooks/useBlockchainTransaction";
+import syncAval from "@/actions/sync-aval";
 
 
 const avalStatuses = [
@@ -216,18 +217,18 @@ export default function AvalActions({ aval }: { aval: Aval }) {
 
   async function signAval(aval: Aval, role: AvalRoleEnum) {
     const { avaldaoAddress, avalAddress, signer } = await getContracts(aval.chainId);
-    
-    aval.infoCid = aval.infoCid ?? ""; 
+
+    aval.infoCid = aval.infoCid ?? "";
     aval.address = avalAddress!;
-    
+
     if (!avalAddress) {
       throw new Error("Aval address not found for aval " + aval._id);
     }
-    
+
     const data = JSON.stringify(generateStructDataToSign(aval, avaldaoAddress));
     console.log("Sign aval with role:", role, data);
 
-    //Comprobar que walletProvider este bien conectado a la red que esperamos o pderile que cambie
+    //Comprobar que walletProvider este bien conectado a la red que esperamos o pedirle que cambie
 
     /*     let ethersProvider = new BrowserProvider(walletProvider);
         let signer = await ethersProvider.getSigner();
@@ -303,7 +304,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   }
 
 
-aval
+  aval
 
 
   async function startAval() {
@@ -326,7 +327,7 @@ aval
       }
       const [r, v, s] = signatures;
 
-      console.log(r,v,s)
+      console.log(r, v, s)
 
       const tx = await avalContract.sign(r, v, s, {
         gasLimit: BigInt(5_000_000)
@@ -340,49 +341,49 @@ aval
     await run(sendTransaction);
 
 
-/* 
-    try {
-      const { avalContract } = await getContracts(aval.chainId);
-      if (!avalContract) {
-        console.log("Aval contract not found");
-        setTxModalOpen(false);
-        return;
-      }
-      const signatures = getSignatures(aval);
-      if (!signatures) {
-        setTxModalOpen(false);
-        return;
-      }
-      const [r, v, s] = signatures;
-
-      const tx = await avalContract.sign(r, v, s, {
-        gasLimit: BigInt(5_000_000)
-      });
-
-      setTxHash(tx.hash);
-      setTxStep('waiting_confirmation');
-
-      const receipt = await tx.wait();
-      console.log(receipt);
-
-      if (receipt?.status === 1) {
-        setTxStep('confirmed');
-        toast.success('Transacción confirmada exitosamente.');
-        router.refresh();
-      } else {
-        setTxStep('error');
-        setTxError('La transacción falló en la blockchain.');
-      }
-    } catch (err: any) {
-      console.log(err);
-      if (isUserRejection(err)) {
-        setTxModalOpen(false);
-        toast('Cancelaste la transacción.', { icon: '⚠️' });
-      } else {
-        setTxStep('error');
-        setTxError(err?.message ?? 'Error desconocido.');
-      }
-    } */
+    /* 
+        try {
+          const { avalContract } = await getContracts(aval.chainId);
+          if (!avalContract) {
+            console.log("Aval contract not found");
+            setTxModalOpen(false);
+            return;
+          }
+          const signatures = getSignatures(aval);
+          if (!signatures) {
+            setTxModalOpen(false);
+            return;
+          }
+          const [r, v, s] = signatures;
+    
+          const tx = await avalContract.sign(r, v, s, {
+            gasLimit: BigInt(5_000_000)
+          });
+    
+          setTxHash(tx.hash);
+          setTxStep('waiting_confirmation');
+    
+          const receipt = await tx.wait();
+          console.log(receipt);
+    
+          if (receipt?.status === 1) {
+            setTxStep('confirmed');
+            toast.success('Transacción confirmada exitosamente.');
+            router.refresh();
+          } else {
+            setTxStep('error');
+            setTxError('La transacción falló en la blockchain.');
+          }
+        } catch (err: any) {
+          console.log(err);
+          if (isUserRejection(err)) {
+            setTxModalOpen(false);
+            toast('Cancelaste la transacción.', { icon: '⚠️' });
+          } else {
+            setTxStep('error');
+            setTxError(err?.message ?? 'Error desconocido.');
+          }
+        } */
   }
 
 
@@ -517,6 +518,21 @@ aval
 
 
           <div className="mt-5 space-x-2 5 space-y-2">
+
+
+            <Button onClick={async () => {
+              try{
+                const response = await syncAval(aval._id!);
+                console.log(response);
+
+              } catch(err){
+                toast.error(`Error syncing aval: ${err}`);
+                console.log(err);
+              }
+            }}>
+              Sync aval with chain (new interface)
+            </Button>
+
 
             {/* Botones dependiendo del estado del aval */}
 

@@ -1,6 +1,14 @@
 import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
+export enum Status {
+  Solicitado = 0,
+  Rechazado = 1,
+  Aceptado = 2,
+  Vigente = 3,
+  Finalizado = 4,
+}
+
 export const avalSchema = new Schema(
   {
     proyecto: { type: String, required: true },
@@ -19,8 +27,18 @@ export const avalSchema = new Schema(
     avaldaoSignature: { type: String },
     solicitanteSignature: { type: String },
     comercianteSignature: { type: String },
+    address: { type: String, required: false },
     avaladoSignature: { type: String },
-    status: { type: Number, required: true, default: 0 },
+    status: {
+      type: Number,
+      required: true,
+      default: Status.Solicitado,
+      enum: Object.values(Status).filter(v => typeof v === 'number'),
+    },
+    onChainStatus: { type: Number, required: false, default: 0 },
+    syncOnChain: {
+      type: Date,
+    },
     chainId: { type: Number, required: true },
     infoCid: { type: String },
   },

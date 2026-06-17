@@ -89,13 +89,24 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
       const provider = new JsonRpcProvider(contractsAddress[aval.chainId].rpcUrl);
       const avaldaoAddress = contractsAddress[aval.chainId].avaldao;
 
-      const avaldaoContract = new Contract(avaldaoAddress, avaldaoAbi, provider);
-      let addressRaw = await avaldaoContract.getAvalAddress(aval._id);
-      if(addressRaw != "0x0000000000000000000000000000000000000000"){
-        address = getAddress(addressRaw);
+      if (!aval.address) {
+        const avaldaoContract = new Contract(avaldaoAddress, avaldaoAbi, provider);
+        let addressRaw = await avaldaoContract.getAvalAddress(aval._id);
+        if (addressRaw != "0x0000000000000000000000000000000000000000") {
+          address = getAddress(addressRaw);
+          explorer = getAddressExplorerUrl(aval.chainId, address);
+        }
+        try {
+          new AvalesService().syncAvalOnChain(aval._id!);
+          console.log("Aval synced with chain successfully");
+        } catch(err){
+          console.error("Error syncing aval address from chain:", err);
+        }
+
+      } else {
+        address = aval.address;
         explorer = getAddressExplorerUrl(aval.chainId, address);
       }
-
 
 
 
@@ -121,11 +132,11 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                 <p className="text-slate-600 mt-2">ID: {aval._id}</p>
                 <p className="text-slate-600">Chain ID: {aval.chainId}</p>
                 {address && (
-                  <p>Address:&nbsp; 
+                  <p>Address:&nbsp;
                     <a href={explorer} target="_blank" rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 underline"
-                  
-                  >{address}</a></p>
+                      className="text-blue-600 hover:text-blue-800 underline"
+
+                    >{address}</a></p>
 
                 )}
               </div>

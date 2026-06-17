@@ -54,8 +54,6 @@ const items: SidebarItem[] = [
     icon: <FileCheck className="h-5 w-5" />,
     href: "/guarantees",
   },
-
-
 ];
 
 const roleColors: Record<string, string> = {
@@ -79,18 +77,18 @@ const networks = [
   {
     id: "30",
     name: "Rootstock Mainnet",
-    className:
-      "border-emerald-200 bg-emerald-50",
-    badgeClassName:
-      "bg-emerald-100 text-emerald-700",
+    shortName: "RSK",
+    className: "border-emerald-200 bg-emerald-50",
+    badgeClassName: "bg-emerald-100 text-emerald-700",
+    dotClassName: "bg-emerald-500",
   },
   {
     id: "31",
     name: "Rootstock Testnet",
-    className:
-      "border-amber-200 bg-amber-50",
-    badgeClassName:
-      "bg-amber-100 text-amber-700",
+    shortName: "tRSK",
+    className: "border-amber-200 bg-amber-50",
+    badgeClassName: "bg-amber-100 text-amber-700",
+    dotClassName: "bg-amber-400",
   },
 ];
 
@@ -123,13 +121,11 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
 
   return (
     <aside
-      className={`hidden md:flex flex-col shrink-0 border-r border-gray-200 bg-white sticky top-[75px] h-[calc(100vh-75px)] overflow-y-auto transition-all duration-200 text-slate-700 text-sm${collapsed ? "w-14" : "w-72"
-        }`}
+      className={`hidden md:flex flex-col shrink-0 border-r border-gray-200 bg-white sticky top-[75px] h-[calc(100vh-75px)] overflow-y-auto transition-all duration-200 text-slate-700 text-sm ${collapsed ? "w-14" : "w-72"}`}
     >
       {/* Toggle button */}
       <div
-        className={`flex items-center border-b border-gray-100 px-3 py-3 ${collapsed ? "justify-center" : "justify-between"
-          }`}
+        className={`flex items-center border-b border-gray-100 px-3 py-3 ${collapsed ? "justify-center" : "justify-between"}`}
       >
         {!collapsed && (
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
@@ -145,7 +141,7 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
         </button>
       </div>
 
-      {/* User info */}
+      {/* User info — expanded */}
       {!collapsed && (
         <div className="px-3 py-3 border-b border-gray-100">
           <div className="flex items-center gap-2">
@@ -156,92 +152,111 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
                 <UserIcon className="text-white h-4 w-4" />
               )}
             </div>
-
-
-
-
-
-
             <div className="flex flex-col min-w-0 gap-2 text-xs">
               {userName && (
                 <span className="font-semibold text-slate-700 truncate">
                   {userName}
                 </span>
               )}
-
-              {networks.map((network) => (
-                <div
-                  key={network.id}
-                  className={`rounded-lg border p-2 ${network.className}`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-slate-700">
-                      {network.name}
-                    </span>
-
-                    <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${network.badgeClassName}`}
-                    >
-                      {nroles?.[network.id as "30" | "31"]?.length ?? 0} roles
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-1">
-                    {nroles?.[network.id as "30" | "31"]?.length ? (
-                      nroles[network.id as "30" | "31"].map((role) => (
-                        <span
-                          key={role}
-                          className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${roleColors[role.toLowerCase()] ??
-                            `${role === "ADMIN_ROLE" ? "bg-violet-100 text-violet-500" : "bg-gray-100 text-gray-700"}`
-                            }`}
-                        >
-                          {role.replaceAll("_", " ")}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-[10px] text-slate-400 italic">
-                        No permissions assigned
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
-
       )}
 
       {/* Nav items */}
       <nav className="flex flex-col gap-1 px-2 pt-2">
-        {items.filter((item) => !item.roles || item.roles.some((r) => nroles[process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID as "30" | "31"]?.includes(r))).map((item) => {
-          const active = isActive(item.href);
-          return (
-            <Link
-              key={item.key}
-              href={item.href}
-              title={collapsed ? t(item.labelKey) : undefined}
-              className={`flex items-center rounded-lg text-sm font-medium transition-colors group ${collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5"
-                } ${active
-                  ? "bg-violet-100 text-violet-600"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                }`}
-            >
-              <span className={`shrink-0 ${active ? "text-violet-600" : "text-violet-300 group-hover:text-violet-500 transition-colors"}`}>
-                {item.icon}
-              </span>
-              {!collapsed && (
-                <span className="truncate flex-1">{t(item.labelKey)}</span>
-              )}
-              {!collapsed && badges?.[item.key] ? (
-                <span className="ml-auto text-[10px] font-bold bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center leading-none">
-                  {badges[item.key]}
+        {items
+          .filter(
+            (item) =>
+              !item.roles ||
+              item.roles.some((r) =>
+                nroles[process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID as "30" | "31"]?.includes(r)
+              )
+          )
+          .map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                title={collapsed ? t(item.labelKey) : undefined}
+                className={`flex items-center rounded-lg text-sm font-medium transition-colors group ${collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5"} ${active ? "bg-violet-100 text-violet-600" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"}`}
+              >
+                <span className={`shrink-0 ${active ? "text-violet-600" : "text-violet-300 group-hover:text-violet-500 transition-colors"}`}>
+                  {item.icon}
                 </span>
-              ) : null}
-            </Link>
-          );
-        })}
+                {!collapsed && (
+                  <span className="truncate flex-1">{t(item.labelKey)}</span>
+                )}
+                {!collapsed && badges?.[item.key] ? (
+                  <span className="ml-auto text-[10px] font-bold bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center leading-none">
+                    {badges[item.key]}
+                  </span>
+                ) : null}
+              </Link>
+            );
+          })}
       </nav>
+
+      {/* Network roles — expanded */}
+      {!collapsed && (
+        <div className="absolute bottom-5 left-3 right-3 flex flex-col gap-2 text-xs">
+          {networks.map((network) => (
+            <div
+              key={network.id}
+              className={`rounded-lg border p-2 ${network.className}`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-medium text-slate-700">{network.name}</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${network.badgeClassName}`}>
+                  {nroles?.[network.id as "30" | "31"]?.length ?? 0} roles
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {nroles?.[network.id as "30" | "31"]?.length ? (
+                  nroles[network.id as "30" | "31"].map((role) => (
+                    <span
+                      key={role}
+                      className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${roleColors[role.toLowerCase()] ??
+                        `${role === "ADMIN_ROLE" ? "bg-violet-100 text-violet-500" : "bg-gray-100 text-gray-700"}`
+                        }`}
+                    >
+                      {role.replaceAll("_", " ")}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-[10px] text-slate-400 italic">
+                    No permissions assigned
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Network roles — collapsed (compact) */}
+      {collapsed && (
+        <div className="absolute bottom-5 left-0 right-0 flex flex-col items-center gap-1.5">
+          {networks.map((network) => {
+            const count = nroles?.[network.id as "30" | "31"]?.length ?? 0;
+            const roles = nroles?.[network.id as "30" | "31"] ?? [];
+            const tooltip = `${network.name}\n${roles.length ? roles.map((r) => r.replaceAll("_", " ")).join(", ") : "No permissions"}`;
+            return (
+              <div
+                key={network.id}
+                title={tooltip}
+                className={`w-8 h-8 rounded-lg border flex flex-col items-center justify-center cursor-default ${network.className}`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${network.dotClassName} mb-0.5`} />
+                <span className={`text-[9px] font-bold leading-none ${network.badgeClassName.split(" ")[1]}`}>
+                  {count}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </aside>
   );
 }

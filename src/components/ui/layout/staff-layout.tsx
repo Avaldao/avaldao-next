@@ -19,7 +19,7 @@ export default async function StaffLayout({ children }: { children: ReactNode })
       <div className="min-h-[75px] bg-white">
       </div>
       <Header />
-      <div className="flex min-h-[calc(100vh-75px)]">
+      <div className="flex min-h-[calc(100vh-75px)] bg-white">
         <StaffSidebar userName={userName} nroles={nroles} language={language} />
         <main className="flex-1 overflow-auto scroll-smooth bg-white p-4 text-slate-700">{children}</main>
       </div>
