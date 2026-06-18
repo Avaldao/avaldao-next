@@ -1,10 +1,10 @@
-import Page from "@/components/layout/page";
+import PageHeader from "@/components/ui/layout/page-header";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { requireRoles } from "@/lib/auth/authorization";
 import { handleError } from "@/lib/auth/page-guards";
 import UsersService from "@/services/users-service";
-import { div } from "framer-motion/client";
+import { UserIcon } from "lucide-react";
 import Image from "next/image";
 
 interface UersDetailsPageProps {
@@ -28,8 +28,14 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
   }
 
   return (
-    <Page>
-      <div className="pb-20">
+    <div className="max-w-3xl pb-20">
+      <PageHeader
+        title={user.name}
+        description={user.email}
+        icon={<UserIcon className="h-5 w-5" />}
+        breadcrumbs={[{ label: "Usuarios", href: "/staff/users" }, { label: user.name }]}
+      />
+      <div>
         {user.avatar && (
           <>
             <Label htmlFor="avatar">Avatar</Label>
@@ -95,6 +101,6 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
           </div>
         </div>
       </div>
-    </Page>
+    </div>
   )
 }

@@ -1,7 +1,8 @@
 import { AvalTable } from "@/components/avaldao/avales/avales-table";
+import PageHeader from "@/components/ui/layout/page-header";
 import { UnauthenticatedError } from "@/lib/auth/authorization";
 import AvalesService from "@/services/avales-service";
-import { PlusCircle } from "lucide-react";
+import { FileCheck, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -11,31 +12,30 @@ export default async function GuaranteesPage() {
   let avales;
   try {
     avales = await (new AvalesService()).getAvales();
-
   } catch (error) {
     if (error instanceof UnauthenticatedError) {
       redirect("/");
     }
-
   }
 
   return (
-    <div className="max-w-8xl pt-6 pl-10">
-      <div className="mt-2 mb-6 flex flex-row justify-between items-center max-w-7xl mx-auto">
-        <div className="text-2xl text-slate-800 text-heading ">
-          Avales
-        </div>
-        <Link href={"/avales/new"}>
-          <div className="px-4 py-2 rounded-lg font-medium transition-all duration-300 min-w-[90px]
-          flex items-center justify-center gap-2 bg-success text-white hover:bg-success-accent text-sm">
-            <PlusCircle className="w-4 h-4" />
+    <div className="max-w-6xl">
+      <PageHeader
+        title="Avales"
+        description="Gestión de avales en la plataforma"
+        icon={<FileCheck className="h-5 w-5" />}
+        breadcrumbs={[{ label: "Avales" }]}
+        actions={
+          <Link
+            href="/avales/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-700"
+          >
+            <PlusCircle className="h-4 w-4" />
             Nuevo Aval
-          </div>
-        </Link>
-      </div>
-      <div>
-        <AvalTable avales={avales} />
-      </div>
+          </Link>
+        }
+      />
+      <AvalTable avales={avales} />
     </div>
   );
 }

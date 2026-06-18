@@ -4,6 +4,7 @@ import UsersService from "@/services/users-service";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PageHeader from "@/components/ui/layout/page-header";
 import { Users, Target, FileText, UserCheck, Store, Shield, CheckCircle2 } from "lucide-react";
 import { shortenAddress } from "@/utils";
 
@@ -155,31 +156,32 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
     ];
 
     return (
-      <div className="container mx-auto p-6 space-y-6">
-        {/* Header */}
-        <Card>
-          <CardHeader className="pb-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                  <Shield className="w-6 h-6 text-blue-600" />
-                  {aval.proyecto}
-                </CardTitle>
-                <p className="text-slate-600">{t("aval.network")}: {contractsAddress[aval.chainId]?.networkName}</p>
-                {address && (
-                  <p>{t("aval.address")}:&nbsp;
-                    <a href={explorer} target="_blank" rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 underline"
-                    >{address}</a>
-                  </p>
-                )}
-              </div>
-              <Badge variant={statusInfo.variant}>
-                {statusInfo.text}
-              </Badge>
-            </div>
-          </CardHeader>
-        </Card>
+      <div className="max-w-6xl space-y-6">
+        <PageHeader
+          title={aval.proyecto}
+          icon={<Shield className="h-5 w-5" />}
+          breadcrumbs={[{ label: "Avales", href: "/guarantees" }, { label: aval.proyecto }]}
+          actions={<Badge variant={statusInfo.variant}>{statusInfo.text}</Badge>}
+          description={
+            <span className="text-sm text-slate-500">
+              {t("aval.network")}: {contractsAddress[aval.chainId]?.networkName}
+              {address && (
+                <>
+                  {" · "}
+                  {t("aval.address")}:{" "}
+                  <a
+                    href={explorer}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-violet-600 hover:underline"
+                  >
+                    {address}
+                  </a>
+                </>
+              )}
+            </span>
+          }
+        />
 
         {/* Acciones según estado y rol */}
         <AvalActionsWrapper aval={aval} language={language} />

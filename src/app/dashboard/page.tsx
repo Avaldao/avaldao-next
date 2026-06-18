@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="max-w-6xl space-y-6">
-      <UserDashboardWrapper />
+      <UserDashboardWrapper userName={session?.user?.name ?? ""} />
       <AvaldaoPlatformCard language={language} nroles={nroles} />
     </div>
   );
