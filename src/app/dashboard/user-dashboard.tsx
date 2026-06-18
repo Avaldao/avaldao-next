@@ -1,6 +1,5 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { LayoutDashboard } from "lucide-react";
 
 function getGreeting() {
@@ -19,10 +18,8 @@ function formatDate() {
   });
 }
 
-export default function UserDashboard() {
-  const { data: session } = useSession();
-  const user = session?.user;
-  const firstName = user?.name?.split(" ")[0] ?? "";
+export default function UserDashboard({ userName }: { userName: string }) {
+  const firstName = userName.split(" ")[0];
 
   return (
     <div className="border-b border-slate-100 pb-6">

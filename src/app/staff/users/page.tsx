@@ -1,6 +1,6 @@
-import Page from "@/components/layout/page";
+import PageHeader from "@/components/ui/layout/page-header";
 import UsersService from "@/services/users-service";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Users } from "lucide-react";
 import { handleError } from "@/lib/auth/page-guards";
 import type { UserStatus } from "@/lib/db/models/user-model";
 import type { PaginatedResult, UserInfo } from "@/types";
@@ -58,9 +58,12 @@ export default async function UsersPage({
 
   return (
     <div className="max-w-6xl">
-      <div className="text-2xl text-slate-800 text-heading mb-6">
-        Users
-      </div>
+      <PageHeader
+        title="Usuarios"
+        description="Gestión de usuarios de la plataforma"
+        icon={<Users className="h-5 w-5" />}
+        breadcrumbs={[{ label: "Usuarios" }]}
+      />
 
       {usersByStatus && (
         <UsersTabs usersByStatus={usersByStatus} selectedStatus={selectedStatus} />
@@ -72,6 +75,5 @@ export default async function UsersPage({
         </div>
       )}
     </div>
-
   );
 }
