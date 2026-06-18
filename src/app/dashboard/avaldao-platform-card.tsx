@@ -470,7 +470,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
                           </td>
                           <td className="py-2 pr-6 text-right font-sans">{aval.cuotasCantidad}</td>
                           <td className="py-2 pr-6 text-right font-sans">
-                            {aval.unlockableCuotasCount > 0 ? (
+                            {aval.onchainStatus === ONCHAIN_VIGENTE && aval.unlockableCuotasCount > 0 ? (
                               <>
                                 <span className="text-orange-500 font-medium">{aval.unlockableCuotasCount}</span>
                                 <span className="text-orange-500 text-xs font-medium ml-2">(${(aval.unlockableCuotasCount * (aval.montoFiat / aval.cuotasCantidad)).toLocaleString("es-AR", { minimumFractionDigits: 2 })})</span>
