@@ -428,8 +428,8 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
                       </tr>
                     </thead>
                     <tbody>
-                      {sortedAvales.map((aval) => (
-                        <tr key={aval.address} className="font-mono border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                      {sortedAvales.map((aval,idx) => (
+                        <tr key={`${aval.address}-${idx}`} className="font-mono border-b border-slate-50 hover:bg-slate-50 transition-colors">
                           <td className="py-2 pr-6">
                             <a href={`/avales/${aval.id}`} className="text-xs text-slate-500 hover:text-violet-600 flex items-center gap-1">
                               {aval.id.slice(0, 10)}…
