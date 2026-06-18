@@ -182,15 +182,15 @@ export default class AvalesService {
   /* Just basic data */
   async getAvalSummary(avalId: string, solicitanteAddress?: string): Promise<{ proyecto: string; solicitante: { name: string | null; address: string | null } } | null> {
     const aval = await AvalModel.findOne({ _id: avalId });
-    if (!aval) return null;
+
 
     let solicitante;
-    if(solicitanteAddress){
+    if (solicitanteAddress) {
       solicitante = await UserModel.findOne({ address: new RegExp(`^${solicitanteAddress}$`, "i") }).select("name")
     }
 
     return {
-      proyecto: aval.proyecto,
+      proyecto: aval?.proyecto ?? "", //No encontrado localmente
       solicitante: {
         name: solicitante?.name ?? null,
         address: solicitanteAddress ?? null,
