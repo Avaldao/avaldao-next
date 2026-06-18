@@ -6,24 +6,25 @@ import { getLanguageCookie } from "@/lib/cookies";
 import { translations } from "@/translations";
 
 
-export default async function GuaranteeFund() {
+export default async function GuaranteeFund({chainId: chainIdp, cardClassNames}: {chainId?: number, cardClassNames?: string}) {
   //first get contracts
 
-  const chainId = Number(process.env.DEFAULT_CHAIN_ID!);
+  const chainId = chainIdp ?? Number(process.env.DEFAULT_CHAIN_ID!);
+
   const {
     vault: vaultAddress,
     explorerUrl,
     networkName,
     avaldao: avaldaoAddress,
     tokens,
-  } = ContractsFactory.getNetworkInfo(chainId)!;
+  } = ContractsFactory.getNetworkInfo(chainId!)!;
 
   const docAddress = tokens?.doc!;
   const language = await getLanguageCookie();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (
-    <div className="relative bg-linear-to-r from-blue-500 to-purple-600 text-white p-8 pt-11 rounded-2xl shadow-lg text-center mb-12 max-w-md mx-auto min-h-45">
+    <div className={`relative bg-linear-to-r from-blue-500 to-purple-600 text-white p-8 pt-11 rounded-2xl shadow-lg text-center mb-12 max-w-md mx-auto min-h-45 ${cardClassNames}`}>
       <div className="absolute top-3 right-3">
         <Badge variant="outline" className="text-xs">{networkName}</Badge>
       </div>

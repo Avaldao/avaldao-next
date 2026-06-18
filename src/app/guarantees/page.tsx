@@ -1,12 +1,23 @@
 import { AvalTable } from "@/components/avaldao/avales/avales-table";
+import { UnauthenticatedError } from "@/lib/auth/authorization";
 import AvalesService from "@/services/avales-service";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
 export default async function GuaranteesPage() {
-  const avales = await (new AvalesService()).getAvales();
+  let avales;
+  try {
+    avales = await (new AvalesService()).getAvales();
+
+  } catch (error) {
+    if (error instanceof UnauthenticatedError) {
+      redirect("/");
+    }
+
+  }
 
   return (
     <div className="max-w-8xl pt-6 pl-10">

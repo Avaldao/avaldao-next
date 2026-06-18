@@ -1,6 +1,7 @@
 import getDb from "@/lib/mongodb";
 import { Aval, AvalRequest } from "@/types";
 import AvalModel from "@/lib/db/models/aval-model";
+import UserModel from "@/lib/db/models/user-model";
 import { Contract, getAddress, id, JsonRpcProvider, SignatureLike, verifyTypedData } from "ethers";
 import { getCurrentUser } from "@/lib/auth/authorization";
 import { use } from "react";
@@ -178,11 +179,32 @@ export default class AvalesService {
 
   }
 
+  /* Just basic data */
+  async getAvalSummary(avalId: string, solicitanteAddress?: string): Promise<{ proyecto: string; solicitante: { name: string | null; address: string | null } } | null> {
+    const aval = await AvalModel.findOne({ _id: avalId });
+    if (!aval) return null;
+
+    let solicitante;
+    if(solicitanteAddress){
+      solicitante = await UserModel.findOne({ address: new RegExp(`^${solicitanteAddress}$`, "i") }).select("name")
+    }
+
+    return {
+      proyecto: aval.proyecto,
+      solicitante: {
+        name: solicitante?.name ?? null,
+        address: solicitanteAddress ?? null,
+      },
+    };
+  }
+
+
+
   async getAval(id: string, forceSync: boolean): Promise<Aval | null> {
-    if(forceSync){  
-      try{
+    if (forceSync) {
+      try {
         await this.syncAvalOnChain(id);
-      } catch(err){
+      } catch (err) {
         console.log(err); //do nothing
       }
     }

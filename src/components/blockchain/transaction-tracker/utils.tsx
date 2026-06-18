@@ -38,11 +38,12 @@ export function explorerTxUrl(base: string, hash: string) {
 
 interface StepBadgeProps {
   current: 1 | 2;
+  t: (key: string, params?: Record<string, string>) => string;
 }
-export function StepBadge({ current }: StepBadgeProps) {
+export function StepBadge({ current, t }: StepBadgeProps) {
   return (
     <div className="flex items-center gap-2 text-xs font-medium text-violet-500 bg-violet-50 dark:bg-violet-950 dark:text-violet-300 px-3 py-1 rounded-full w-fit mx-auto">
-      Step {current} of 2
+      {t("tx.step-badge", { step: String(current) })}
     </div>
   );
 }
@@ -96,38 +97,42 @@ export function SpinnerRing({ status }: SpinnerRingProps) {
 
 // ─── Status copy ──────────────────────────────────────────────────────────────
 
-export const STATUS_COPY: Record<Step1Status | Step2Status, { title: string; description: string }> = {
-  waiting_approval: {
-    title: "Waiting for approval",
-    description: "Check your wallet and approve the transaction to proceed.",
-  },
-  sent: {
-    title: "Transaction sent",
-    description: "Your transaction has been broadcast to the network.",
-  },
-  rejected: {
-    title: "Transaction rejected",
-    description: "You rejected the transaction in your wallet.",
-  },
-  expired: {
-    title: "Request expired",
-    description: "The signing request timed out. You can try again.",
-  },
-  waiting_confirmation: {
-    title: "Waiting for confirmation",
-    description: "Your transaction is being processed by the network.",
-  },
-  confirmed: {
-    title: "Transaction confirmed",
-    description: "The transaction has been included in a block.",
-  },
-  reverted: {
-    title: "Transaction reverted",
-    description: "The transaction failed on-chain. No funds were moved.",
-  },
-  error: {
-    title: "Transaction error",
-    description: "An error occurred during the transaction. Please try again.",
-  },
-};
+export function getStatusCopy(
+  t: (key: string) => string
+): Record<Step1Status | Step2Status, { title: string; description: string }> {
+  return {
+    waiting_approval: {
+      title: t("tx.copy.waiting_approval.title"),
+      description: t("tx.copy.waiting_approval.description"),
+    },
+    sent: {
+      title: t("tx.copy.sent.title"),
+      description: t("tx.copy.sent.description"),
+    },
+    rejected: {
+      title: t("tx.copy.rejected.title"),
+      description: t("tx.copy.rejected.description"),
+    },
+    expired: {
+      title: t("tx.copy.expired.title"),
+      description: t("tx.copy.expired.description"),
+    },
+    waiting_confirmation: {
+      title: t("tx.copy.waiting_confirmation.title"),
+      description: t("tx.copy.waiting_confirmation.description"),
+    },
+    confirmed: {
+      title: t("tx.copy.confirmed.title"),
+      description: t("tx.copy.confirmed.description"),
+    },
+    reverted: {
+      title: t("tx.copy.reverted.title"),
+      description: t("tx.copy.reverted.description"),
+    },
+    error: {
+      title: t("tx.copy.error.title"),
+      description: t("tx.copy.error.description"),
+    },
+  };
+}
 
