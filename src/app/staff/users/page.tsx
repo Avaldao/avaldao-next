@@ -37,7 +37,7 @@ export default async function UsersPage({
 
   let usersByStatus: Record<UserStatus, PaginatedResult<UserInfo>> | undefined;
 
-  try{
+  try {
     const usersService = new UsersService();
     const users = await Promise.all(
       userStatuses.map(async (status) => ([
@@ -51,13 +51,13 @@ export default async function UsersPage({
     );
 
     usersByStatus = Object.fromEntries(users) as Record<UserStatus, PaginatedResult<UserInfo>>;
-  } catch(err){
+  } catch (err) {
     handleError(err);
   }
 
 
   return (
-    <Page>
+    <div className="max-w-6xl">
       <div className="text-2xl text-slate-800 text-heading mb-6">
         Users
       </div>
@@ -71,7 +71,7 @@ export default async function UsersPage({
           No podemos recuperar los usuarios en este momento. Intenta nuevamente más tarde
         </div>
       )}
+    </div>
 
-    </Page>
   );
 }

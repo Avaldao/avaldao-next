@@ -540,6 +540,10 @@ export const translations: Translations = {
     es: 'Pendiente',
     en: 'Pending'
   },
+  "aval.details.cuota-status.ready-to-unlock": {
+    es: 'Lista para desbloquear',
+    en: 'Ready to Unlock'
+  },
   "aval.details.cuota-status.cancelled": {
     es: 'Garantía Cancelada',
     en: 'Guarantee Cancelled'
@@ -547,6 +551,34 @@ export const translations: Translations = {
   "aval.details.cuota-status.executed": {
     es: 'Garantía Ejecutada',
     en: 'Guarantee Executed'
+  },
+  "aval.details.unlock-cuota.title": {
+    es: 'Cuota lista para desbloquear',
+    en: 'Tranche Ready to Unlock'
+  },
+  "aval.details.unlock-cuota.description": {
+    es: 'Podés iniciar el desbloqueo de la próxima cuota.',
+    en: 'You can initiate the unlock of the next tranche.'
+  },
+  "aval.details.unlock-cuota.button": {
+    es: 'Desbloquear cuota',
+    en: 'Unlock Tranche'
+  },
+  "aval.details.unlock-cuota.hint": {
+    es: 'Al confirmar esta transacción, los fondos de la cuota serán liberados de vuelta al fondo de garantías y la cuota dejará de ser reclamable. Ejecutá esta acción con discreción y asegurate de que el pago al comerciante ya haya sido realizado.',
+    en: 'By confirming this transaction, the tranche funds will be released back to the guarantee fund and the tranche will no longer be claimable. Execute this action with discretion and make sure the payment to the merchant has already been made.'
+  },
+  "aval.details.unlockable-tranches": {
+    es: 'Cuotas Desbloqueables',
+    en: 'Unlockable Tranches'
+  },
+  "aval.details.no-unlockable-tranches": {
+    es: 'No hay cuotas listas para desbloquear.',
+    en: 'No tranches ready to unlock.'
+  },
+  "aval.details.no-onchain-data": {
+    es: 'Sin datos on-chain disponibles.',
+    en: 'No on-chain data available.'
   },
   "aval.details.claims": {
     es: 'Reclamos',
@@ -871,5 +903,97 @@ export const translations: Translations = {
   "aval.actions.incomplete-signatures": { es: "Firmas incompletas", en: "Incomplete signatures" },
   "aval.actions.unknown-error": { es: "Error desconocido", en: "Unknown error" },
   "aval.actions.reject-aval-error": { es: "Error al rechazar el aval", en: "Error rejecting the aval" },
+
+  // Platform status dashboard
+  "dashboard.platform.network": { es: "Red", en: "Network" },
+  "dashboard.platform.refresh": { es: "Actualizar", en: "Refresh" },
+  "dashboard.platform.cached": { es: "Caché", en: "Cached" },
+  "dashboard.platform.live": { es: "En vivo", en: "Live" },
+  "dashboard.platform.error": { es: "Error al cargar datos", en: "Error loading data" },
+  "dashboard.platform.contract": { es: "Contrato Avaldao", en: "Avaldao Contract" },
+  "dashboard.platform.fund-balance": { es: "Fondos Disponibles", en: "Available Funds" },
+  "dashboard.platform.vigentes": { es: "Vigentes", en: "Active" },
+  "dashboard.platform.finalizados": { es: "Finalizados", en: "Finalized" },
+  "dashboard.platform.unlockable": { es: "Desbloqueables", en: "Unlockable" },
+  "dashboard.platform.avales": { es: "avales", en: "avales" },
+  "dashboard.platform.cuotas": { es: "cuotas", en: "tranches" },
+  "dashboard.platform.cuota-singular": { es: "cuota disponible", en: "tranche available" },
+  "dashboard.platform.cuotas-plural": { es: "cuotas disponibles", en: "tranches available" },
+  "dashboard.platform.ready-to-unlock": { es: "para desbloquear", en: "to unlock" },
+  "dashboard.platform.unlock-description": { es: "Existen cuotas cuyo período de desbloqueo ha vencido.", en: "There are tranches whose unlock period has expired." },
+  "dashboard.platform.unlock-solicitante-hint": { es: "El desbloqueo automático no está disponible. Cada solicitante debe ingresar al aval correspondiente y desbloquear las cuotas manualmente.", en: "Automatic unlock is not available. Each solicitante must open the corresponding aval and unlock the tranches manually." },
+  "dashboard.platform.unlock-btn": { es: "Desbloquear", en: "Unlock" },
+  "dashboard.platform.unlock-manual-hint": { es: "Desbloqueando cuotas del aval como solicitante.", en: "Unlocking tranches for this aval as solicitante." },
+  "dashboard.platform.unlock-hint": { es: "Desbloqueando cuotas disponibles en todos los avales vigentes.", en: "Unlocking available tranches across all active avales." },
+  "dashboard.platform.avales-onchain": { es: "Avales On-Chain", en: "On-Chain Avales" },
+  "dashboard.platform.no-vigentes": { es: "No hay avales vigentes.", en: "No active avales." },
+  "dashboard.platform.no-finalizados": { es: "No hay avales finalizados.", en: "No finalized avales." },
+  "dashboard.platform.col-address": { es: "Dirección", en: "Address" },
+  "dashboard.platform.col-solicitante": { es: "Solicitante", en: "Solicitante" },
+  "dashboard.platform.col-status": { es: "Estado", en: "Status" },
+  "dashboard.platform.col-end-date": { es: "Fecha de Fin", en: "End Date" },
+  "dashboard.platform.col-monto": { es: "Monto (USD)", en: "Amount (USD)" },
+  "dashboard.platform.col-cuotas": { es: "Cuotas", en: "Tranches" },
+  "dashboard.platform.col-proyecto": { es: "Proyecto", en: "Project" },
+  "dashboard.platform.col-unlockable-cuotas": { es: "Desbloqueables", en: "Unlockable" },
+  "dashboard.platform.col-reclamos": { es: "Reclamos", en: "Claims" },
+  "dashboard.platform.filter-all": { es: "Todos", en: "All" },
+  "dashboard.platform.status-aceptado": { es: "Aceptado", en: "Accepted" },
+  "dashboard.platform.status-vigente": { es: "Vigente", en: "Active" },
+  "dashboard.platform.status-finalizado": { es: "Finalizado", en: "Finalized" },
+  "dashboard.platform.recent-activity": { es: "Últimos Movimientos", en: "Recent Activity" },
+  "dashboard.platform.under-construction": { es: "En construcción", en: "Under construction" },
+  "dashboard.platform.coming-soon": { es: "Próximamente disponible", en: "Coming soon" },
+  "dashboard.platform.transfers-loading": { es: "Cargando movimientos…", en: "Loading transfers…" },
+  "dashboard.platform.transfers-empty": { es: "No hay transferencias DOC recientes.", en: "No recent DOC transfers." },
+  "dashboard.platform.transfers-error": { es: "Error al cargar movimientos.", en: "Error loading transfers." },
+  "dashboard.platform.transfer-in": { es: "Entrada", en: "In" },
+  "dashboard.platform.transfer-out": { es: "Salida", en: "Out" },
+  "dashboard.platform.col-direction": { es: "Tipo", en: "Type" },
+  "dashboard.platform.col-amount-doc": { es: "Monto (DOC)", en: "Amount (DOC)" },
+  "dashboard.platform.col-counterpart": { es: "Contraparte", en: "Counterpart" },
+  "dashboard.platform.col-tx": { es: "Tx", en: "Tx" },
+  "dashboard.platform.col-block": { es: "Bloque", en: "Block" },
+  "aval.unlockable-cuotas-tooltip": {
+    es: "Estas cuotas están listas para ser desbloqueadas. Al hacerlo, los fondos se liberarán de vuelta al fondo de garantías y dejarán de estar reclamables.",
+    en: "These tranches are ready to be unlocked. By doing so, the funds will be released back to the guarantee fund and will no longer be claimable."
+  },
+
+  // Transaction tracker
+  "tx.step-badge": { es: "Paso {{step}} de 2", en: "Step {{step}} of 2" },
+  "tx.info.network": { es: "Red", en: "Network" },
+  "tx.info.account": { es: "Cuenta", en: "Account" },
+  "tx.info.balance": { es: "Balance", en: "Balance" },
+  "tx.info.tx-cost": { es: "Costo transacción", en: "Transaction cost" },
+  "tx.info.contract": { es: "Contrato", en: "Contract" },
+  "tx.info.tx-hash": { es: "Hash Tx", en: "Tx hash" },
+  "tx.info.block": { es: "Bloque", en: "Block" },
+  "tx.status.awaiting-signature": { es: "Esperando firma…", en: "Awaiting signature…" },
+  "tx.status.pending-onchain": { es: "Pendiente en la red…", en: "Pending on-chain…" },
+  "tx.action.cancel": { es: "Cancelar", en: "Cancel" },
+  "tx.action.copied": { es: "Copiado", en: "Copied" },
+  "tx.action.copy-reason": { es: "Copiar motivo", en: "Copy reason" },
+  "tx.action.close": { es: "Cerrar", en: "Close" },
+  "tx.error.expired": { es: "La solicitud de firma expiró", en: "Signing request timed out" },
+  "tx.error.rejected": { es: "Transacción rechazada por el usuario", en: "Transaction rejected by user" },
+  "tx.error.reverted": { es: "La transacción fue revertida en la red", en: "Transaction was reverted on-chain" },
+  "tx.success.confirmed": { es: "Transacción confirmada exitosamente", en: "Transaction confirmed successfully" },
+  "tx.footer.secure": { es: "Transacción blockchain segura", en: "Secure blockchain transaction" },
+  "tx.copy.waiting_approval.title": { es: "Esperando aprobación", en: "Waiting for approval" },
+  "tx.copy.waiting_approval.description": { es: "Revisá tu wallet y aprobá la transacción para continuar.", en: "Check your wallet and approve the transaction to proceed." },
+  "tx.copy.sent.title": { es: "Transacción enviada", en: "Transaction sent" },
+  "tx.copy.sent.description": { es: "Tu transacción fue transmitida a la red.", en: "Your transaction has been broadcast to the network." },
+  "tx.copy.rejected.title": { es: "Transacción rechazada", en: "Transaction rejected" },
+  "tx.copy.rejected.description": { es: "Rechazaste la transacción en tu wallet.", en: "You rejected the transaction in your wallet." },
+  "tx.copy.expired.title": { es: "Solicitud expirada", en: "Request expired" },
+  "tx.copy.expired.description": { es: "La solicitud de firma expiró. Podés intentarlo de nuevo.", en: "The signing request timed out. You can try again." },
+  "tx.copy.waiting_confirmation.title": { es: "Esperando confirmación", en: "Waiting for confirmation" },
+  "tx.copy.waiting_confirmation.description": { es: "Tu transacción está siendo procesada por la red.", en: "Your transaction is being processed by the network." },
+  "tx.copy.confirmed.title": { es: "Transacción confirmada", en: "Transaction confirmed" },
+  "tx.copy.confirmed.description": { es: "La transacción fue incluida en un bloque.", en: "The transaction has been included in a block." },
+  "tx.copy.reverted.title": { es: "Transacción revertida", en: "Transaction reverted" },
+  "tx.copy.reverted.description": { es: "La transacción falló en la red. No se movieron fondos.", en: "The transaction failed on-chain. No funds were moved." },
+  "tx.copy.error.title": { es: "Error en transacción", en: "Transaction error" },
+  "tx.copy.error.description": { es: "Ocurrió un error durante la transacción. Intentá de nuevo.", en: "An error occurred during the transaction. Please try again." }
 
 }

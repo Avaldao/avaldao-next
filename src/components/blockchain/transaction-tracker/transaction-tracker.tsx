@@ -1,21 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useAppKitAccount, useAppKitNetwork, useWalletInfo } from "@reown/appkit/react";
-import { AbiCoder, BrowserProvider, ContractTransactionReceipt, ContractTransactionResponse, EthersError, Provider, TransactionReceipt, getAddress, isError } from "ethers";
+import { useContext, useState } from "react";
+import { useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
+import { getAddress } from "ethers";
 import {
   CheckCircle2,
   AlertTriangle,
   ExternalLink,
   ShieldCheck,
   Copy,
+  Info,
 } from "lucide-react";
 
 import {
-  StepBadge, SpinnerRing, TxState, ContractInfo, STATUS_COPY, Step1Status, Step2Status,
+  StepBadge, SpinnerRing, TxState, ContractInfo, getStatusCopy, Step1Status, Step2Status,
   shortAddress,
   explorerTxUrl
 } from "./utils";
+import { useLanguage, LanguageContext, LanguageProvider } from "@/context/LanguageContext";
 
 
 interface TransactionTrackerProps {
@@ -23,26 +25,29 @@ interface TransactionTrackerProps {
   txState: TxState;
   contract: ContractInfo;
   explorerUrl?: string;
+  hint?: string;
+  transactionCost?: string;
   onClose?: () => void;
 }
 
 
-
-export default function TransactionTracker({
+function TransactionTrackerInner({
   txState,
   contract,
   explorerUrl = "https://etherscan.io",
   balance,
+  hint,
+  transactionCost,
   onClose,
 }: TransactionTrackerProps) {
   const { address } = useAppKitAccount();
   const { caipNetwork } = useAppKitNetwork();
+  const { t } = useLanguage();
   const [copiedReason, setCopiedReason] = useState(false);
   const networkName = caipNetwork?.name ?? "Unknown network";
 
-
   const currentStatus = txState.status as Step1Status | Step2Status;
-  const copy = STATUS_COPY[currentStatus];
+  const copy = getStatusCopy(t)[currentStatus];
   const isWaiting = currentStatus === "waiting_approval" || currentStatus === "waiting_confirmation";
   const hasError = currentStatus == "rejected" || currentStatus === "expired" || currentStatus === "reverted" || currentStatus === "error";
   const txHash = txState.step === 2 || txState.txHash ? txState.txHash : undefined;
@@ -65,7 +70,7 @@ export default function TransactionTracker({
 
         {/* Header */}
         <div className="px-6 pt-6 pb-4 space-y-4">
-          <StepBadge current={txState.step} />
+          <StepBadge current={txState.step} t={t} />
           <SpinnerRing status={currentStatus} />
 
           <div className="text-center space-y-1">
@@ -83,16 +88,15 @@ export default function TransactionTracker({
 
           {/* Network */}
           <div className="flex items-center justify-between px-4 py-3">
-            <span className="text-xs text-zinc-400 dark:text-zinc-500">Network</span>
+            <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("tx.info.network")}</span>
             <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200">
               <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
               {networkName}
             </span>
           </div>
 
-
           <div className="flex items-center justify-between px-4 py-3">
-            <span className="text-xs text-zinc-400 dark:text-zinc-500">Account</span>
+            <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("tx.info.account")}</span>
             {address ? (
               <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200 font-mono">
                 {shortAddress(getAddress(address))}
@@ -104,7 +108,7 @@ export default function TransactionTracker({
 
           {/* Your balance */}
           <div className="flex items-center justify-between px-4 py-3">
-            <span className="text-xs text-zinc-400 dark:text-zinc-500">Balance</span>
+            <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("tx.info.balance")}</span>
             <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200">
               {balance ?
                 `${balance}` :
@@ -112,9 +116,17 @@ export default function TransactionTracker({
             </span>
           </div>
 
+          {/* Transaction cost */}
+          {transactionCost && (
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("tx.info.tx-cost")}</span>
+              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-200">{transactionCost}</span>
+            </div>
+          )}
+
           {/* Contract */}
           <div className="flex items-center justify-between px-4 py-3">
-            <span className="text-xs text-zinc-400 dark:text-zinc-500">Contract</span>
+            <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("tx.info.contract")}</span>
             <div className="text-right">
               <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200">{contract.name}</p>
               <p className="text-[11px] font-mono text-zinc-400 dark:text-zinc-500">
@@ -126,7 +138,7 @@ export default function TransactionTracker({
           {/* Tx hash (once available) */}
           {txHash && (
             <div className="flex items-center justify-between px-4 py-3">
-              <span className="text-xs text-zinc-400 dark:text-zinc-500">Tx hash</span>
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("tx.info.tx-hash")}</span>
               <a
                 href={explorerTxUrl(explorerUrl, txHash)}
                 target="_blank"
@@ -144,13 +156,21 @@ export default function TransactionTracker({
             txState.status === "confirmed" &&
             txState.receipt?.blockNumber && (
               <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-xs text-zinc-400 dark:text-zinc-500">Block</span>
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("tx.info.block")}</span>
                 <span className="text-xs font-medium text-zinc-700 dark:text-zinc-200">
                   #{txState.receipt.blockNumber.toString()}
                 </span>
               </div>
             )}
         </div>
+
+        {/* Hint — shown only before the user signs */}
+        {hint && currentStatus === "waiting_approval" && (
+          <div className="mx-6 mb-4 flex gap-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 ring-1 ring-amber-100 dark:ring-amber-900 px-4 py-3">
+            <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">{hint}</p>
+          </div>
+        )}
 
         {/* Status pill / action row */}
         <div className="px-6 pb-6 space-y-3">
@@ -159,7 +179,7 @@ export default function TransactionTracker({
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
                 <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {currentStatus === "waiting_approval" ? "Awaiting signature…" : "Pending on-chain…"}
+                  {currentStatus === "waiting_approval" ? t("tx.status.awaiting-signature") : t("tx.status.pending-onchain")}
                 </span>
               </div>
               {currentStatus === "waiting_approval" && onClose && (
@@ -167,7 +187,7 @@ export default function TransactionTracker({
                   onClick={onClose}
                   className="text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
                 >
-                  Cancel
+                  {t("tx.action.cancel")}
                 </button>
               )}
             </div>
@@ -185,15 +205,15 @@ export default function TransactionTracker({
                       className="mb-1 inline-flex items-center gap-1 rounded-md border border-red-200 dark:border-red-800 px-2 py-1 text-[11px] font-medium text-red-700 dark:text-red-300 hover:bg-red-100/70 dark:hover:bg-red-900/40 transition-colors"
                     >
                       <Copy className="w-3 h-3" />
-                      {copiedReason ? "Copied" : "Copy reason"}
+                      {copiedReason ? t("tx.action.copied") : t("tx.action.copy-reason")}
                     </button>
                   </div>
                 )}
 
                 {currentStatus === "expired"
-                  ? "Signing request timed out" :
-                  currentStatus === "rejected" ? "Transaction rejected by user"
-                    : "Transaction was reverted on-chain"}
+                  ? t("tx.error.expired") :
+                  currentStatus === "rejected" ? t("tx.error.rejected")
+                    : t("tx.error.reverted")}
                 <div className="w-full overflow-hidden break-all mt-1">
                   {txState.errReason && `${txState.errReason}`}
                 </div>
@@ -205,7 +225,7 @@ export default function TransactionTracker({
             <div className="flex items-center gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 ring-1 ring-emerald-100 dark:ring-emerald-900 px-4 py-2.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
               <span className="text-xs text-emerald-700 dark:text-emerald-400">
-                Transaction confirmed successfully
+                {t("tx.success.confirmed")}
               </span>
             </div>
           )}
@@ -215,13 +235,13 @@ export default function TransactionTracker({
               onClick={onClose}
               className="w-full rounded-xl py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
             >
-              Close
+              {t("tx.action.close")}
             </button>
           )}
 
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-400">
             <ShieldCheck className="w-3.5 h-3.5" />
-            Secure blockchain transaction
+            {t("tx.footer.secure")}
           </div>
         </div>
 
@@ -231,3 +251,14 @@ export default function TransactionTracker({
 }
 
 
+export default function TransactionTracker(props: TransactionTrackerProps) {
+  const ctx = useContext(LanguageContext);
+  if (ctx) {
+    return <TransactionTrackerInner {...props} />;
+  }
+  return (
+    <LanguageProvider initialLanguage="es">
+      <TransactionTrackerInner {...props} />
+    </LanguageProvider>
+  );
+}
