@@ -498,7 +498,8 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
                               : "—"}
                           </td>
                           <td className="py-2">
-                            {aval.unlockableCuotasCount > 0 &&
+                            {aval.onchainStatus === ONCHAIN_VIGENTE &&
+                              aval.unlockableCuotasCount > 0 &&
                               aval.solicitante?.address?.toLowerCase() === currentAddress?.toLowerCase() && (
                               <button
                                 onClick={() => handleUnlockManual(aval)}
