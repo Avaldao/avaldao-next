@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
 
     const fundBalanceDOC = Number(balanceResponse.amountFiat);
     const nowSecs = Math.floor(Date.now() / 1000);
+    const ONCHAIN_VIGENTE = 3;
 
     const avalService = new AvalesService();
 
@@ -96,9 +97,11 @@ export async function GET(req: NextRequest) {
 
           if (cuotasResult.length > 0) {
             lastCuotaTimestamp = Math.max(...cuotasResult.map((c) => c.timestampDesbloqueo));
-            unlockableCuotasCount = cuotasResult.filter(
-              (c) => c.status === 0 && c.timestampDesbloqueo < nowSecs
-            ).length;
+            unlockableCuotasCount = onchainStatus === ONCHAIN_VIGENTE
+              ? cuotasResult.filter(
+                  (c) => c.status === 0 && c.timestampDesbloqueo < nowSecs
+                ).length
+              : 0;
           }
 
           openReclamosCount = reclamosResult.filter((s) => s === 0).length;
@@ -125,7 +128,6 @@ export async function GET(req: NextRequest) {
       (a): a is NonNullable<typeof a> => a !== null
     );
 
-    const ONCHAIN_VIGENTE = 3;
     const ONCHAIN_FINALIZADO = 4;
 
     const totalVigentes = avales.filter((a) => a.onchainStatus === ONCHAIN_VIGENTE).length;
