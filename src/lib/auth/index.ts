@@ -1,34 +1,27 @@
 import { DefaultSession, DefaultUser, SessionStrategy } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import UserService from "@/services/users-service";
+import { Role } from "@/roles";
+import { AuthService } from "@/services/auth-service";
 
-export interface Role {
-  name: string;
-  description: string;
-  granted_at: string; //date
-}
+
+
+type AuthUser = {
+  id: string;
+  address: string;
+  infoCid?: string;
+  avatar?: string;
+  roles: Role[];
+  nroles: {
+    [chainId: number]: Role[];
+  }
+};
 
 declare module "next-auth" {
-  interface User extends DefaultUser {
-    id: string;
-    name: string;
-    address: string;
-    email: string;
-    infoCid?: string;
-    avatar?: string;
-    roles: string[];
-  }
+  interface User extends DefaultUser, AuthUser { }
 
   interface Session extends DefaultSession {
-    user: {
-      id: string;
-      name: string;
-      address: string;
-      email: string;
-      infoCid?: string;
-      avatar?: string;
-      roles?: string[];
-    } & DefaultSession["user"];
+    user: DefaultSession["user"] & AuthUser;
   }
 }
 
@@ -36,7 +29,36 @@ declare module "next-auth" {
 export const authOptions = {
   providers: [
 
-    //TODO: we can support login with credentials/social
+    CredentialsProvider({
+      id: "credentials",
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        try {
+          const user = await new AuthService().loginWithCredentials(
+            credentials.email,
+            credentials.password
+          );
+
+          if (user) {
+            return user;
+          }
+
+          return null;
+        } catch (err: any) {
+          console.log(err);
+          throw new Error(err?.message || "Unknown");
+        }
+      },
+    }),
+    
     CredentialsProvider({
       id: "message-signature",
       name: "MessageSignature",
@@ -48,11 +70,15 @@ export const authOptions = {
         if (!credentials || !credentials.signature || !credentials.message) return null;
 
         try {
-          const user = await new UserService().loginWithSignature(credentials.message, credentials.signature);
+          const user = await new AuthService().loginWithSignature(credentials.message, credentials.signature);
           if (user) return user;
 
         } catch (err: any) {
-          throw new Error(err?.code || "Unknown");
+          if (err.message == "USER_NOT_FOUND") {
+            throw err;
+          } else { //Use this to hide details of other errors that can happen during login (like db connection issues, etc) 
+            throw new Error(err?.code || "Unknown");
+          }
         }
 
         return null;
@@ -79,7 +105,8 @@ export const authOptions = {
         token.website = user.website;
         token.avatar = user.avatar;
         token.roles = user.roles;
-      } 
+        token.nroles = user.nroles;
+      }
 
       return token;
     },
@@ -93,7 +120,7 @@ export const authOptions = {
         session.user.roles = token.roles;
         session.user.avatar = token.avatar;
         session.user.website = token.website;
-
+        session.user.nroles = token.nroles;
 
       }
 

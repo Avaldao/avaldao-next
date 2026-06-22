@@ -1,111 +1,122 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Aval, AvalState } from "@/types";
-import { useAppKitAccount, useAppKitNetwork, useAppKitProvider, useWalletInfo } from "@reown/appkit/react";
-import { BrowserProvider, Contract, Eip1193Provider, getAddress, hexlify, isError, JsonRpcSigner } from "ethers";
-import { rootstock, AppKitNetwork } from "@reown/appkit/networks";
-
-import { Wrench, PenLine, PlayCircle, Banknote } from "lucide-react";
+import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from "@reown/appkit/react";
+import {
+  BrowserProvider,
+  Contract,
+  Eip1193Provider,
+  JsonRpcProvider,
+  JsonRpcSigner,
+} from "ethers";
+import { PenLine, PlayCircle, CheckCircle2, Clock, XCircle, AlertCircle, ShieldCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useLanguage } from "@/context/LanguageContext";
 import { ROOTSTOCK_NETWORKS } from "@/config";
 import toast from "react-hot-toast";
 import avalAbi from "@/blockchain/contracts/avaldao/aval.abi";
 import { generateStructDataToSign, getTranchesTs } from "../entities/aval.entity";
 import adminAbi from "@/blockchain/contracts/avaldao/admin.abi";
-import { ADMIN_ROLE, AVALDAO_ROLE } from "@/roles";
 import { AvalRoleEnum } from "@/services/avales-service";
 import { useRouter } from "next/navigation";
 import vaultAbi from "@/blockchain/contracts/avaldao/vault.abi";
 import { getSignatures } from "@/blockchain/utils/signatures";
-
-const avalStatuses = [
-  "Solicitado",
-  "Rechazado",
-  "Aceptado",
-  "Vigente",
-  "Finalizado"
-]
-
-const contractsAddress: {
-  [key: number]: {
-    avaldao: string;
-    permissions: string;
-    tokens?: {
-      doc: string;
-    };
-  }
-} = {
-  30: {
-    avaldao: "0x6DC9BCDD6fe5822D7E52Ac06E3ae740faa5d57a5",
-    permissions: "0x7D64C1532Efa7bd0d1554b4876d01e8c273fA129",
-    tokens: {
-      doc: ""
-    }
-  },
-  31: {
-    avaldao: "0x0185e73DaaC1FBF56f71448477026A6A3Dd39aFE",
-    permissions: "0x35e08235457394A1C50dF3C1641BD4996F2EBB5F",
-    tokens: {
-      doc: "0xCB46c0ddc60D18eFEB0E586C17Af6ea36452Dae0"
-    },
-  }
-}
-
+import { contractsAddress } from "@/blockchain/contracts";
+import TransactionTracker from "@/components/blockchain/transaction-tracker/transaction-tracker";
+import useBlockchainTransaction from "@/hooks/useBlockchainTransaction";
+import SignModal, { SignStatus } from "@/app/users/signup/sign-modal";
 
 interface GetContractsOptions {
   permissions?: boolean;
 }
 
 interface ContractsResult {
-  avaldao: Contract,
-  vault: Contract,
-  avalContract?: Contract,
-  avaldaoAddress: string,
-  vaultAddress: string,
-  avalAddress?: string,
-  signer: JsonRpcSigner,
-  permissions?: {
-    address: string,
-    contract?: Contract,
-  }
+  avaldao: Contract;
+  vault: Contract;
+  avalContract?: Contract;
+  avaldaoAddress: string;
+  vaultAddress: string;
+  avalAddress?: string;
+  signer: JsonRpcSigner;
+  permissions?: { address: string; contract?: Contract };
 }
-
-
 
 export default function AvalActions({ aval }: { aval: Aval }) {
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const router = useRouter();
   const { walletProvider } = useAppKitProvider<Eip1193Provider>("eip155");
-  const { chainId } = useAppKitNetwork();
-
   const { address } = useAppKitAccount();
+  const [showTxTracker, setShowTxTracker] = useState(false);
+  const [balance, setBalance] = useState<string | null>(null);
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejecting, setRejecting] = useState(false);
+  const [showSignModal, setShowSignModal] = useState(false);
+  const [signStatus, setSignStatus] = useState<SignStatus>("idle");
+  const [signingRole, setSigningRole] = useState<AvalRoleEnum | null>(null);
 
-  if (!session?.user) {
-    //redirect
-    return <></>
-  }
+  const provider = useMemo(() => {
+    if (!walletProvider) return null;
+    return new BrowserProvider(walletProvider);
+  }, [walletProvider]);
+
+  const { run, txState, clearTxState } = useBlockchainTransaction(provider);
+
+  if (!session?.user) return null;
+
   const user = session.user;
-  const roles = session.user.roles ?? [];
 
-  const canApprove = aval.status == AvalState.SOLICITADO
-    && roles?.includes("SOLICITANTE_ROLE")
-    && user.address == aval.solicitanteAddress;
+  // Role checks
+  const hasAvaldaoRoleOnChain =
+    !!user.nroles?.[aval.chainId]?.includes("AVALDAO_ROLE");
+
+  // Signing: collect all roles where the connected wallet matches (a wallet can be multiple participants)
+  const myRoles: { role: AvalRoleEnum; signature: string | undefined }[] = address
+    ? (
+        [
+          { role: "solicitante" as AvalRoleEnum, addr: aval.solicitanteAddress, signature: aval.solicitanteSignature },
+          { role: "comerciante" as AvalRoleEnum, addr: aval.comercianteAddress, signature: aval.comercianteSignature },
+          { role: "avalado"    as AvalRoleEnum, addr: aval.avaladoAddress,     signature: aval.avaladoSignature    },
+          { role: "avaldao"    as AvalRoleEnum, addr: aval.avaldaoAddress,     signature: aval.avaldaoSignature    },
+        ] as { role: AvalRoleEnum; addr: string; signature: string | undefined }[]
+      )
+        .filter(({ addr }) => addr && address.toLowerCase() === addr.toLowerCase())
+        .map(({ role, signature }) => ({ role, signature }))
+    : [];
+
+  const signatureCount = [
+    aval.solicitanteSignature,
+    aval.comercianteSignature,
+    aval.avaladoSignature,
+    aval.avaldaoSignature,
+  ].filter(Boolean).length;
+
+  const allSigned = signatureCount === 4;
+  const canStartAval =
+    allSigned &&
+    address &&
+    address.toLowerCase() === aval.avaldaoAddress?.toLowerCase();
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
 
   async function switchNet(targetChainId: number) {
-    const networkConfig = targetChainId == 30 ? ROOTSTOCK_NETWORKS["mainnet"] : targetChainId == 31 ? ROOTSTOCK_NETWORKS["testnet"] : null;
-
+    const networkConfig =
+      targetChainId === 30
+        ? ROOTSTOCK_NETWORKS["mainnet"]
+        : targetChainId === 31
+        ? ROOTSTOCK_NETWORKS["testnet"]
+        : null;
     if (!networkConfig) return;
-
     try {
       await walletProvider.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: networkConfig.chainId }],
       });
       return true;
-
     } catch (err: any) {
       if (err.code === 4902) {
         try {
@@ -113,50 +124,43 @@ export default function AvalActions({ aval }: { aval: Aval }) {
             method: "wallet_addEthereumChain",
             params: [networkConfig],
           });
-          console.log(`Rootstock mainnet agregada correctamente`);
-          //Una vez que lo agrega tiene que hacer el switch? creo que no
           return true;
-        } catch (addError: any) {
-          console.error(`Error agregando Rootstock mainnet:`, addError.message);
+        } catch {
           return false;
         }
       }
-
     }
-
   }
 
+  async function getContracts(
+    chainId: 30 | 31 = aval.chainId,
+    { permissions = false }: GetContractsOptions = {}
+  ): Promise<ContractsResult> {
+    let ethersProvider = new BrowserProvider(walletProvider);
+    let signer = await ethersProvider.getSigner();
+    const rpcProvider = new JsonRpcProvider(contractsAddress[Number(chainId)].rpcUrl);
+    const connectedChainId = signer.provider._network.chainId;
 
-
-
-  async function getContracts({ permissions = false }: GetContractsOptions = {}): Promise<ContractsResult> {
-    const ethersProvider = new BrowserProvider(walletProvider);
-    const signer = await ethersProvider.getSigner();
-    const chainId = signer.provider._network.chainId;
-    console.log(`Network: ${signer.provider._network.chainId}`)
-
-    const avaldaoAddress = contractsAddress[Number(chainId)].avaldao;
-    const avaldao = new Contract(avaldaoAddress, avaldaoAbi, signer);
-
-    const vaultAddress = await avaldao.vault();
-    const vault = new Contract(vaultAddress, vaultAbi, signer);
-
-    let avalAddress;
-    let avalContract;
-
-    if (aval._id) {
-      const avalAddress = await avaldao.getAvalAddress(aval._id);
-      avalContract = new Contract(avalAddress, avalAbi, signer);
+    if (Number(connectedChainId) !== chainId) {
+      const switched = await switchNet(chainId);
+      if (!switched)
+        throw new Error(
+          t("aval.actions.wrong-network", { chainId: String(chainId) })
+        );
+      ethersProvider = new BrowserProvider(walletProvider);
+      signer = await ethersProvider.getSigner();
     }
 
-    let permissionsContract;
-    let permissionsAddress;
+    const avaldaoAddress = contractsAddress[Number(chainId)].avaldao;
+    const avaldao = new Contract(avaldaoAddress, avaldaoAbi, rpcProvider);
+    const vaultAddress = await avaldao.vault();
+    const vault = new Contract(vaultAddress, vaultAbi, rpcProvider);
 
-    if (permissions) {
-      const permissionsAddress = contractsAddress[Number(chainId)].permissions;
-      console.log(`Permissions contract address: ${permissionsAddress}`)
-      permissionsContract = new Contract(permissionsAddress, adminAbi, signer);
-
+    let avalAddress: string | undefined;
+    let avalContract: Contract | undefined;
+    if (aval._id) {
+      avalAddress = await avaldao.getAvalAddress(aval._id);
+      avalContract = new Contract(avalAddress!, avalAbi, signer);
     }
 
     const result: ContractsResult = {
@@ -166,145 +170,27 @@ export default function AvalActions({ aval }: { aval: Aval }) {
       avaldaoAddress,
       avalAddress,
       vaultAddress,
-      signer
+      signer,
     };
 
-    if (permissionsContract) {
+    if (permissions) {
+      const permissionsAddress = contractsAddress[Number(chainId)].permissions;
       result.permissions = {
-        address: permissionsAddress!,
-        contract: permissionsContract
-      }
+        address: permissionsAddress,
+        contract: new Contract(permissionsAddress, adminAbi, signer),
+      };
     }
-
 
     return result;
-
   }
-
-  async function getAval(avalId: string) {
-    const { avalContract } = await getContracts();
-    console.log(`Get aval:  ${avalId}`)
-    if (!avalContract) {
-      console.log("Aval contract not found");
-      return;
-    }
-
-    try {
-      const cuotas = await avalContract.cuotasCantidad();
-      const montoFiat = await avalContract.montoFiat();
-      const status = await avalContract.status();
-      console.log(`Aval: ${avalId} Cuotas: ${cuotas} - Monto fiat: ${Number(montoFiat) / 100} USD - status: ${avalStatuses[status]}`)
-
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  async function signAval(aval: Aval, role: AvalRoleEnum) {
-    const { avaldaoAddress, avalAddress, signer } = await getContracts();
-
-    aval.infoCid = "/ipfs/QmQZiVUdK7t5N8teghjQ3khcQ32W6bpFvuUpsU7p1wcBun"; //TODO: READ FROM BACKEND OR GENERATE
-    aval.address = avalAddress!;
-
-    const data = JSON.stringify(generateStructDataToSign(aval, avaldaoAddress));
-
-    const signature = await walletProvider.request({
-      method: "eth_signTypedData_v4",
-      params: [signer.address, data],
-    });
-
-    const response = await fetch(`/api/avales/${aval._id}/signatures`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          signature,
-          data,
-          role
-        })
-      }
-    );
-    if (response.ok) {
-      router.refresh();
-    }
-  }
-
-
-  async function getRoles() {
-
-    const ethersProvider = new BrowserProvider(walletProvider);
-    const signer = await ethersProvider.getSigner();
-
-    //Check network before continue
-    console.log(`Network: ${signer.provider._network.chainId} - ${signer.address}`)
-
-    //Can I get the permissions /admin from avaldao contract directly?
-    const { permissions } = await getContracts({ permissions: true });
-    const permissionsContract = permissions?.contract;
-    if (!permissionsContract) {
-      console.log("Permissions contract not found");
-      return;
-    }
-
-
-    try {
-
-      const app = "0x0185e73DaaC1FBF56f71448477026A6A3Dd39aFE"; //avaldao tesnet
-
-      const check1 = await permissionsContract.hasUserRole(
-        signer.address, //who
-        app, //avaldao 
-        AVALDAO_ROLE.hash
-      )
-
-      /* const check2 = await permissionsContract.hasUserRole(
-        signer.address, //who
-        permissions.address, //avaldao 
-        ADMIN_ROLE.hash
-      ) */
-
-      console.log(`Has ${signer.address} AVALDAO_ROLE role? ${check1}`)
-      /*       console.log(`Has ${signer.address} ADMIN role? ${check2}`)
-      
-            const tx = await permissionsContract.setUserRoles(user, [AVALDAO_ROLE.hash], [app], [], []);
-            console.log(tx);
-            const receipt = await tx.wait();
-            console.log(receipt) */
-
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-
-
-
-  async function startAval() {
-    const { avalContract } = await getContracts();
-    if (!avalContract) {
-      console.log("Aval contract not found");
-      return;
-    }
-
-    const signatures = getSignatures(aval);
-    if (!signatures) return;
-    const [r, v, s] = signatures;
-
-    const tx = await avalContract.sign(r, v, s, {
-      gasLimit: BigInt(5_000_000)
-    });
-    const receipt = await tx.wait();
-    console.log(receipt);  //if receipt.status == 1 show "aval confirmado";
-
-  }
-
 
   async function acceptAval() {
-    try {
-      const { avaldao } = await getContracts();
-
+    setShowTxTracker(true);
+    await run(async () => {
+      const { avaldao } = await getContracts(aval.chainId);
       const tx = await avaldao.saveAval(
         aval._id,
-        "/ipfs/QmQZiVUdK7t5N8teghjQ3khcQ32W6bpFvuUpsU7p1wcBun",
+        aval.infoCid ?? "",
         [
           aval.avaldaoAddress,
           aval.solicitanteAddress,
@@ -313,174 +199,311 @@ export default function AvalActions({ aval }: { aval: Aval }) {
         ],
         aval.montoFiat,
         getTranchesTs(aval).map((ts: number) => `0x${ts.toString(16)}`),
-        {
-          gasLimit: BigInt(5_000_000)
-        }
+        { gasLimit: BigInt(5_000_000) }
       );
-
-      const receipt = await tx.wait();
-      console.log(receipt);
-
-    } catch (err) {
-      console.log(err);
-    }
+      return tx;
+    });
   }
 
-
-  async function getTokenBalance() {
-    try {
-      console.log(`get token balances`);
-      const { vault } = await getContracts();
-
-      const amt = await vault.getTokensBalanceFiat();
-      console.log(amt);
-
-      const docBalance = await vault.getTokenBalance("0xCB46c0ddc60D18eFEB0E586C17Af6ea36452Dae0") //DOC
-      console.log(docBalance)
-    } catch (err) {
-
-      console.log(err)
-    }
-
-
-
-  }
-
-  async function getCuotas() {
-    const { avalContract } = await getContracts();
-    if (!avalContract) {
-      console.log("Aval contract not found");
+  async function rejectAval() {
+    if (!rejectReason.trim()) {
+      toast.error(t("aval.actions.reject.validation"));
       return;
     }
-
-    const cuotas = [];
-    const cuotasC = await avalContract.cuotasCantidad();
-    for (let i = 0; i < cuotasC; i++) {
-      const cuota = await avalContract.cuotas(i);
-      cuotas.push(cuota);
+    setRejecting(true);
+    try {
+      const res = await fetch(`/api/avales/${aval._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "reject", reason: rejectReason.trim() }),
+      });
+      if (!res.ok) throw new Error(t("aval.actions.reject-aval-error"));
+      toast.success(t("aval.actions.reject.success"));
+      router.refresh();
+    } catch (err: any) {
+      toast.error(err.message ?? t("aval.actions.unknown-error"));
+    } finally {
+      setRejecting(false);
     }
-
-    console.log(cuotas);
-    /*   uint8 numero; // Número de cuota.
-         uint256 montoFiat; // Monto de la cuota en moneda fiat;
-         uint32 timestampVencimiento; // Timestamp con la fecha de vencimiento de la cuota. 4 bytes.
-         uint32 timestampDesbloqueo; // Timestamp con la fecha de desbloqueo de la cuota. 4 bytes.
-         CuotaStatus status; //
-     */
-
   }
 
+  async function signAval(role: AvalRoleEnum) {
+    const { avaldaoAddress, avalAddress, signer } = await getContracts(aval.chainId);
+    if (!avalAddress)
+      throw new Error(t("aval.actions.aval-address-not-found", { id: aval._id ?? "" }));
+
+    aval.infoCid = aval.infoCid ?? "";
+    aval.address = avalAddress;
+
+    const data = JSON.stringify(generateStructDataToSign(aval, avaldaoAddress));
+
+    const signature = await walletProvider.request({
+      method: "eth_signTypedData_v4",
+      params: [signer.address, data],
+    });
+
+    const response = await fetch(`/api/avales/${aval._id}/signatures`, {
+      method: "POST",
+      body: JSON.stringify({ signature, data, role }),
+    });
+    if (!response.ok) throw new Error(t("aval.actions.sign.success"));
+  }
+
+  async function handleSign() {
+    if (!signingRole) return;
+    setSignStatus("waiting");
+    try {
+      await signAval(signingRole);
+      setSignStatus("success");
+      setTimeout(() => {
+        setShowSignModal(false);
+        setSignStatus("idle");
+        setSigningRole(null);
+        router.refresh();
+      }, 1500);
+    } catch (err: any) {
+      console.error(err);
+      setSignStatus("error");
+    }
+  }
+
+  async function startAval() {
+    setShowTxTracker(true);
+    await run(async () => {
+      const { avalContract } = await getContracts(aval.chainId);
+      if (!avalContract) throw new Error(t("aval.actions.contract-not-found"));
+      const signatures = getSignatures(aval);
+      if (!signatures) throw new Error(t("aval.actions.incomplete-signatures"));
+      const [r, v, s] = signatures;
+      return avalContract.sign(r, v, s, { gasLimit: BigInt(5_000_000) });
+    });
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Wrench className="w-5 h-5 text-orange-600" />
-          Actions
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <>
+      {showTxTracker && address && (
+        <TransactionTracker
+          balance={balance ? `${balance} tRBTC` : null}
+          contract={{
+            name: "Avaldao",
+            address: contractsAddress[aval.chainId].avaldao,
+          }}
+          explorerUrl={contractsAddress[aval.chainId]?.explorerUrl}
+          txState={txState}
+          onClose={() => {
+            clearTxState();
+            setShowTxTracker(false);
+          }}
+        />
+      )}
 
-        
-          Connected account: {address}
-        
-        <div>Current Chain Id: {chainId} </div>
-        <div>Target Chain ID: {aval.chainId}</div>
+      {/* ── Status 0: Solicitado ── */}
+      {aval.status === AvalState.SOLICITADO && hasAvaldaoRoleOnChain && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-5">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+            <div className="flex-1">
+              <p className="font-semibold text-amber-900">{t("aval.actions.pending-review.title")}</p>
+              <p className="text-sm text-amber-700 mt-0.5">
+                {t("aval.actions.pending-review.description")}
+              </p>
 
-
-
-        <div className="mt-5 space-x-2 5 space-y-2">
-
-          {/* Botones dependiendo del estado del aval */}
-
-          <Button onClick={acceptAval}>
-            Aceptar aval testnet
-          </Button>
-
-          <Button onClick={getRoles}>
-            Get roles
-          </Button>
-
-
-          <Button onClick={() => getAval("6914d31a8925c19898133dfb")}>
-            Get aval 6914d31a8925c19898133dfb
-          </Button>
-
-
-
-
-          <div className=" flex gap-x-2">
-            {address && getAddress(address) == aval.avaldaoAddress && (
-              <Button
-                className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
-                disabled={aval.avaldaoSignature != undefined}
-                onClick={() => signAval(aval, "avaldao")}>
-                <PenLine />
-                signAval avaldao
-              </Button>
-            )}
-            {address && getAddress(address) == aval.solicitanteAddress && (
-              <Button className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
-                disabled={aval.solicitanteSignature != undefined}
-                onClick={() => signAval(aval, "solicitante")}>
-                <PenLine />
-                signAval solicitante
-              </Button>
-            )}
-            {address && getAddress(address) == aval.comercianteAddress && (
-              <Button className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
-                disabled={aval.comercianteSignature != undefined}
-                onClick={() => signAval(aval, "comerciante")}>
-                <PenLine />
-                signAval comerciante
-              </Button>
-            )}
-
-            {address && getAddress(address) == aval.avaladoAddress && (
-              <Button className="bg-yellow-300 hover:bg-yellow-400 text-slate-500"
-                disabled={aval.avaladoSignature != undefined}
-                onClick={() => signAval(aval, "avalado")}>
-                <PenLine />
-                signAval avalado
-              </Button>
-            )}
-
+              {!showRejectForm ? (
+                <div className="flex gap-3 mt-4">
+                  <Button onClick={acceptAval}>
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                    {t("aval.actions.accept")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-red-300 text-red-700 hover:bg-red-300"
+                    onClick={() => setShowRejectForm(true)}
+                  >
+                    <XCircle className="w-4 h-4 mr-2" />
+                    {t("aval.actions.reject")}
+                  </Button>
+                </div>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  <textarea
+                    className="w-full rounded-md border border-amber-300 bg-white p-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                    rows={3}
+                    placeholder={t("aval.actions.reject.reason.placeholder")}
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      variant="destructive"
+                      disabled={rejecting}
+                      onClick={rejectAval}
+                    >
+                      {t("aval.actions.reject.confirm")}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setShowRejectForm(false);
+                        setRejectReason("");
+                      }}
+                    >
+                      {t("aval.actions.cancel")}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-
-
-          <div className="mt-4"> {/* Only if aval is aceptado - after creation on chain, the status should be updated offchain
-            we should keep a copy of the aval address
-             */}
-            <Button onClick={getCuotas}>
-              Get cuotas
-            </Button>
-          </div>
-
-          <div className="mt-4"> {/* Only if aval is aceptado - after creation on chain, the status should be updated offchain
-            we should keep a copy of the aval address
-             */}
-            <Button onClick={() => getTokenBalance()}>
-              <Banknote className="mr-2 h-4 w-4" />
-              Get avaldao balance
-            </Button>
-          </div>
-
-
-          <div className="mt-4"> {/* Only if aval is aceptado - after creation on chain, the status should be updated offchain
-            we should keep a copy of the aval address
-             */}
-            <Button onClick={startAval}>
-              <PlayCircle className="mr-2 h-4 w-4" />
-              Iniciar aval
-            </Button>
-          </div>
-
-
-
         </div>
+      )}
 
+      {aval.status === AvalState.SOLICITADO && !hasAvaldaoRoleOnChain && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-5">
+          <div className="flex items-start gap-3">
+            <Clock className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-semibold text-blue-900">{t("aval.actions.evaluation.title")}</p>
+              <p className="text-sm text-blue-700 mt-0.5">
+                {t("aval.actions.evaluation.description")}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
-      </CardContent>
-    </Card>
+      {/* ── Status 1: Rechazado ── */}
+      {aval.status === AvalState.RECHAZADO && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-5">
+          <div className="flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-semibold text-red-900">{t("aval.actions.rejected.title")}</p>
+              {aval.rejectReason && (
+                <p className="text-sm text-red-700 mt-1">
+                  {t("aval.actions.rejected.reason", { reason: aval.rejectReason })}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
-  )
+      {/* ── Status 2: Aceptado — fase de firmas ── */}
+      {aval.status === AvalState.ACEPTADO && (
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-5 space-y-4">
+          {/* Progress */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold text-slate-700">
+                {t("aval.actions.signatures.title")}
+              </span>
+              <span className="text-sm font-mono text-slate-500">
+                {signatureCount} / 4
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mb-2">
+              {t("aval.actions.signatures.description")}
+            </p>
+            <div className="h-2 rounded-full bg-slate-200 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-green-500 transition-all"
+                style={{ width: `${(signatureCount / 4) * 100}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Sign buttons — one per unsigned matching role */}
+          {myRoles.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-row gap-2">
+              {myRoles.filter(({ signature }) => !signature).map(({ role }) => (
+                <div key={role} className="flex items-center gap-3">
+                  <Button onClick={() => { setSigningRole(role); setShowSignModal(true); }}>
+                    <PenLine className="w-4 h-4 mr-2" />
+                    {t("aval.actions.sign-as", { role })}
+                  </Button>
+                </div>
+              ))}
+              </div>
+              <div className="flex flex-row gap-2">
+              {myRoles.filter(({ signature }) => !!signature).map(({ role }) => (
+                <div key={role} className="flex items-center gap-2 text-sm text-green-700">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {t("aval.actions.already-signed", { role })}
+                </div>
+              ))}
+              </div>
+            </div>
+          )}
+
+          {/* Start aval — only avaldao once all signed */}
+          {canStartAval && (
+            <div className="pt-2 border-t border-slate-200">
+              <p className="text-sm text-slate-600 mb-3">
+                {t("aval.actions.all-signed.description")}
+              </p>
+              <Button onClick={startAval}>
+                <PlayCircle className="w-4 h-4 mr-2" />
+                {t("aval.actions.start-aval")}
+              </Button>
+            </div>
+          )}
+
+          {allSigned && !canStartAval && (
+            <div className="flex items-center gap-2 text-sm text-slate-600 pt-2 border-t border-slate-200">
+              <CheckCircle2 className="w-4 h-4 text-green-500" />
+              {t("aval.actions.waiting-avaldao")}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Status 3: Vigente ── */}
+      {aval.status === AvalState.VIGENTE && (
+        <div className="rounded-lg border border-green-200 bg-green-50 p-5">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-semibold text-green-900">{t("aval.actions.active.title")}</p>
+              <p className="text-sm text-green-700 mt-0.5">
+                {t("aval.actions.active.description")}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Status 4: Finalizado ── */}
+      {aval.status === AvalState.FINALIZADO && (
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="w-5 h-5 text-slate-500 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-semibold text-slate-700">{t("aval.actions.finalized.title")}</p>
+              <p className="text-sm text-slate-500 mt-0.5">
+                {t("aval.actions.finalized.description")}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      {showSignModal && signingRole && (
+        <SignModal
+          address={address}
+          status={signStatus}
+          onSign={handleSign}
+          onClose={() => {
+            setShowSignModal(false);
+            setSignStatus("idle");
+          }}
+          t={t}
+          badgeKey="aval.sign.badge"
+          idleTitleKey="aval.sign.idle.title"
+          idleDescKey="aval.sign.idle.description"
+        />
+      )}
+    </>
+  );
 }

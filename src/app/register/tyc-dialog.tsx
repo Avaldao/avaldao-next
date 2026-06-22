@@ -2,19 +2,23 @@
 
 import { Button } from "@/components/ui/button";
 import ResponsiveModal from "@/components/ui/responsive-modal";
+import { Language, translations } from "@/translations";
 
 import { CheckCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 
 interface TyCDialogProps {
   tyc: string,
+  language: Language,
   setShowTyCDialog: (flag: boolean) => void,
   onAccept: () => void,
   onDecline: () => void
 }
 
-export function TyCDialog({ tyc, setShowTyCDialog, onAccept, onDecline }: TyCDialogProps) {
+export function TyCDialog({ tyc, language, setShowTyCDialog, onAccept, onDecline }: TyCDialogProps) {
+
+  const t = useMemo(() => (key: string) => translations[key]?.[language] ?? key, [language]);
 
   const [scrolledToEnd, setScrolledToEnd] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
@@ -28,8 +32,8 @@ export function TyCDialog({ tyc, setShowTyCDialog, onAccept, onDecline }: TyCDia
         setScrolledToEnd(entry.isIntersecting);
       },
       {
-        root: bodyRef.current, // the scrollable container
-        threshold: 1,          // fully visible
+        root: bodyRef.current,
+        threshold: 1,
       }
     );
 
@@ -44,7 +48,7 @@ export function TyCDialog({ tyc, setShowTyCDialog, onAccept, onDecline }: TyCDia
       className="md:w-full md:max-w-xl"
       closeOnBackdropClick={false}
       closeModal={() => setShowTyCDialog(false)}
-      title={"Terms and conditions"}
+      title={t("signup.tyc.dialog.title")}
       body={
         <div ref={bodyRef} className="max-h-[50vh] overflow-auto ">
           <div
@@ -58,16 +62,17 @@ export function TyCDialog({ tyc, setShowTyCDialog, onAccept, onDecline }: TyCDia
       buttons={
         <>
           <Button
-            onClick={onDecline} 
+            onClick={onDecline}
             variant={"ghost"}
-          >Decline</Button>
+            className="bg-slate-800"
+          >{t("signup.tyc.dialog.decline")}</Button>
 
           <Button
             className="cursor-pointer"
             onClick={onAccept}
             disabled={!scrolledToEnd}>
             <CheckCircle />
-            Accept & Continue
+            {t("signup.tyc.dialog.accept")}
           </Button>
         </>
       }

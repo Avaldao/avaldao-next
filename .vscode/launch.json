@@ -4,7 +4,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Next.js",
+      "name": "Next.js: Node",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "env": {
@@ -13,6 +13,23 @@
       "port": 9229,
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Next.js: Chrome",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMapPathOverrides": {
+        "webpack://_N_E/*": "${workspaceFolder}/*"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Next.js: Full (Node + Chrome)",
+      "configurations": ["Next.js: Node", "Next.js: Chrome"],
+      "stopAll": true
     }
   ]
 }

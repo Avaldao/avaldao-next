@@ -12,3 +12,10 @@ export class NotAuthorizedError extends Error {
     this.name = "NotAuthorizedError";
   }
 }
+
+export class MissingRoleError extends Error {
+  constructor(role?: string) {
+    super(`User is missing required role${role ? `: ${role}` : ""}`);
+    this.name = "MissingRoleError";
+  }
+}

@@ -38,7 +38,7 @@ export default function ResponsiveModal({
         >
           {/* Header */}
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">{title}</h2>
+            <h2 className="text-xl font-semibold text-slate-800">{title}</h2>
             <button onClick={() => closeModal()}>
               <X className="w-6 h-6 text-gray-600 hover:text-black" />
             </button>

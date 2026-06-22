@@ -1,7 +1,8 @@
 "use client";
-import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react'
-import { Briefcase, Check, ChevronUp, Factory, Trees, Truck, User } from 'lucide-react';
-import { ReactNode, Ref, useEffect, useState } from 'react'
+import { Language, translations } from '@/translations';
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react'
+import { Briefcase, Check, User } from 'lucide-react';
+import { ReactNode, Ref, useEffect, useMemo, useState } from 'react'
 
 export interface AccountType {
   id: number;
@@ -12,7 +13,7 @@ export interface AccountType {
 }
 
 
-const accountTypes: AccountType[] = [
+export const accountTypes: AccountType[] = [
   {
     id: 1,
     name: 'Personal',
@@ -33,68 +34,72 @@ interface ActivitySectorComboBoxProps {
   ref?: Ref<HTMLInputElement> | undefined;
   initialType?: string;
   onTypeSelected?: (type: AccountType) => void
-
+  language: Language;
 }
 
-export default function AccountTypeSelector({ initialType, onTypeSelected: onTypeSelected, ref }: ActivitySectorComboBoxProps) {
-  const t = (key: string) => (key);
-  const [selectedType, setSelectedType] = useState<any>(initialType ? accountTypes.find(type => initialType.includes(type.value)) : undefined)
+export default function AccountTypeSelector({ initialType, onTypeSelected: onTypeSelected, ref, language }: ActivitySectorComboBoxProps) {
+
+  const t = useMemo(() => (key: string) => translations[key]?.[language] ?? key, [language]);
+
+  const [selectedType, setSelectedType] = useState<AccountType | undefined>(
+    initialType ? accountTypes.find((type) => initialType.includes(type.value)) : undefined
+  )
 
   useEffect(() => {
-    if (typeof onTypeSelected == "function") {
+    if (typeof onTypeSelected == "function" && selectedType) {
       onTypeSelected(selectedType);
     }
-  }, [selectedType]);
+  }, [onTypeSelected, selectedType]);
 
 
   return (
-    <Combobox immediate value={selectedType} onChange={setSelectedType}>
+    <Combobox immediate value={selectedType} onChange={(value) => setSelectedType(value ?? undefined)}>
       <div className="relative">
         <ComboboxInput
           ref={ref}
-          className={"h-0"}
+          className="sr-only"
         />
 
         <ComboboxOptions
           static
-          className="empty:invisible 
-          w-full mt-1 
-          flex 
-          flex-wrap
-          gap-2 sm:gap-x-6 justify-center 
-          min-h-[150px]
-          bg-white
-          p-4
-          
-          
-          ">
-          {accountTypes.map((sector) => (
+          modal={false}
+          className="empty:invisible grid min-h-45 w-full grid-cols-1 gap-4 rounded-2xl bg-white  sm:grid-cols-2 py-5"
+        >
+          {accountTypes.map((activityType) => (
             <ComboboxOption
-              key={sector.id}
-              value={sector}
-              className="
-                cursor-pointer 
-                hover:shadow-violet-500/50
-                hover:shadow-lg
-                flex shadow-md
-                rounded-xl
-                max-w-[200px]
-                ">
+              key={activityType.id}
+              value={activityType}
+              className="group cursor-pointer rounded-2xl focus:outline-none"
+            >
               {({ selected }) => (
-                <div className={`
-                    flex flex-col items-center justify-center 
-                    gap-3 min-w-[180px] min-h-[170px] p-4 ${selected ? "bg-violet-100 shadow-xl border border-violet-400" : "border border-gray-50"} rounded-xl`}>
+                <div
+                  className={`relative flex min-h-47.5 flex-col items-start justify-between gap-4 rounded-2xl border p-5 transition-all duration-200 ease-out ${selected
+                    ? "border-secondary/40 bg-white shadow-[0_14px_32px_-16px_rgba(120,104,229,0.55)]"
+                    : "border-slate-200 bg-white/85 hover:-translate-y-0.5 hover:border-secondary/25 hover:shadow-[0_12px_24px_-16px_rgba(15,23,42,0.4)]"
+                    }`}
+                >
+                  {selected && (
+                    <span className="absolute right-4 top-4 inline-flex h-6 w-6 items-center justify-center rounded-full border border-secondary/20 bg-secondary/10 text-secondary">
+                      <Check className="h-4 w-4" />
+                    </span>
+                  )}
 
-                  <div className={`text-violet-600 [&>svg]:w-8 [&>svg]:h-8 ${selected ? "[&>svg]:stroke-2" : "[&>svg]:stroke-1"}`}>
-                    {sector.icon}
+                  <div
+                    className={`inline-flex h-12 w-12 items-center justify-center rounded-xl border text-secondary transition-colors [&>svg]:h-6 [&>svg]:w-6 ${selected
+                      ? "border-secondary/30 bg-secondary/10"
+                      : "border-slate-200 bg-slate-50 group-hover:border-secondary/20 group-hover:bg-secondary/5"
+                      }`}
+                  >
+                    {activityType.icon}
                   </div>
 
-                  <div className="text-slate-700 font-medium capitalize">
+                  <div className="text-lg font-semibold text-slate-800 capitalize">
 
-                    {t(`${sector.name.toLowerCase()}`)}
+                    {t(`account-type.${activityType.value}.name`)}
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {sector.description}
+
+                  <div className="text-sm leading-relaxed text-slate-500">
+                    {t(`account-type.${activityType.value}.description`)}
                   </div>
 
                 </div>
