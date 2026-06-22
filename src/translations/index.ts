@@ -828,6 +828,22 @@ export const translations: Translations = {
     es: 'Credenciales inválidas. Por favor, intenta de nuevo.',
     en: 'Invalid credentials. Please try again.'
   },
+  "login.no-account": {
+    es: '¿No tenés una cuenta?',
+    en: "Don't have an account?"
+  },
+  "login.signup-link": {
+    es: 'Registrate',
+    en: 'Sign up'
+  },
+  "signup.have-account": {
+    es: '¿Ya tenés una cuenta?',
+    en: 'Already have an account?'
+  },
+  "signup.login-link": {
+    es: 'Iniciá sesión',
+    en: 'Log in'
+  },
   "login.error.missing_fields": {
     es: 'Por favor, completa todos los campos.',
     en: 'Please fill in all fields.'
