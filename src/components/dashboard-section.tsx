@@ -4,7 +4,7 @@ import GuaranteeFund from "./GuaranteeFund";
 import { translations } from "@/translations";
 
 
-export default async function Dashboard() {
+export default async function DashboardSection() {
   const language = await getLanguageCookie();
   const t = (key: string) => translations[key]?.[language] ?? key;
  

@@ -6,9 +6,17 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { LanguageToggle } from "@/translations/LanguageToggle";
 import LanguageWrapper from "./LanguageWrapper";
 import { getLanguageCookie } from "@/lib/cookies";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export default async function Header() {
   const language = await getLanguageCookie();
+  const session = await getServerSession(authOptions);
+  const nroles = session?.user?.nroles;
+  const isAdmin =
+    nroles?.[30]?.includes("ADMIN_ROLE") ||
+    nroles?.[31]?.includes("ADMIN_ROLE");
+  const logoHref = isAdmin ? "/dashboard" : "/";
 
   return (
     <header className="fixed top-0 z-50 w-full border-b border-violet-100/50 bg-white/80 shadow-sm backdrop-blur-md transition-all duration-300 min-h-[75px]
@@ -18,7 +26,7 @@ export default async function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="group flex items-center transition-opacity hover:opacity-80">
+            <Link href={logoHref} className="group flex items-center transition-opacity hover:opacity-80">
               <Image
                 src="/images/avaldao.svg"
                 alt="AvalDAO Logo"

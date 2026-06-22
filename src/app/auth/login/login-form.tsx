@@ -78,7 +78,10 @@ function LoginFormInner({ language }: { language: Language }) {
 
   return (
     <div className="w-full max-w-lg xl:max-w-xl mx-auto flex flex-col gap-4 flex-1">
-      <div className="flex flex-col gap-4 flex-1 max-w-lg mx-auto w-full">
+      <form
+        className="flex flex-col gap-4 flex-1 max-w-lg mx-auto w-full"
+        onSubmit={(e) => { e.preventDefault(); handleLogin(); }}
+      >
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="login-email">{t("login.email")}</Label>
           <Input
@@ -115,10 +118,10 @@ function LoginFormInner({ language }: { language: Language }) {
 
         <div className="flex justify-center pt-3">
           <Button
+            type="submit"
             className="min-h-12 w-full max-w-md py-3.5 rounded-2xl shadow-md  text-sm font-semibold"
             disabled={submitting || email.length === 0 || password.length === 0}
             loading={submitting}
-            onClick={handleLogin}
           >
             {t("login.submit")}
             {submitting && <Spinner variant="sm" />}
@@ -127,9 +130,15 @@ function LoginFormInner({ language }: { language: Language }) {
 
         <div className="text-center">
           {submitError && <p className="mt-2 text-sm text-red-600">{submitError}</p>}
+          <a
+            href="/auth/forgot-password"
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            {t("login.forgot-password")}
+          </a>
         </div>
 
-      </div>
+      </form>
       <div className="flex flex-1"></div>
       <div>
         <div className="flex items-center gap-4 w-full mx-auto max-w-sm">

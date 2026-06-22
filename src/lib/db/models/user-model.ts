@@ -39,6 +39,8 @@ export interface IUser extends Document {
   password?: string;
   activationToken?: string;
   activationTokenExpiry?: Date;
+  passwordResetToken?: string;
+  passwordResetTokenExpiry?: Date;
   authMethods: string[];
   roles: {
     [key: string]: {
@@ -147,6 +149,8 @@ export const userSchema = new Schema<IUser>(
     },
     activationToken: String,
     activationTokenExpiry: Date,
+    passwordResetToken: String,
+    passwordResetTokenExpiry: Date,
 
     authMethods: {
       type: [String],

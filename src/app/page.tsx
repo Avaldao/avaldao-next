@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
 import Features from '@/components/Features'
-import Dashboard from '@/components/Dashboard'
+import DashboardSection from '@/components/dashboard-section'
 import Footer from '@/components/Footer'
 import Aliados from '@/components/Aliados'
 import HowItWorks from '@/components/HowItWorks'
@@ -77,7 +77,7 @@ export default async function Home() {
         <HowItWorks />
         <ProjectTimeline />
         <FAQ />
-        <Dashboard/>
+        <DashboardSection/>
         <Aliados />
       </main>
       <Footer />

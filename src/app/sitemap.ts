@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAbsoluteUrl } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = ["/", "/avales", "/register", "/users/signup"];
+  const routes = ["/", "/guarantees", "/register", "/users/signup"];
   const lastModified = new Date();
 
   return routes.map((route, index) => ({

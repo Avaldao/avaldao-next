@@ -326,6 +326,99 @@ export default class UsersService {
     return hashed === stored;
   }
 
+  async forgotPassword(email: string, language: "en" | "es" = "es") {
+    const t = (key: string) => translations[key]?.[language] ?? key;
+
+    const user = await UsersModel.findOne({ email: email.toLowerCase().trim() });
+
+    if (!user) {
+      return { sent: false, reason: "not_found" };
+    }
+
+    // Block admin roles (checked from cached roles)
+    const rolesMap = user.roles as unknown as Map<string, { roles: string[] }> | undefined;
+    const isAdmin = rolesMap
+      ? [...rolesMap.values()].some(
+          chainRoles =>
+            chainRoles.roles.includes("ADMIN_ROLE") || chainRoles.roles.includes("AVALDAO_ROLE")
+        )
+      : false;
+
+    if (isAdmin) {
+      return { sent: false, reason: "admin" };
+    }
+
+    if (!user.authMethods.includes("email")) {
+      return { sent: false, reason: "no_email_auth" };
+    }
+
+    // Only 1 active token at a time
+    if (
+      user.passwordResetToken &&
+      user.passwordResetTokenExpiry &&
+      user.passwordResetTokenExpiry > new Date()
+    ) {
+      return { sent: false, reason: "pending" };
+    }
+
+    const resetToken = crypto.randomUUID();
+    const resetLink = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password/${resetToken}`;
+
+    const templatePath = path.join(process.cwd(), "emails", language, "password-reset-email.html");
+    const html = fs.readFileSync(templatePath, "utf-8").replace(/\{\{RESET_LINK\}\}/g, resetLink);
+
+    await sendMail({
+      to: user.email,
+      subject: t("email.password-reset.subject"),
+      text: `${t("email.password-reset.body")} ${resetLink}`,
+      html,
+    });
+
+    await UsersModel.updateOne(
+      { _id: user._id },
+      {
+        passwordResetToken: resetToken,
+        passwordResetTokenExpiry: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      }
+    );
+
+    return { sent: true };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const user = await UsersModel.findOne({
+      passwordResetToken: token,
+      passwordResetTokenExpiry: { $gt: new Date() },
+    });
+
+    if (!user) {
+      throw new Error("invalid_token");
+    }
+
+    user.password = crypto.createHash("sha256").update(newPassword).digest("hex");
+    user.passwordResetToken = undefined;
+    user.passwordResetTokenExpiry = undefined;
+    await user.save();
+
+    return { success: true };
+  }
+
+  async linkWallet(userId: string, message: string, signature: string) {
+    const recoveredAddress = verifyMessage(message, signature);
+
+    const existing = await UsersModel.findOne({ address: recoveredAddress });
+    if (existing && existing._id.toString() !== userId) {
+      throw new Error("Esta billetera ya está asociada a otra cuenta");
+    }
+
+    await UsersModel.findByIdAndUpdate(userId, {
+      address: recoveredAddress,
+      updatedAt: new Date(),
+    });
+
+    return recoveredAddress;
+  }
+
   async updateProfile(data: UserUpsert) {
 
     let pinataResponse;

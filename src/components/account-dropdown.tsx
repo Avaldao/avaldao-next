@@ -39,7 +39,7 @@ export function AccountDropdown({ address }: { address: string }) {
   return (
     <Menu>
       <MenuButton
-        onDoubleClick={() => openAppkit()}
+        /* onDoubleClick={() => openAppkit()} */
         className="flex min-w-35 items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30"
       >
         <>
@@ -50,6 +50,7 @@ export function AccountDropdown({ address }: { address: string }) {
 
       <MenuItems
         anchor="bottom end"
+        modal={false}
         className="z-50 mt-2 min-w-80 overflow-hidden rounded-2xl border border-violet-100/50 bg-white shadow-xl backdrop-blur-sm"
       >
         {/* User Info Section */}
