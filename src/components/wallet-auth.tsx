@@ -1,7 +1,7 @@
 // components/WalletAuth.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, isValidElement, cloneElement } from 'react';
 import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect } from '@reown/appkit/react';
 import { AuthModal } from './auth-modal';
 import { Wallet, Loader2, CheckCircle2 } from 'lucide-react';
@@ -10,26 +10,38 @@ import { Eip1193Provider } from 'ethers';
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AccountDropdown } from './account-dropdown';
+import { AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/context/LanguageContext';
 
 
 export const truncateAddress = (addr: string) => {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 };
 
-type AuthStep = 'disconnected' | 'connected' | 'signing' | 'verified';
+export type AuthStep = 'disconnected' | 'connected' | 'signing' | 'verified';
 
-const WalletAuth = () => {
+interface WalletAuthProps {
+  buttonContent?: React.ReactElement<{
+    onClick?: () => void;
+  }>,
+  onSuccessLogin?: () => void;
+  onErrorLogin?: (error: Error) => void;
+  forceButton?: boolean; //display always the same button disregarding of state
+}
+
+
+
+const WalletAuth = ({ buttonContent, onSuccessLogin, onErrorLogin, forceButton = false }: WalletAuthProps) => {
   const { data: session, status } = useSession();
-
+  const { t, language } = useLanguage();
   const [authStep, setAuthStep] = useState<AuthStep>('disconnected');
   const [showAuthModal, setShowAuthModal] = useState(false);
+
   const { open } = useAppKit();
   const { walletProvider } = useAppKitProvider<Eip1193Provider>("eip155");
   const { isConnected, address } = useAppKitAccount();
   const { disconnect } = useDisconnect();
   const router = useRouter();
-
-
 
   useEffect(() => {
     if (status == "authenticated" && address) {
@@ -61,7 +73,7 @@ const WalletAuth = () => {
   const handleConnectWallet = async () => {
     try {
       setAuthStep('disconnected');
-      open({ view: 'Connect' });
+      await open({ view: 'Connect' });
     } catch (error) {
       console.error('Error connecting wallet:', error);
     }
@@ -74,6 +86,18 @@ const WalletAuth = () => {
     return data.message;
   }
 
+  const defaultErrorHandler = (error: Error) => {
+
+    if (error.message == "USER_NOT_FOUND") {
+      router.push("/users/signup");
+    }
+
+  }
+
+  const onLoginError = onErrorLogin ?? defaultErrorHandler;
+
+
+
   const handleSignMessage = async () => {
     try {
       setAuthStep('signing');
@@ -83,6 +107,10 @@ const WalletAuth = () => {
       const signer = await ethersProvider.getSigner();
       const signature = await signer.signMessage(message);
 
+      localStorage.setItem("auth_message", message);
+      localStorage.setItem("auth_signature", signature);
+      localStorage.setItem("auth_ts", Date.now().toString());
+
       const response = await signIn("message-signature", {
         redirect: false,
         message,
@@ -90,9 +118,16 @@ const WalletAuth = () => {
       });
 
       if (response?.error != undefined) {
-        console.log("handle errors", response.error)
+        onLoginError(new Error(response.error));
       } else if (response?.ok) {
-        router.refresh();
+        if (typeof onSuccessLogin === "function") {
+          setAuthStep('verified');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          setShowAuthModal(false);
+          onSuccessLogin();
+        } else {
+          router.push("/dashboard");
+        }
       }
 
       // Una vez firmado exitosamente
@@ -109,8 +144,15 @@ const WalletAuth = () => {
     }
   };
 
-  const handleDisconnect = () => {
-    disconnect();
+  const handleChangeWallet = async () => {
+    await disconnect();
+    setAuthStep('disconnected');
+    localStorage.removeItem("signup_message");
+    localStorage.removeItem("signup_signature");
+  }
+
+  const handleDisconnect = async () => {
+    await disconnect();
     setAuthStep('disconnected');
     setShowAuthModal(false);
   };
@@ -121,7 +163,7 @@ const WalletAuth = () => {
         return (
           <>
             <CheckCircle2 className="w-4 h-4" />
-            {truncateAddress(getAddress(address!))}
+            {address && truncateAddress(getAddress(address!))}
           </>
         );
       case 'signing':
@@ -135,14 +177,14 @@ const WalletAuth = () => {
         return (
           <>
             <Wallet className="w-4 h-4" />
-            Verificar Identidad
+            {t('auth.modal.verify-identity')}
           </>
         );
       default:
         return (
           <>
             <Wallet className="w-4 h-4" />
-            Conectar Wallet
+            {t('auth.modal.connect.button')}
           </>
         );
     }
@@ -161,33 +203,45 @@ const WalletAuth = () => {
     }
   };
 
+
+  const defaultButton = (
+    <button
+      onClick={handleOpenAuth}
+      className={`
+            flex min-w-35 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 shadow-md
+            ${getButtonVariant() === 'success'
+          ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30'
+          : getButtonVariant() === 'loading'
+            ? 'cursor-not-allowed bg-violet-400 text-white'
+            : getButtonVariant() === 'primary'
+              ? 'bg-linear-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-lg hover:shadow-violet-500/40'
+              : 'bg-linear-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-lg hover:shadow-violet-500/40'
+        }
+          `}
+      disabled={authStep === 'signing'}
+    >
+      {buttonContent ?? getButtonContent()}
+    </button>
+  )
+
+  const button = buttonContent && isValidElement(buttonContent)
+    ? cloneElement(buttonContent, {
+      onClick: handleOpenAuth,
+    })
+    : defaultButton;
+
+
   return (
     <>
-      {authStep == "verified" && address ? (
-        <AccountDropdown address={getAddress(address)} />
+      {forceButton ? button :
+        authStep == "verified" && address ? (
+          <AnimatePresence>
+            <AccountDropdown address={getAddress(address)} />
+          </AnimatePresence>
 
-      ) : (
-        <button
-          onClick={handleOpenAuth}
-          className={`
-          px-4 py-2 rounded-lg font-medium transition-all duration-300 min-w-[140px]
-          flex items-center justify-center gap-2
-          ${getButtonVariant() === 'success'
-              ? 'bg-success text-white hover:bg-success-accent'
-              : getButtonVariant() === 'loading'
-                ? 'bg-violet-400 text-white cursor-not-allowed'
-                : getButtonVariant() === 'primary'
-                  ? 'bg-secondary text-white hover:bg-secondary-accent'
-                  : 'bg-secondary text-gray-50 hover:bg-secondary-accent'
-            }
-        `}
-          disabled={authStep === 'signing'}
-        >
-          {getButtonContent()}
-        </button>
-      )}
-
-
+        ) : (
+          button
+        )}
 
       <AuthModal
         isOpen={showAuthModal}
@@ -196,8 +250,10 @@ const WalletAuth = () => {
         address={address}
         onConnectWallet={handleConnectWallet}
         onSignMessage={handleSignMessage}
+        onChangeWallet={handleChangeWallet}
         onDisconnect={handleDisconnect}
         isSigning={authStep === 'signing'}
+        language={language}
       />
     </>
   );

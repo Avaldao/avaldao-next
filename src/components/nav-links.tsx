@@ -1,44 +1,62 @@
 "use client";
 
+import { Language, translations } from "@/translations";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
-export default function NavLinks() {
+const linkClass = "rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base";
+
+export default function NavLinks({ language }: { language: Language }) {
   const { data: session, status } = useSession();
-  const isAdmin = session?.user.roles?.includes("ADMIN_ROLE") ?? false;
+  const nroles = session?.user?.nroles;
+  const isAdmin =
+    nroles?.[30]?.includes("ADMIN_ROLE") ||
+    nroles?.[31]?.includes("ADMIN_ROLE") ||
+    false;
 
-  if (status == "authenticated") {
-    if (isAdmin) {
-      return (
-        <nav className="hidden md:flex space-x-8">
-          <Link href="/admin/users" className="text-gray-600 hover:text-slate-800" >
-            Usuarios
-          </Link>
-          <Link href="/avales" className="text-gray-600 hover:text-slate-800" >
-            Avales
-          </Link>
-
-        </nav>
-      )
-    } else {
-      return (
-        <nav className="hidden md:flex space-x-8">
-          <Link href="/avales" className="text-gray-600 hover:text-slate-800" >
-            Avales
-          </Link>
-
-        </nav>
-      )
-    }
-
-  }
+  const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (
-    <nav className="hidden md:flex space-x-8">
-      <a href="#que-es" className="text-gray-600 hover:text-slate-800">Qué es</a>
-      <a href="#dashboard" className="text-gray-600 hover:text-slate-800">Dashboard</a>
-      <a href="#invertir" className="text-gray-600 hover:text-slate-800">Invertir</a>
-      <a href="#aval" className="text-gray-600 hover:text-slate-800">Solicitar Aval</a>
+    <nav className="hidden md:flex md:items-center md:gap-1 lg:gap-2">
+      {status == "authenticated" ? (
+        <>
+          <Link href="/dashboard" className={linkClass}>
+            {t("nav.dashboard")}
+          </Link>
+          {isAdmin && (
+            <Link href="/staff/users" className={linkClass}>
+              {t("nav.users")}
+            </Link>
+          )}
+        </>
+      ) : (
+        <>
+          <a 
+            href="#que-es" 
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+          >
+            {t("nav.about")}
+          </a>
+          <a 
+            href="#dashboard" 
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+          >
+            {t("nav.dashboard")}
+          </a>
+          <Link
+            href="/invertir"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+          >
+            {t("nav.invest")}
+          </Link>
+          <a 
+            href="#aval" 
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+          >
+            {t("nav.request-aval")}
+          </a>
+        </>
+      )}
     </nav>
   )
 }

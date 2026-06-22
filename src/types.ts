@@ -1,3 +1,14 @@
+import type { UserStatus } from "./lib/db/models/user-model";
+import { Role } from "./roles";
+
+export interface PaginatedResult<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+}
+
 export interface Aval {
   _id: string;
   address?: string;
@@ -22,7 +33,8 @@ export interface Aval {
   avaladoSignature?: string;
   comercianteSignature?: string;
   avaldaoSignature?: string;
-  chainId: number;
+  chainId: 30 | 31;
+  rejectReason?: string;
 }
 
 
@@ -33,9 +45,15 @@ export interface UserInfo {
   infoCid?: string;
   name: string;
   avatar: string;
-  roles: string[];
+  status?: UserStatus;
+  roles: Role[];
+  nroles: {
+    [chainId: number]: Role[];
+  }
   url?: string; //deprecated
   website?: string;
+  platformRoles: string[];
+  password?: string;
 }
 
 export interface UserUpsert {
@@ -48,6 +66,7 @@ export interface UserUpsert {
 }
 
 export interface AvalRequest {
+  chainId: string;
   proyecto: string,
   objetivo: string,
   adquisicion: string,

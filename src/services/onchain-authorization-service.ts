@@ -1,38 +1,41 @@
-/* Podemos tener un enum para roles, recordar que pasamos el hash de keccak */
-
-import adminAbi from "@/blockchain/contracts/avaldao/admin.abi";
+import ContractsFactory from "@/blockchain/contracts";
 import roles, { Role } from "@/roles";
-import { Contract, JsonRpcProvider } from "ethers";
-
-const rpcUrl = process.env.RPC_URL;
-const deployedAt = process.env.ADMIN_CONTRACT_ADDRESS!;
+import { Contract } from "ethers";
 
 export default class OnChainAuthorizationService {
-  public provider;
-  public admin: Contract;
 
-  constructor() {
-    this.provider = new JsonRpcProvider(rpcUrl);
-    this.admin = new Contract(deployedAt, adminAbi, this.provider);
+  public admin: Contract;
+  chainId: number;
+
+  constructor(chainId: number = Number(process.env.DEFAULT_CHAIN_ID!)) {
+    this.chainId = chainId;
+    this.admin = ContractsFactory.getPermissionsContract(chainId);
+  }
+
+  getChainId() {
+    return this.chainId;
   }
 
   async hasRole(address: string, role: Role) {
-    const role_ = roles.find(r => r.value === role);
+    const role_ = roles[this.chainId].find(r => r.value === role);
     if (!role_) throw new Error(`Invalid role value: ${role}`);
 
     const result = await this.admin.hasUserRole(address, role_.app, role_.hash);
-    console.log(result);
     return result;
   }
 
-  async getRoles(address: string) {
+  async getRoles(address: string): Promise<Role[]> {
+    
     const userRoles = [];
-    for (const role of roles) {
+    for (const role of roles[this.chainId]) {
       if (await this.admin.hasUserRole(address, role.app, role.hash)) {
         userRoles.push(role);
       }
     }
-    return userRoles.map(role => role.value);
+
+    console.log(`User roles: ${address} on ${this.chainId}`, userRoles.map(r => r.value));
+
+    return userRoles.map(role => role.value) as Role[];
   }
 
 

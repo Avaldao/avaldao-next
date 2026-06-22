@@ -1,25 +1,42 @@
 
 import { handleError, OkResponse } from "@/app/api/response-handler";
-import { NotAuthenticatedError } from "@/errors";
-import { authOptions } from "@/lib/auth";
-
 import UserService from "@/services/users-service";
-import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
+
 
 const usersService = new UserService();
 
+async function verifyRecaptcha(token: string): Promise<boolean> {
+  const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      secret: process.env.RECAPTCHA_SECRET_KEY!,
+      response: token,
+    }),
+  });
+  const data = await res.json();
+  return data.success && data.score >= 0.5;
+}
+
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user.id) throw new NotAuthenticatedError();
-
     const body = await request.json();
 
-    const result = await usersService.registerProfile({
-      ...body,
-      address: session.user.address
-    });
+    const { recaptchaToken, ...payload } = body;
 
+    if (process.env.NEXT_PUBLIC_SKIP_RECAPTCHA !== "true") {
+      if (!recaptchaToken) {
+        return NextResponse.json({ message: "Recaptcha requerido" }, { status: 400 });
+      }
+
+      const valid = await verifyRecaptcha(recaptchaToken);
+      if (!valid) {
+        return NextResponse.json({ message: "Verificación de seguridad fallida" }, { status: 400 });
+      }
+    }
+
+    const result = await usersService.signup(payload);
     return OkResponse(result);
 
   } catch (err) {

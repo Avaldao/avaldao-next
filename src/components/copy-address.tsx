@@ -21,7 +21,7 @@ export default function CopyAddress({ address }: { address: string }) {
       <button
         onClick={handleCopy}
         title="Copy"
-        className="bg-violet-800 p-2 text-white rounded-full cursor-pointer">
+        className="p-1.5 text-slate-500 hover:text-slate-700 cursor-pointer transition-colors">
         <Copy className="w-3 h-3" />
       </button>
       {copied && (

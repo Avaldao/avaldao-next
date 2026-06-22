@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CalendarDays, Wallet } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, Info, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textarea";
 import { useSession } from "next-auth/react";
@@ -10,7 +10,10 @@ import Spinner from "@/components/ui/spinner";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import InputDatePicker from "@/components/ui/input-date-picker";
-
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
+import { Language, translations } from "@/translations";
 
 
 interface FieldErrors {
@@ -29,6 +32,7 @@ interface FieldErrors {
 }
 
 interface AvalFields {
+  chainId?: number;
   proyecto: string,
   objetivo: string,
   adquisicion: string,
@@ -36,17 +40,25 @@ interface AvalFields {
   montoFiat: number,
   cuotasCantidad: number,
   fechaInicio: Date | string | undefined,
-  duracionCuotaDias: 30,
+  duracionCuotaDias: number,
   solicitanteAddress: string | undefined,
   avaldaoAddress: string,
   comercianteAddress: string,
   avaladoAddress: string,
 }
 
+interface AvalFormProps {
+  avaldaoAddress: string;
+  language: Language;
+}
 
-export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string }) {
+
+export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
   const { data: session } = useSession();
   const user = session?.user;
+  const router = useRouter();
+
+  const t = useMemo(() => (key: string) => translations[key]?.[language] ?? key, [language]);
 
   const [form, setForm] = useState<AvalFields>({
     proyecto: "",
@@ -64,12 +76,13 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
   });
 
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const [comerciante, setComerciante] = useState<UserInfo | null>();
   const [avalado, setAvalado] = useState<UserInfo | null>();
   const [loadingComerciante, setLoadingComerciante] = useState(false);
   const [loadingAvalado, setLoadingAvalado] = useState(false);
+  const [comercianteNotFound, setComercianteNotFound] = useState(false);
+  const [avaladoNotFound, setAvaladoNotFound] = useState(false);
 
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
@@ -108,24 +121,29 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
   const loadComercianteData = async () => {
     if (form.comercianteAddress && /^0x[a-fA-F0-9]{40}$/.test(form.comercianteAddress)) {
       setLoadingComerciante(true);
+      setComercianteNotFound(false);
       try {
         const comerciante_ = await getUserByAddress(form.comercianteAddress);
         setComerciante(comerciante_);
+        setComercianteNotFound(!comerciante_);
         setLoadingComerciante(false);
       } catch (err) {
         setLoadingComerciante(false);
       }
     } else {
       setComerciante(null);
+      setComercianteNotFound(false);
     }
 
   }
   const loadAvaladoData = async () => {
     if (form.avaladoAddress && /^0x[a-fA-F0-9]{40}$/.test(form.avaladoAddress)) {
       setLoadingAvalado(true);
+      setAvaladoNotFound(false);
       try {
         const avalado_ = await getUserByAddress(form.avaladoAddress);
         setAvalado(avalado_);
+        setAvaladoNotFound(!avalado_);
         setLoadingAvalado(false);
       } catch (err) {
         console.log(err)
@@ -133,6 +151,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       }
     } else {
       setAvalado(null);
+      setAvaladoNotFound(false);
     }
   }
 
@@ -161,11 +180,11 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
   const validateForm = () => {
     const fieldErrors_ = [];
     if (!/^0x[a-fA-F0-9]{40}$/.test(form.comercianteAddress)) {
-      setFieldError("comercianteAddress", "Por favor ingresa un address válido");
+      setFieldError("comercianteAddress", t("aval.form.validation.invalid-address"));
       fieldErrors_.push("comercianteAddress");
     }
     if (!/^0x[a-fA-F0-9]{40}$/.test(form.avaladoAddress)) {
-      setFieldError("avaladoAddress", "Por favor ingresa un address válido");
+      setFieldError("avaladoAddress", t("aval.form.validation.invalid-address"));
       fieldErrors_.push("avaladoAddress");
     }
 
@@ -173,7 +192,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (loading) return;
     clearFormErrors();
@@ -183,7 +202,6 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       return;
     }
 
-    setSuccess(false);
 
     try {
       setLoading(true);
@@ -191,6 +209,9 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       if (form.fechaInicio instanceof Date) {
         form.fechaInicio = form.fechaInicio.toISOString();
       }
+
+      form.chainId = Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!);
+
       const data = JSON.stringify(form);
 
       const res = await fetch("/api/avales", {
@@ -200,12 +221,32 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       });
 
       if (res.ok) {
-        setSuccess(true);
+        toast.success(t("aval.form.success"));
+        setForm({
+          proyecto: "",
+          objetivo: "",
+          adquisicion: "",
+          beneficiarios: "",
+          montoFiat: 1000,
+          cuotasCantidad: 6,
+          fechaInicio: new Date(),
+          duracionCuotaDias: 30,
+          solicitanteAddress: user?.address,
+          avaldaoAddress: avaldaoAddress,
+          comercianteAddress: "",
+          avaladoAddress: "",
+        });
+        setComerciante(null);
+        setAvalado(null);
+        router.push("/guarantees"); //Redirect to avales list after creation. We can consider redirecting to the newly created aval details page in the future.
+        // setSuccess(true);  
       } else {
-        console.error("Error al enviar los datos");
+        const errorData = await res.json();
+        toast.error(`${t("aval.form.error")}${errorData.message ? `: ${errorData.message}` : ""}`);
       }
     } catch (err) {
       console.error(err);
+      toast.error(t("aval.form.error"));
     } finally {
       setLoading(false);
     }
@@ -213,9 +254,21 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
+      {/* Info notice */}
+      <div className="rounded-lg border border-violet-200 bg-violet-50 p-5 -mt-10 mb-4">
+        <div className="flex items-start gap-3">
+          <Info className="w-5 h-5 text-violet-600 mt-0.5 shrink-0" />
+          <ul className="space-y-1 text-sm text-violet-700 list-disc list-inside">
+            <li>{t("avals.new.info.evaluation")}</li>
+            <li>{t("avals.new.info.addresses")}</li>
+            <li>{t("avals.new.info.vigente")}</li>
+          </ul>
+        </div>
+      </div>
+
       {/* Proyecto */}
       <div>
-        <Label required>Proyecto</Label>
+        <Label required>{t("aval.form.project")}</Label>
         <Input
           name="proyecto"
           value={form.proyecto}
@@ -226,7 +279,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
       {/* Objetivo */}
       <div>
-        <Label required>Objetivo</Label>
+        <Label required>{t("aval.form.objective")}</Label>
         <TextArea
           name="objetivo"
           value={form.objetivo}
@@ -238,7 +291,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       {/* Row: Adquisición / Beneficiarios */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <Label required>Adquisición</Label>
+          <Label required>{t("aval.form.acquisition")}</Label>
           <Input
             name="adquisicion"
             value={form.adquisicion}
@@ -247,7 +300,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
           />
         </div>
         <div>
-          <Label required>Beneficiarios</Label>
+          <Label required>{t("aval.form.beneficiaries")}</Label>
           <Input
             name="beneficiarios"
             value={form.beneficiarios}
@@ -260,7 +313,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       {/* Row: Monto, Cuotas, Fecha, Duración */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div>
-          <Label required>Monto (USD)</Label>
+          <Label required>{t("aval.form.amount")}</Label>
           <Input
             type="number"
             name="montoFiat"
@@ -271,7 +324,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
         </div>
 
         <div>
-          <Label required>Cuotas</Label>
+          <Label required>{t("aval.form.installments")}</Label>
           <Input
             type="number"
             name="cuotasCantidad"
@@ -282,7 +335,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
         </div>
 
         <div>
-          <Label >Fecha inicio</Label>
+          <Label>{t("aval.form.start-date")}</Label>
           <InputDatePicker
             onChange={(s) => {
               if (s) {
@@ -296,7 +349,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
 
         <div>
-          <Label required>Duración (días)</Label>
+          <Label required>{t("aval.form.duration-days")}</Label>
           <Input
             type="number"
             name="duracionCuotaDias"
@@ -310,7 +363,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
       {/* Row: Direcciones */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <Label >Solicitante</Label>
+          <Label>{t("aval.form.applicant")}</Label>
           <div className="relative">
             <Wallet className="absolute left-3 top-2.5 text-slate-700 h-5 w-5 z-1" />
             <Input
@@ -325,7 +378,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
         </div>
 
         <div>
-          <Label >AvalDAO</Label>
+          <Label>{t("aval.form.avaldao")}</Label>
           <div className="relative">
             <Wallet className="absolute left-3 top-2.5 text-slate-800 z-1 h-5 w-5" />
             <Input
@@ -341,7 +394,7 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <Label >Comerciante</Label>
+          <Label>{t("aval.form.merchant")}</Label>
           <div className="relative">
             <Wallet className="absolute left-3 top-2.5 text-slate-800 z-1 h-5 w-5" />
             <Input
@@ -355,18 +408,24 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
             {loadingComerciante ?
               (<div className="-mt-4 text-sm text-gray-400 italic">
-                <Spinner variant="sm" /> Loading...</div>)
-              : comerciante && !fieldErrors.comercianteAddress && (
-                <div className="-mt-4 text-primary italic text-sm">
-                  {comerciante?.name} &lt;{comerciante.email}&gt;
-                </div>
-              )}
+                <Spinner variant="sm" /> {t("aval.form.loading")}</div>)
+              : comerciante && !fieldErrors.comercianteAddress
+                ? (
+                  <div className="-mt-4 text-primary italic text-sm">
+                    {comerciante?.name} &lt;{comerciante.email}&gt;
+                  </div>
+                )
+                : comercianteNotFound && !fieldErrors.comercianteAddress && (
+                  <div className="-mt-4 text-amber-600 text-sm">
+                    {t("aval.form.user-not-found")}
+                  </div>
+                )}
 
           </div>
         </div>
 
         <div>
-          <Label >Avalado</Label>
+          <Label>{t("aval.form.endorsed")}</Label>
           <div className="relative">
             <Wallet className="absolute left-3 top-2.5 text-slate-800 z-1 h-5 w-5" />
             <Input
@@ -380,12 +439,18 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
 
             {loadingAvalado ?
               (<div className="-mt-4 text-sm text-gray-400 italic">
-                <Spinner variant="sm" /> Loading...</div>)
-              : avalado && !fieldErrors.avaladoAddress && (
-                <div className="-mt-4 text-primary italic text-sm">
-                  {avalado?.name} &lt;{avalado.email}&gt;
-                </div>
-              )}
+                <Spinner variant="sm" /> {t("aval.form.loading")}</div>)
+              : avalado && !fieldErrors.avaladoAddress
+                ? (
+                  <div className="-mt-4 text-primary italic text-sm">
+                    {avalado?.name} &lt;{avalado.email}&gt;
+                  </div>
+                )
+                : avaladoNotFound && !fieldErrors.avaladoAddress && (
+                  <div className="-mt-4 text-amber-600 text-sm">
+                    {t("aval.form.user-not-found")}
+                  </div>
+                )}
 
 
           </div>
@@ -411,26 +476,22 @@ export default function AvalForm({ avaldaoAddress }: { avaldaoAddress: string })
             comercianteAddress: "",
             avaladoAddress: "",
           })}
-          className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md transition"
+          className="px-4 py-2 bg-slate-700 hover:bg-slate-800 text-gray-100 rounded-md transition"
         >
-          Cancelar
+          {t("aval.form.cancel")}
         </button>
 
         <Button
+          className="min-w-[220px] bg-linear-to-r from-violet-600 to-fuchsia-600  hover:from-violet-700 hover:to-fuchsia-700 "
           type="submit"
           loading={loading}
           disabled={loading /* || success */}
         >
           {loading && <Spinner />}
-          {loading ? "Creando..." : "Crear Aval"}
+          {loading ? t("aval.form.submit.loading") : t("aval.form.submit")}
         </Button>
       </div>
 
-
-
-      {success && (
-        <p className="text-green-600 text-lg mt-7 text-center">✅ Aval registrado correctamente.</p>
-      )}
     </form>
 
   );

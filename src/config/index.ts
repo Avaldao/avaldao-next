@@ -28,24 +28,24 @@ export const ROOTSTOCK_NETWORKS = {
   mainnet: {
     chainId: "0x1E", // 30
     chainName: "Rootstock Mainnet",
-    rpcUrls: ["https://public-node.rsk.co"],
+    rpcUrls: ["https://public-node.rootstock.io"],
     nativeCurrency: {
       name: "Rootstock Bitcoin",
       symbol: "RBTC",
       decimals: 18,
     },
-    blockExplorerUrls: ["https://explorer.rsk.co"],
+    blockExplorerUrls: ["https://explorer.rootstock.io"],
   },
   testnet: {
     chainId: "0x1F", // 31
     chainName: "Rootstock Testnet",
-    rpcUrls: ["https://public-node.testnet.rsk.co"],
+    rpcUrls: ["https://public-node.testnet.rootstock.io"],
     nativeCurrency: {
       name: "Testnet Rootstock Bitcoin",
       symbol: "tRBTC",
       decimals: 18,
     },
-    blockExplorerUrls: ["https://explorer.testnet.rsk.co"],
+    blockExplorerUrls: ["https://explorer.testnet.rootstock.io"],
   },
 };
 

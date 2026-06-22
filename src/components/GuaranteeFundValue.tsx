@@ -1,14 +1,17 @@
 import { Contract, JsonRpcProvider } from "ethers";
 import AnimatedCounter from "./animated-counter";
 import vaultAbi from "@/blockchain/contracts/avaldao/vault.abi";
+import ContractsFactory from "@/blockchain/contracts";
 
 export const dynamic = 'force-dynamic';
 
-export default async function GuaranteeFundValue() {
-  const vaultAddress = process.env.NEXT_PUBLIC_VAULT_CONTRACT_ADDRESS!;
-  const docAddress = process.env.DOC_CONTRACT_ADDRESS!;
-  const vault = new Contract(vaultAddress, vaultAbi, new JsonRpcProvider(process.env.RPC_URL!));
+interface GuaranteeFundValueProps {
+  chainId: number;
+  docAddress: string;
+}
 
+export default async function GuaranteeFundValue({chainId, docAddress}: GuaranteeFundValueProps) {
+  const vault = ContractsFactory.getVaultContract(chainId);
   const response = await vault.getTokenBalance(docAddress); 
   const vaultBalance = Number(response.amountFiat)/100;  
 
@@ -16,6 +19,5 @@ export default async function GuaranteeFundValue() {
     <div className="min-w-32">
       <AnimatedCounter from={0} to={vaultBalance} />
     </div>
-
   )
 }
