@@ -652,6 +652,7 @@ function SignupFormInner({ language }: { language: Language }) {
         {showTyCDialog && (
           <TyCDialog
             tyc={buildTyC(t)}
+            language={language}
             setShowTyCDialog={setShowTyCDialog}
             onAccept={() => {
               setAcceptTyC(true);

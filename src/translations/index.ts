@@ -404,6 +404,9 @@ export const translations: Translations = {
   "signup.tyc.s5.title": { es: '5. Jurisdicción', en: '5. Jurisdiction' },
   "signup.tyc.s5.body": { es: 'Las disputas se resolverán bajo la legislación de la República Argentina, salvo acuerdo expreso en contrario.', en: 'Disputes will be resolved under the laws of the Argentine Republic, unless expressly agreed otherwise.' },
   "signup.tyc.draft": { es: 'Versión 1.0 — Borrador provisional sujeto a cambios.', en: 'Version 1.0 — Provisional draft subject to changes.' },
+  "signup.tyc.dialog.title": { es: 'Términos y Condiciones', en: 'Terms and Conditions' },
+  "signup.tyc.dialog.decline": { es: 'Rechazar', en: 'Decline' },
+  "signup.tyc.dialog.accept": { es: 'Aceptar y Continuar', en: 'Accept & Continue' },
 
   // Sign modal
   "signup.sign.badge": { es: 'Verificación de identidad', en: 'Identity verification' },
