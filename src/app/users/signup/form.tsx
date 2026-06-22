@@ -146,7 +146,7 @@ function CheckboxRow({
 
 function SignupFormInner({ language }: { language: Language }) {
   const t = useMemo(() => (key: string) => translations[key]?.[language] ?? key, [language]);
-  const { data: session } = useSession();
+  
   const router = useRouter();
   const { executeRecaptcha } = useGoogleReCaptcha();
 

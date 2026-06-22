@@ -42,17 +42,17 @@ const items: SidebarItem[] = [
     href: "/dashboard",
   },
   {
+    key: "avales",
+    labelKey: "sidebar.avales",
+    icon: <FileCheck className="h-5 w-5" />,
+    href: "/guarantees",
+  },
+  {
     key: "users",
     labelKey: "sidebar.users",
     icon: <Users className="h-5 w-5" />,
     href: "/staff/users",
     roles: ["ADMIN_ROLE"],
-  },
-  {
-    key: "avales",
-    labelKey: "sidebar.avales",
-    icon: <FileCheck className="h-5 w-5" />,
-    href: "/guarantees",
   },
 ];
 
@@ -147,7 +147,7 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
               {userName ? (
-                <span className="text-slate-700 text-xs font-bold">{userName[0].toUpperCase()}</span>
+                <span className="text-slate-700 text-xs font-bold text-white">{userName[0].toUpperCase()}</span>
               ) : (
                 <UserIcon className="text-white h-4 w-4" />
               )}

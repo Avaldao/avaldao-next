@@ -875,6 +875,42 @@ export const translations: Translations = {
     es: 'Avales',
     en: 'Guarantees'
   },
+  "avals.title":{
+    es: 'Avales',
+    en: 'Guarantees'
+  },
+  "avals.description": {
+    es: 'Gestión de avales en la plataforma',
+    en: 'Manage guarantees on the platform'
+  },
+  "avals.new-aval": {
+    es: 'Nuevo Aval',
+    en: 'New Aval'
+  },
+  "avals.new.title": {
+    es: 'Nuevo Aval',
+    en: 'New Aval'
+  },
+  "avals.new.description": {
+    es: 'Completá el formulario para solicitar un nuevo aval',
+    en: 'Fill in the form to request a new guarantee'
+  },
+  "avals.new.info.evaluation": {
+    es: 'Tu solicitud será evaluada por un miembro con rol Avaldao en la plataforma antes de ser procesada.',
+    en: 'Your request will be reviewed by a member with the Avaldao role on the platform before being processed.'
+  },
+  "avals.new.info.addresses": {
+    es: 'Asegurate de que las addresses de todos los participantes sean correctas, ya que deberán firmar el aval.',
+    en: 'Make sure all participant addresses are correct, as they will need to sign the guarantee.'
+  },
+  "avals.new.info.vigente": {
+    es: 'El aval no se considera Vigente hasta que todos los participantes hayan registrado su firma y los fondos de garantía estén asignados en el smart contract.',
+    en: 'The guarantee is not considered Active until all participants have registered their signatures and the guarantee funds are assigned in the smart contract.'
+  },
+  "avals.new.breadcrumb": {
+    es: 'Nuevo',
+    en: 'New'
+  },
   "aval.details.duration": {
     es: 'Duración',
     en: 'Duration'
@@ -1042,6 +1078,81 @@ export const translations: Translations = {
   "tx.copy.reverted.title": { es: "Transacción revertida", en: "Transaction reverted" },
   "tx.copy.reverted.description": { es: "La transacción falló en la red. No se movieron fondos.", en: "The transaction failed on-chain. No funds were moved." },
   "tx.copy.error.title": { es: "Error en transacción", en: "Transaction error" },
-  "tx.copy.error.description": { es: "Ocurrió un error durante la transacción. Intentá de nuevo.", en: "An error occurred during the transaction. Please try again." }
+  "tx.copy.error.description": { es: "Ocurrió un error durante la transacción. Intentá de nuevo.", en: "An error occurred during the transaction. Please try again." },
+
+  // Aval form (new aval)
+  "aval.form.project": { es: "Proyecto", en: "Project" },
+  "aval.form.objective": { es: "Objetivo", en: "Objective" },
+  "aval.form.acquisition": { es: "Adquisición", en: "Acquisition" },
+  "aval.form.beneficiaries": { es: "Beneficiarios", en: "Beneficiaries" },
+  "aval.form.amount": { es: "Monto (USD)", en: "Amount (USD)" },
+  "aval.form.installments": { es: "Cuotas", en: "Installments" },
+  "aval.form.start-date": { es: "Fecha inicio", en: "Start date" },
+  "aval.form.duration-days": { es: "Duración (días)", en: "Duration (days)" },
+  "aval.form.applicant": { es: "Solicitante", en: "Applicant" },
+  "aval.form.avaldao": { es: "AvalDAO", en: "AvalDAO" },
+  "aval.form.merchant": { es: "Comerciante", en: "Merchant" },
+  "aval.form.endorsed": { es: "Avalado", en: "Endorsed" },
+  "aval.form.validation.invalid-address": { es: "Por favor ingresá un address válido", en: "Please enter a valid address" },
+  "aval.form.user-not-found": { es: "No encontramos ningún usuario con esa dirección. Esto puede estar bien, pero deberá registrarse para poder participar del aval.", en: "We couldn't find any user with that address. This may be fine, but they will need to register to participate in the aval." },
+  "aval.form.loading": { es: "Cargando...", en: "Loading..." },
+  "aval.form.cancel": { es: "Cancelar", en: "Cancel" },
+  "aval.form.submit": { es: "Crear Aval", en: "Create Aval" },
+  "aval.form.submit.loading": { es: "Creando...", en: "Creating..." },
+  "aval.form.success": { es: "Aval creado correctamente", en: "Aval created successfully" },
+  "aval.form.error": { es: "Error al crear el aval. Por favor intenta nuevamente.", en: "Error creating the aval. Please try again." },
+
+  // 404 page
+  "not-found.badge": { es: "Página no encontrada", en: "Page not found" },
+  "not-found.title": { es: "Esta página no existe", en: "This page doesn't exist" },
+  "not-found.description": { es: "La URL que ingresaste no corresponde a ninguna página de AvalDAO. Puede que haya sido eliminada, movida, o que haya un error en el enlace.", en: "The URL you entered doesn't match any page on AvalDAO. It may have been removed, moved, or the link might be incorrect." },
+  "not-found.go-home": { es: "Volver al inicio", en: "Back to home" },
+
+  // Forgot password page
+  "forgot-password.title": { es: "¿Olvidaste tu contraseña?", en: "Forgot your password?" },
+  "forgot-password.description": { es: "Ingresá tu email y te enviaremos las instrucciones para recuperar tu contraseña.", en: "Enter your email and we'll send you instructions to recover your password." },
+  "forgot-password.email.label": { es: "Email", en: "Email" },
+  "forgot-password.email.placeholder": { es: "juanperez@gmail.com", en: "johndoe@gmail.com" },
+  "forgot-password.submit": { es: "Enviar instrucciones", en: "Send instructions" },
+  "forgot-password.back-to-login": { es: "Volver al inicio de sesión", en: "Back to log in" },
+  "forgot-password.success.title": { es: "¡Email enviado!", en: "Email sent!" },
+  "forgot-password.success.description": { es: "Si tu email está registrado y tiene acceso por contraseña, recibirás un link para recuperarla. Revisá tu bandeja de entrada y también la carpeta de spam. El link es válido por 10 minutos.", en: "If your email is registered and has password access, you'll receive a link to reset it. Check your inbox and also your spam folder. The link is valid for 10 minutes." },
+  "forgot-password.error.cannot-process": { es: "Tu solicitud no pudo ser procesada. Por favor, contactá al administrador.", en: "Your request could not be processed. Please contact the administrator." },
+  "forgot-password.error.generic": { es: "Ocurrió un error. Por favor, intenta de nuevo.", en: "An error occurred. Please try again." },
+
+  // Reset password page
+  "reset-password.title": { es: "Restablecer contraseña", en: "Reset password" },
+  "reset-password.description": { es: "Ingresá tu nueva contraseña.", en: "Enter your new password." },
+  "reset-password.password.label": { es: "Nueva contraseña", en: "New password" },
+  "reset-password.password.placeholder": { es: "Nueva contraseña", en: "New password" },
+  "reset-password.confirm-password.label": { es: "Confirmar contraseña", en: "Confirm password" },
+  "reset-password.confirm-password.placeholder": { es: "Repetir contraseña", en: "Repeat password" },
+  "reset-password.submit": { es: "Actualizar contraseña", en: "Update password" },
+  "reset-password.back-to-login": { es: "Volver al inicio de sesión", en: "Back to log in" },
+  "reset-password.error.passwords-mismatch": { es: "Las contraseñas no coinciden.", en: "Passwords do not match." },
+  "reset-password.error.invalid-token": { es: "El link de recuperación es inválido o ha expirado.", en: "The reset link is invalid or has expired." },
+  "reset-password.error.generic": { es: "Ocurrió un error. Por favor, intenta de nuevo.", en: "An error occurred. Please try again." },
+  "reset-password.success.title": { es: "¡Contraseña actualizada!", en: "Password updated!" },
+  "reset-password.success.description": { es: "Tu contraseña ha sido actualizada exitosamente. Ya podés iniciar sesión con tu nueva contraseña.", en: "Your password has been updated successfully. You can now log in with your new password." },
+
+  // Password reset email
+  "email.password-reset.subject": { es: "Recuperá tu contraseña", en: "Reset your password" },
+  "email.password-reset.body": { es: "Hacé clic en el siguiente enlace para restablecer tu contraseña:", en: "Click the following link to reset your password:" },
+
+  // Connect wallet banner
+  "wallet.banner.close": { es: "Cerrar", en: "Close" },
+  "wallet.banner.title.idle": { es: "Vinculá tu billetera", en: "Link your wallet" },
+  "wallet.banner.title.done": { es: "Billetera vinculada", en: "Wallet linked" },
+  "wallet.banner.description.idle": { es: "Para participar en avales necesitás vincular una billetera. No tiene costo, solo tenés que firmar un mensaje.", en: "To participate in avales you need to link a wallet. It's free, you just need to sign a message." },
+  "wallet.banner.description.done": { es: "Tu billetera fue asociada exitosamente a tu cuenta.", en: "Your wallet was successfully linked to your account." },
+  "wallet.banner.step.idle": { es: "Conectar billetera", en: "Connect wallet" },
+  "wallet.banner.step.connecting": { es: "Conectando...", en: "Connecting..." },
+  "wallet.banner.step.signing": { es: "Firmá el mensaje en tu billetera...", en: "Sign the message in your wallet..." },
+  "wallet.banner.step.saving": { es: "Guardando...", en: "Saving..." },
+  "wallet.banner.step.done": { es: "¡Billetera vinculada!", en: "Wallet linked!" },
+  "wallet.banner.step.error": { es: "Reintentar", en: "Try again" },
+  "wallet.banner.error.connect": { es: "No se pudo conectar la billetera", en: "Could not connect wallet" },
+  "wallet.banner.error.save": { es: "Error al guardar la billetera", en: "Error saving wallet" },
+  "wallet.banner.error.generic": { es: "Ocurrió un error", en: "An error occurred" },
 
 }
