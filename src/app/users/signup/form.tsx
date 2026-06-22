@@ -399,7 +399,7 @@ function SignupFormInner({ language }: { language: Language }) {
       }
 
       toast.error(msg ?? t("signup.form.error.unexpected"));
-      
+
 
     }
 
@@ -640,10 +640,14 @@ function SignupFormInner({ language }: { language: Language }) {
         </section>
 
         {/* ── Submit ─────────────────────────────────────── */}
-        <Button type="submit" loading={loading} className="w-full sm:w-auto px-10">
-          {t("signup.form.submit")}
-          {loading && <Spinner variant="sm" />}
-        </Button>
+        <div className="pt-2 flex justify-center">
+          <Button type="submit" 
+          loading={loading} 
+          className="w-full sm:w-auto px-10 min-w-100 min-h-12 rounded-2xl  bg-linear-to-r from-violet-600 to-fuchsia-600  hover:from-violet-700 hover:to-fuchsia-700  ">
+            {t("signup.form.submit")}
+            {loading && <Spinner variant="sm" />}
+          </Button>
+        </div>
 
         {showTyCDialog && (
           <TyCDialog
@@ -661,6 +665,12 @@ function SignupFormInner({ language }: { language: Language }) {
           />
         )}
       </form>
+      <p className="text-center text-sm text-slate-500 mt-4">
+        {t("signup.have-account")}{" "}
+        <a href="/auth/login" className="font-semibold text-violet-600 hover:text-violet-700 transition-colors">
+          {t("signup.login-link")}
+        </a>
+      </p>
       {showAskConnectionModal && (
         <AskConnectionModal
           onConnect={async () => {
