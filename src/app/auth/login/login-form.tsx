@@ -1,19 +1,20 @@
 "use client";
 
-
 import { Language, translations } from "@/translations";
-import { ArrowRight, Eye, EyeOff, Wallet } from "lucide-react";
-import { useState } from "react";
-import { signIn, useSession } from "next-auth/react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { useState, useCallback } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import LoginWithWallet from "./login-with-wallet";
+import RecaptchaProvider from "@/components/recaptcha-provider";
 
 
-export default function LoginForm({ language }: { language: Language }) {
-
+function LoginFormInner({ language }: { language: Language }) {
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   const router = useRouter();
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
@@ -21,41 +22,46 @@ export default function LoginForm({ language }: { language: Language }) {
   const [submitError, setSubmitError] = useState<string>();
 
 
-
-  const handleLogin = async () => {
+  const handleLogin = useCallback(async () => {
     try {
-
-      //first validate email and password on client side
       if (email.length === 0 || password.length === 0) {
         setSubmitError(t("login.error.missing_fields"));
         return;
       }
+
+      if (!executeRecaptcha && process.env.NEXT_PUBLIC_SKIP_RECAPTCHA !== "true") {
+        setSubmitError(t("login.error.generic"));
+        return;
+      }
+
       setSubmitting(true);
       setSubmitError(undefined);
 
-  
-      const result = await signIn(
-        "credentials",
-        {
-          email,
-          password,
-          redirect: false, // Evita redirección automática
+      if (process.env.NEXT_PUBLIC_SKIP_RECAPTCHA !== "true") {
+        const token = await executeRecaptcha("login");
+        const verifyRes = await fetch("/api/auth/verify-recaptcha", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+
+        if (!verifyRes.ok) {
+          setSubmitError(t("login.error.recaptcha"));
+          return;
         }
-      );
-      console.log(result);
-      
-      if (result?.error) {
-        
-        throw new Error(result.error);
-      } else if (result?.ok) {
-        // Login successful, you can redirect or update UI as needed
-        console.log("Login successful");
-        router.push("/dashboard"); // Redirige al dashboard u otra página protegida
       }
 
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-      console.log("Login successful:", result);
-
+      if (result?.error) {
+        throw new Error(result.error);
+      } else if (result?.ok) {
+        router.push("/dashboard");
+      }
 
     } catch (error) {
       console.error("Login error:", error);
@@ -63,7 +69,7 @@ export default function LoginForm({ language }: { language: Language }) {
     } finally {
       setSubmitting(false);
     }
-  }
+  }, [email, password, executeRecaptcha, router, language]);
 
 
   return (
@@ -77,14 +83,12 @@ export default function LoginForm({ language }: { language: Language }) {
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t("login.email.placeholder")}
             autoComplete="email"
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm text-gray-800 
-                         placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500/30 
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm text-gray-800
+                         placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500/30
                          focus:border-violet-400 transition-all"
           />
-
         </div>
 
-        {/* Confirmar contraseña */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-600">{t("login.password")}</label>
           <div className="relative flex items-center">
@@ -94,8 +98,8 @@ export default function LoginForm({ language }: { language: Language }) {
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t("login.password.placeholder")}
               autoComplete="current-password"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm text-gray-800 
-                         placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500/30 
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm text-gray-800
+                         placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500/30
                          focus:border-violet-400 transition-all"
             />
             <button
@@ -107,16 +111,14 @@ export default function LoginForm({ language }: { language: Language }) {
               {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-
-
         </div>
-        <div className="flex justify-center pt-5">
 
+        <div className="flex justify-center pt-5">
           <button
-            className="w-full max-w-md  bg-violet-600 hover:bg-violet-700 active:scale-[0.98] text-white font-semibold text-sm py-3.5 rounded-2xl 
+            className="w-full max-w-md bg-violet-600 hover:bg-violet-700 active:scale-[0.98] text-white font-semibold text-sm py-3.5 rounded-2xl
           flex items-center justify-center gap-2 transition-all shadow-md shadow-violet-200
           disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none"
-            disabled={submitting || email.length === 0 || password.length == 0}
+            disabled={submitting || email.length === 0 || password.length === 0}
             onClick={handleLogin}
           >
             {t("login.submit")}
@@ -144,9 +146,7 @@ export default function LoginForm({ language }: { language: Language }) {
             ) : (
               <ArrowRight className="w-4 h-4" />
             )}
-
           </button>
-
         </div>
 
         <div className="text-center">
@@ -154,9 +154,7 @@ export default function LoginForm({ language }: { language: Language }) {
         </div>
 
       </div>
-      <div className="flex  flex-1">
-      </div>
-      {/* Separator OR */}
+      <div className="flex flex-1"></div>
       <div>
         <div className="flex items-center gap-4 w-full mx-auto max-w-sm">
           <div className="flex-1 h-px bg-gray-300" />
@@ -166,10 +164,17 @@ export default function LoginForm({ language }: { language: Language }) {
       </div>
       <div>
         <div className="flex justify-center">
-        <LoginWithWallet language={language} />
+          <LoginWithWallet language={language} />
         </div>
       </div>
-
     </div>
-  )
+  );
+}
+
+export default function LoginForm({ language }: { language: Language }) {
+  return (
+    <RecaptchaProvider>
+      <LoginFormInner language={language} />
+    </RecaptchaProvider>
+  );
 }

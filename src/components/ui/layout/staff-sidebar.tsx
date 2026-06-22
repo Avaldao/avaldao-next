@@ -170,6 +170,7 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
             (item) =>
               !item.roles ||
               item.roles.some((r) =>
+                nroles["30"]?.includes(r) ||
                 nroles[process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID as "30" | "31"]?.includes(r)
               )
           )

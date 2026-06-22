@@ -1,5 +1,6 @@
 import { getLanguageCookie } from "@/lib/cookies";
 import { translations } from "@/translations";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/AnimatedSection"
 
 const items = [
   {
@@ -31,7 +32,7 @@ export default async function FAQ() {
   return (
     <section className="bg-linear-to-b from-violet-50 via-white to-white py-24 text-slate-900">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-        <div>
+        <FadeIn>
           <span className="inline-flex rounded-full border border-violet-200 bg-white px-4 py-1 text-sm font-semibold uppercase tracking-[0.24em] text-violet-700 shadow-sm">
             {t("faq.eyebrow")}
           </span>
@@ -41,13 +42,12 @@ export default async function FAQ() {
           <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
             {t("faq.description")}
           </p>
-        </div>
+        </FadeIn>
 
-        <div className="space-y-4">
-          {items.map((item, index) => {
-            return (
+        <StaggerContainer className="space-y-4">
+          {items.map((item, index) => (
+            <StaggerItem key={item.questionKey}>
               <details
-                key={item.questionKey}
                 open={index === 0}
                 className="group overflow-hidden rounded-3xl border border-violet-100 bg-white shadow-[0_20px_70px_rgba(91,33,182,0.08)]"
               >
@@ -57,8 +57,12 @@ export default async function FAQ() {
                   <span className="text-lg font-semibold text-slate-900 md:text-xl">
                     {t(item.questionKey)}
                   </span>
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-violet-200 bg-violet-50 text-2xl font-light text-violet-700 transition group-open:border-violet-500 group-open:bg-violet-600 group-open:text-white">
-                    +
+                  <span
+                    aria-hidden="true"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-violet-200 bg-violet-50 text-2xl font-light text-violet-700 transition group-open:border-violet-500 group-open:bg-violet-600 group-open:text-white"
+                  >
+                    <span className="group-open:hidden">+</span>
+                    <span className="hidden group-open:block">−</span>
                   </span>
                 </summary>
 
@@ -70,9 +74,9 @@ export default async function FAQ() {
                   </div>
                 </div>
               </details>
-            );
-          })}
-        </div>
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
       </div>
     </section>
   );
