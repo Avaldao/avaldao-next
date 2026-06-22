@@ -57,12 +57,12 @@ export default function NavLinks({ language }: { language: Language }) {
           >
             {t("nav.dashboard")}
           </a>
-          <a 
-            href="#invertir" 
+          <Link
+            href="/invertir"
             className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
           >
             {t("nav.invest")}
-          </a>
+          </Link>
           <a 
             href="#aval" 
             className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"

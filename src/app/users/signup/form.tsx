@@ -1,10 +1,12 @@
 "use client";
 
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SessionProvider, useSession } from "next-auth/react";
 import { Checkbox } from "@headlessui/react";
 import toast from "react-hot-toast";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import RecaptchaProvider from "@/components/recaptcha-provider";
 
 import AccountTypeSelector, { AccountType, accountTypes } from "@/app/register/account-type-selector";
 import PlatformRoleSelector, { PlatformRole } from "./platform-role-selector";
@@ -146,6 +148,7 @@ function SignupFormInner({ language }: { language: Language }) {
   const t = useMemo(() => (key: string) => translations[key]?.[language] ?? key, [language]);
   const { data: session } = useSession();
   const router = useRouter();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const { open } = useAppKit();
   const { isConnected, address } = useAppKitAccount();
@@ -282,21 +285,31 @@ function SignupFormInner({ language }: { language: Language }) {
     try {
       setLoading(true);
 
+      const skipRecaptcha = process.env.NEXT_PUBLIC_SKIP_RECAPTCHA === "true";
+
+      if (!executeRecaptcha && !skipRecaptcha) {
+        toast.error(t("signup.form.error.unexpected"));
+        return;
+      }
+
+      const recaptchaToken = skipRecaptcha ? undefined : await executeRecaptcha("signup");
+
       if (!isConnected || !address) {
         localStorage.removeItem("signup_message");
         localStorage.removeItem("signup_signature");
+        if (recaptchaToken) localStorage.setItem("signup_recaptcha_token", recaptchaToken);
         setShowAskConnectionModal(true);
         return;
-
       }
 
       const cached_message = localStorage.getItem("signup_message");
       const cached_signature = localStorage.getItem("signup_signature");
 
       if (cached_message && cached_signature) {
-        await submitPayload(cached_message, cached_signature);
+        await submitPayload(cached_message, cached_signature, recaptchaToken);
         return;
       } else {
+        if (recaptchaToken) localStorage.setItem("signup_recaptcha_token", recaptchaToken);
         await askSignature();
       }
     } catch {
@@ -324,7 +337,7 @@ function SignupFormInner({ language }: { language: Language }) {
       }, 1000);
 
 
-      await submitPayload(signChallenge, signature);
+      await submitPayload(signChallenge, signature, undefined);
       setShowSignModal(false);
     } catch {
       setSignStatus("error");
@@ -332,9 +345,11 @@ function SignupFormInner({ language }: { language: Language }) {
     }
   };
 
-  const submitPayload = async (message?: string, signature?: string) => {
+  const submitPayload = async (message?: string, signature?: string, recaptchaToken?: string) => {
 
     setLoading(true);
+
+    const token = recaptchaToken ?? localStorage.getItem("signup_recaptcha_token") ?? undefined;
 
     const payload = {
       accountType: accountType!.value,
@@ -350,6 +365,7 @@ function SignupFormInner({ language }: { language: Language }) {
       message,
       signature,
       language,
+      recaptchaToken: token,
     };
 
     const response = await fetch("/api/users/signup", {
@@ -360,6 +376,7 @@ function SignupFormInner({ language }: { language: Language }) {
 
     localStorage.removeItem("signup_message");
     localStorage.removeItem("signup_signature");
+    localStorage.removeItem("signup_recaptcha_token");
 
     if (response.ok) {
       setLoading(false);
@@ -691,12 +708,14 @@ function SignupFormInner({ language }: { language: Language }) {
 
 export default function SignupForm({ language }: { language: Language }) {
   return (
-    <SessionProvider>
-      <AppkitContextProvider>
-        <LanguageProvider initialLanguage={language}>
-          <SignupFormInner language={language} />
-        </LanguageProvider>
-      </AppkitContextProvider>
-    </SessionProvider>
+    <RecaptchaProvider>
+      <SessionProvider>
+        <AppkitContextProvider>
+          <LanguageProvider initialLanguage={language}>
+            <SignupFormInner language={language} />
+          </LanguageProvider>
+        </AppkitContextProvider>
+      </SessionProvider>
+    </RecaptchaProvider>
   );
 }

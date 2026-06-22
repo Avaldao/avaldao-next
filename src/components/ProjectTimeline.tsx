@@ -1,5 +1,6 @@
 import { getLanguageCookie } from "@/lib/cookies";
 import { translations } from "@/translations";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/AnimatedSection"
 
 const milestones = [
   {
@@ -32,7 +33,7 @@ export default async function ProjectTimeline() {
   return (
     <section className="bg-linear-to-br from-[#f6f0ff] via-white to-[#eef2ff] py-24 text-slate-900">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
+        <FadeIn className="mx-auto max-w-3xl text-center">
           <span className="inline-flex rounded-full border border-violet-200 bg-white px-4 py-1 text-sm font-semibold uppercase tracking-[0.2em] text-violet-700 shadow-sm">
             {t("timeline.eyebrow")}
           </span>
@@ -42,40 +43,39 @@ export default async function ProjectTimeline() {
           <p className="mt-5 text-lg leading-8 text-slate-600">
             {t("timeline.description")}
           </p>
-        </div>
+        </FadeIn>
 
         <div className="relative mt-16">
           <div className="absolute left-0 right-0 top-6 hidden h-px bg-linear-to-r from-transparent via-violet-300 to-transparent md:block" />
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <StaggerContainer className="grid gap-6 md:grid-cols-3">
             {milestones.map((item, index) => (
-              <article
-                key={item.titleKey}
-                className="relative rounded-3xl border border-violet-100 bg-white p-6 shadow-[0_24px_80px_rgba(76,29,149,0.08)]"
-              >
-                <div className="mb-5 flex items-center justify-between">
-                  <span
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${item.badgeClass}`}
-                  >
-                    {t(item.phaseKey)}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className={`h-3 w-3 rounded-full ${item.dotClass}`} />
-                    <span className="text-sm font-semibold text-slate-500">
-                      {String(index + 1).padStart(2, "0")}
+              <StaggerItem key={item.titleKey}>
+                <article className="relative rounded-3xl border border-violet-100 bg-white p-6 shadow-[0_24px_80px_rgba(76,29,149,0.08)] transition-all duration-300 hover:shadow-[0_28px_90px_rgba(76,29,149,0.14)] hover:-translate-y-1 h-full">
+                  <div className="mb-5 flex items-center justify-between">
+                    <span
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${item.badgeClass}`}
+                    >
+                      {t(item.phaseKey)}
                     </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`h-3 w-3 rounded-full ${item.dotClass}`} />
+                      <span className="text-sm font-semibold text-slate-500">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <h3 className="text-2xl font-semibold text-slate-900">
-                  {t(item.titleKey)}
-                </h3>
-                <p className="mt-3 leading-7 text-slate-600">
-                  {t(item.descriptionKey)}
-                </p>
-              </article>
+                  <h3 className="text-2xl font-semibold text-slate-900">
+                    {t(item.titleKey)}
+                  </h3>
+                  <p className="mt-3 leading-7 text-slate-600">
+                    {t(item.descriptionKey)}
+                  </p>
+                </article>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </div>
     </section>

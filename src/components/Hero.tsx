@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import EmblaCarousel from "embla-carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { Language, translations } from "@/translations";
@@ -46,7 +47,15 @@ export default function Hero({ language }: HeroProps) {
   const scrollTo = useCallback((i: number) => embla && embla.scrollTo(i), [embla]);
 
   return (
-    <section className="relative">
+    <section
+      className="relative"
+      aria-label="Carrusel principal"
+      aria-roledescription="carousel"
+    >
+      {/* Accesibilidad: anunciar slide activo */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {`Slide ${selectedIndex + 1} de ${scrollSnaps.length}`}
+      </div>
 
       {/* Embla viewport */}
       <div className="embla overflow-hidden" ref={emblaRef}>
@@ -109,11 +118,12 @@ export default function Hero({ language }: HeroProps) {
             onClick={() => scrollTo(i)}
             className={`
               h-2 rounded-full transition-all duration-300
-              ${i === selectedIndex 
-                ? "w-8 bg-linear-to-r from-violet-600 to-fuchsia-600 shadow-md shadow-violet-500/50" 
+              ${i === selectedIndex
+                ? "w-8 bg-linear-to-r from-violet-600 to-fuchsia-600 shadow-md shadow-violet-500/50"
                 : "w-2 bg-white/60 hover:bg-white/80"}
             `}
-            aria-label={`Go to slide ${i + 1}`}
+            aria-label={`Ir al slide ${i + 1}`}
+            aria-current={i === selectedIndex ? "true" : undefined}
           />
         ))}
       </div>
@@ -144,29 +154,36 @@ function Slide({ title, description, bg, btn, headingLevel }: SlideProps) {
       `}
     >
       <div className="
-          container mx-auto 
-          
-          px-15 
-          md:px-8 
-          flex flex-col justify-center items-start 
-          max-w-lg 
-          md:max-w-2xl 
+          container mx-auto
+          px-15
+          md:px-8
+          flex flex-col justify-center items-start
+          max-w-lg
+          md:max-w-2xl
           lg:max-w-4xl lg:pb-[15%] xl:pb-[5%]
-          xl:max-w-6xl 
-          text-left ">
+          xl:max-w-6xl
+          text-left">
 
-        <HeadingTag className="font-heading text-3xl md:text-4xl text-primary mb-4 font-bold leading-11 select-none">
-          {title}
-        </HeadingTag>
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          viewport={{ once: true }}
+          className="flex flex-col items-start"
+        >
+          <HeadingTag className="font-heading text-3xl md:text-4xl text-primary mb-4 font-bold leading-11 select-none">
+            {title}
+          </HeadingTag>
 
-        <p className="text-md md:text-lg text-slate-700 mb-12 max-w-xl select-none">
-          {description}
-        </p>
+          <p className="text-md md:text-lg text-slate-700 mb-12 max-w-xl select-none">
+            {description}
+          </p>
 
-        <button className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 px-6 py-3 font-heading text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-violet-600/40 transition-all duration-300  hover:shadow-xl hover:shadow-violet-600/60 hover:from-violet-700 hover:to-fuchsia-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 sm:px-8 sm:py-3.5 sm:text-base">
-          <span className="relative z-10">{btn}</span>
-          <div className="absolute inset-0 -z-10 bg-linear-to-r from-violet-700 to-fuchsia-700 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-        </button>
+          <button className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 px-6 py-3 font-heading text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-violet-600/40 transition-all duration-300 hover:shadow-xl hover:shadow-violet-600/60 hover:from-violet-700 hover:to-fuchsia-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 sm:px-8 sm:py-3.5 sm:text-base">
+            <span className="relative z-10">{btn}</span>
+            <div className="absolute inset-0 -z-10 bg-linear-to-r from-violet-700 to-fuchsia-700 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+          </button>
+        </motion.div>
       </div>
     </div>
   );

@@ -37,6 +37,14 @@ export const translations: Translations = {
     es: 'Solicitar Aval',
     en: 'Request Aval'
   },
+  "nav.login": {
+    es: 'Iniciar sesión',
+    en: 'Log in'
+  },
+  "nav.signup": {
+    es: 'Registrarse',
+    en: 'Sign up'
+  },
 
   "slide1.title": {
     es: 'Confiamos en vos',
@@ -459,6 +467,15 @@ export const translations: Translations = {
     en: 'See AvalDAO contract'
   },
 
+  "aliados.eyebrow": {
+    es: 'Con el apoyo de',
+    en: 'Supported by'
+  },
+  "aliados.title": {
+    es: 'Aliados',
+    en: 'Partners'
+  },
+
   "footer.description": {
     es: 'La primera Sociedad de Garantía Recíproca descentralizada',
     en: 'The first decentralized Reciprocal Guarantee Society'
@@ -810,6 +827,18 @@ export const translations: Translations = {
   "login.error.invalid-credentials": {
     es: 'Credenciales inválidas. Por favor, intenta de nuevo.',
     en: 'Invalid credentials. Please try again.'
+  },
+  "login.error.missing_fields": {
+    es: 'Por favor, completa todos los campos.',
+    en: 'Please fill in all fields.'
+  },
+  "login.error.generic": {
+    es: 'Ocurrió un error. Por favor, intenta de nuevo.',
+    en: 'An error occurred. Please try again.'
+  },
+  "login.error.recaptcha": {
+    es: 'Verificación de seguridad fallida. Por favor, intenta de nuevo.',
+    en: 'Security verification failed. Please try again.'
   },
   "login.error.user-not-found-wallet": {
     es: 'No se encontró un usuario asociado a esta wallet. Por favor, regístrate primero.',

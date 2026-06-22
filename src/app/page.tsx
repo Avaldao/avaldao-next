@@ -4,6 +4,7 @@ import Hero from '@/components/Hero'
 import Features from '@/components/Features'
 import Dashboard from '@/components/Dashboard'
 import Footer from '@/components/Footer'
+import Aliados from '@/components/Aliados'
 import HowItWorks from '@/components/HowItWorks'
 import FAQ from '@/components/FAQ'
 import ProjectTimeline from '@/components/ProjectTimeline'
@@ -59,15 +60,25 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {/* Skip navigation para accesibilidad */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-100 focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-white"
+      >
+        Saltar al contenido principal
+      </a>
+      {/* Preload imagen hero above-the-fold */}
+      <link rel="preload" as="image" href="/images/slide-bg1.jpg" />
       <Header />
       <div className="h-16"></div>
-      <main>
+      <main id="main-content">
         <Hero language={language} />
         <Features />
         <HowItWorks />
         <ProjectTimeline />
         <FAQ />
         <Dashboard/>
+        <Aliados />
       </main>
       <Footer />
     </div >
