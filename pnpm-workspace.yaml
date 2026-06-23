@@ -1,5 +1,6 @@
 allowBuilds:
   '@reown/appkit': true
+  bcrypt: true
   bufferutil: true
   sharp: true
   unrs-resolver: true
