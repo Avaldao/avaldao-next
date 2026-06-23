@@ -20,7 +20,7 @@ export class AuthService {
     
     if (user && user.password != undefined) {
       //check password hash
-      const isPasswordValid = UsersService.verifyUserPassword(user.password, password);
+      const isPasswordValid = await UsersService.verifyUserPassword(user.password, password);
       if (!isPasswordValid) {
         throw new Error("INVALID_CREDENTIALS");
       }

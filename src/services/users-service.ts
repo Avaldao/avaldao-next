@@ -12,6 +12,7 @@ import { sendMail } from '@/lib/email';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 
 import { translations } from '@/translations';
 
@@ -127,7 +128,8 @@ export default class UsersService {
     const t = (key: string) => translations[key]?.[language] ?? key;
 
 
-    const templatePath = path.join(process.cwd(), 'emails', language, 'activation-email.html');
+    const safeLang = language === 'en' ? 'en' : 'es';
+    const templatePath = path.join(process.cwd(), 'emails', safeLang, 'activation-email.html');
     const html = fs.readFileSync(templatePath, 'utf-8')
       .replace(/\{\{ACTIVATION_LINK\}\}/g, activationLink);
 
@@ -176,7 +178,7 @@ export default class UsersService {
     user.authMethods = authMethods;
 
     if (authMethods.includes("email")) {
-      user.password = crypto.createHash('sha256').update(password!).digest('hex');
+      user.password = await bcrypt.hash(password!, 12);
     }
     if (recoveredAddress) {
       user.address = recoveredAddress!;
@@ -328,9 +330,8 @@ export default class UsersService {
     return user;
   }
 
-  static verifyUserPassword(stored: string, password: string): boolean {
-    const hashed = crypto.createHash('sha256').update(password).digest('hex');
-    return hashed === stored;
+  static async verifyUserPassword(stored: string, password: string): Promise<boolean> {
+    return bcrypt.compare(password, stored);
   }
 
   async forgotPassword(email: string, language: "en" | "es" = "es") {
@@ -371,7 +372,8 @@ export default class UsersService {
     const resetToken = crypto.randomUUID();
     const resetLink = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password/${resetToken}`;
 
-    const templatePath = path.join(process.cwd(), "emails", language, "password-reset-email.html");
+    const safeLang = language === 'en' ? 'en' : 'es';
+    const templatePath = path.join(process.cwd(), "emails", safeLang, "password-reset-email.html");
     const html = fs.readFileSync(templatePath, "utf-8").replace(/\{\{RESET_LINK\}\}/g, resetLink);
 
     await sendMail({
@@ -402,7 +404,7 @@ export default class UsersService {
       throw new Error("invalid_token");
     }
 
-    user.password = crypto.createHash("sha256").update(newPassword).digest("hex");
+    user.password = await bcrypt.hash(newPassword, 12);
     user.passwordResetToken = undefined;
     user.passwordResetTokenExpiry = undefined;
     await user.save();
