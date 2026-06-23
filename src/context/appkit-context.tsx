@@ -1,6 +1,6 @@
 'use client'
 
-import {  projectId, networks } from '@/config'
+import { projectId, networks } from '@/config'
 import { rootstock } from '@reown/appkit/networks'
 import { createAppKit } from '@reown/appkit/react'
 import React, { type ReactNode } from 'react'
@@ -13,7 +13,7 @@ if (!projectId) {
 const metadata = {
   name: 'Avaldao Dapp',
   description: 'Avaldao Dapp - Garantias descentralizadas',
-  url: 'https://dapp.avaldao.com', // origin must match your domain & subdomain
+  url: 'https://avaldao.com', // origin must match your domain & subdomain
   icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
 
@@ -24,18 +24,19 @@ export const modal = createAppKit({
   networks: networks,
   defaultNetwork: rootstock,
   metadata,
-  themeMode: 'light',
+  themeMode: 'dark',
   features: {
     analytics: true, // Optional - defaults to your Cloud configuration
     socials: [],
     email: false
   },
   themeVariables: {
-    '--w3m-accent': '#000000',
+    '--w3m-accent': '#292A6D',
+    '--w3m-font-family': 'var(--font-inter)'
   }
 })
 
-function AppkitContextProvider({ children }: { children: ReactNode}) {
+function AppkitContextProvider({ children }: { children: ReactNode }) {
   return (
     <>{children}</>
   )
