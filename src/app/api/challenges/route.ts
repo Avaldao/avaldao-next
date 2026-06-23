@@ -2,8 +2,13 @@ import { getAddress } from 'ethers';
 import crypto from 'crypto';
 import ChallengeModel from '@/lib/db/models/challenge-model';
 import { translations } from '@/translations';
+import { getIP, rateLimit, TOO_MANY } from '@/lib/rate-limit';
 
 export async function GET(request: Request) {
+  if (!rateLimit(`challenges:${getIP(request)}`, 10, 15 * 60 * 1000)) {
+    return TOO_MANY;
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const rawAddress = searchParams.get('address');
