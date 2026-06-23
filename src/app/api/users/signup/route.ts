@@ -2,6 +2,7 @@
 import { handleError, OkResponse } from "@/app/api/response-handler";
 import UserService from "@/services/users-service";
 import { NextResponse } from "next/server";
+import { getIP, rateLimit, TOO_MANY } from "@/lib/rate-limit";
 
 
 const usersService = new UserService();
@@ -20,6 +21,10 @@ async function verifyRecaptcha(token: string): Promise<boolean> {
 }
 
 export async function POST(request: Request) {
+  if (!rateLimit(`signup:${getIP(request)}`, 10, 60 * 60 * 1000)) {
+    return TOO_MANY;
+  }
+
   try {
     const body = await request.json();
 

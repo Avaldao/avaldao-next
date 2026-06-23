@@ -1,9 +1,20 @@
 import UsersService from "@/services/users-service";
 import { handleError, OkResponse } from "../../response-handler";
+import { getIP, rateLimit, TOO_MANY } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  if (!rateLimit(`forgot-pwd:${getIP(request)}`, 5, 60 * 60 * 1000)) {
+    return TOO_MANY;
+  }
+
   try {
     const { email, language } = await request.json();
+
+    if (email && typeof email === "string") {
+      if (!rateLimit(`forgot-pwd-email:${email.toLowerCase()}`, 3, 60 * 60 * 1000)) {
+        return TOO_MANY;
+      }
+    }
 
     if (!email || typeof email !== "string") {
       return new Response(JSON.stringify({ message: "Email is required" }), {

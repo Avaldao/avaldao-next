@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { Role } from "@/roles";
 import { AuthService } from "@/services/auth-service";
 import UserService from "@/services/users-service";
+import { rateLimit } from "@/lib/rate-limit";
 
 type AuthUser = {
   id: string;
@@ -42,6 +43,10 @@ export const authOptions = {
           return null;
         }
 
+        if (!rateLimit(`login-credentials:${credentials.email.toLowerCase()}`, 10, 15 * 60 * 1000)) {
+          throw new Error("TOO_MANY_REQUESTS");
+        }
+
         try {
           const user = await new AuthService().loginWithCredentials(
             credentials.email,
@@ -69,6 +74,13 @@ export const authOptions = {
       },
       async authorize(credentials: Record<"message" | "signature", string> | undefined) {
         if (!credentials || !credentials.signature || !credentials.message) return null;
+
+        // Extract the address from the message to key the rate limit
+        const addressMatch = credentials.message.match(/0x[a-fA-F0-9]{40}/);
+        const addressKey = addressMatch ? addressMatch[0].toLowerCase() : credentials.message.slice(0, 42);
+        if (!rateLimit(`login-signature:${addressKey}`, 10, 15 * 60 * 1000)) {
+          throw new Error("TOO_MANY_REQUESTS");
+        }
 
         try {
           const user = await new AuthService().loginWithSignature(credentials.message, credentials.signature);
