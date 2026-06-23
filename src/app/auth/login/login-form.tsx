@@ -42,6 +42,10 @@ function LoginFormInner({ language }: { language: Language }) {
       setSubmitError(undefined);
 
       if (process.env.NEXT_PUBLIC_SKIP_RECAPTCHA !== "true") {
+        if(!executeRecaptcha) {
+          setSubmitError(t("login.error.generic"));
+          return;
+        }
         const token = await executeRecaptcha("login");
         const verifyRes = await fetch("/api/auth/verify-recaptcha", {
           method: "POST",

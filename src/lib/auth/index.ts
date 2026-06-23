@@ -1,13 +1,14 @@
+import 'server-only';
 import { DefaultSession, DefaultUser, SessionStrategy } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import UserService from "@/services/users-service";
 import { Role } from "@/roles";
 import { AuthService } from "@/services/auth-service";
-
-
+import UserService from "@/services/users-service";
 
 type AuthUser = {
   id: string;
+  name?: string;
+  email?: string;
   address: string;
   infoCid?: string;
   avatar?: string;

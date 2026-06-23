@@ -5,19 +5,13 @@ import FileInput from "@/components/ui/file-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Spinner from "@/components/ui/spinner";
+import { useLanguage } from "@/context/LanguageContext";
+import { ProfileUser } from "@/services/users-service";
 
 import { Camera, Save } from "lucide-react";
-import { Session } from "next-auth";
-import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
-
-interface User {
-  name: string;
-  email: string;
-  website?: string;
-  avatar?: string;
-}
 
 interface FieldErrors {
   name?: string,
@@ -25,13 +19,16 @@ interface FieldErrors {
   website?: string
 }
 
+interface ProfileFormProps {
+  user?: ProfileUser,
 
-/* Receives user in edition, or sth like that 
-  we're going to add address as read-only and roles
+}
 
-*/
-export default function ProfileForm({ user, update }: { user?: User, update?: (data?: any) => Promise<Session | null> }) {
-  const router = useRouter();
+
+export default function ProfileForm({ user }: ProfileFormProps) {
+  const { update } = useSession();
+  const { t } = useLanguage();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState(user?.name ?? "");
@@ -156,7 +153,7 @@ export default function ProfileForm({ user, update }: { user?: User, update?: (d
         />
       </div>
       <div>
-        <Label htmlFor="name">Nombre</Label>
+        <Label htmlFor="name">{t("profile.fields.name")}</Label>
         <Input
           id="name"
           value={name}
@@ -166,7 +163,7 @@ export default function ProfileForm({ user, update }: { user?: User, update?: (d
       </div>
 
       <div>
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("profile.fields.email")}</Label>
         <Input
           id="email"
           type="email"
@@ -179,7 +176,7 @@ export default function ProfileForm({ user, update }: { user?: User, update?: (d
 
 
       <div>
-        <Label htmlFor="website">Sitio Web</Label>
+        <Label htmlFor="website">{t("profile.fields.website")}</Label>
         <Input
           id="website"
           placeholder="https://misitioweb.com"
@@ -201,7 +198,7 @@ export default function ProfileForm({ user, update }: { user?: User, update?: (d
         loading={loading}
       >
         {loading ? <Spinner /> : <Save />}
-        Guardar
+        {t("profile.save")}
       </Button>
 
     </form>
@@ -215,6 +212,7 @@ interface ProfileAvatarProps {
 
 function ProfileAvatar({ preview, handleOpenFileDialog }: ProfileAvatarProps) {
 
+  const { t } = useLanguage();
   const size = "w-50 h-50 ";
 
   return (
@@ -227,7 +225,7 @@ function ProfileAvatar({ preview, handleOpenFileDialog }: ProfileAvatarProps) {
           >
             <Camera className="w-10 h-10 text-gray-600" />
             <span className="text-sm text-gray-600 select-none px-3 text-center">
-              {"profile.avatar.upload-text"}
+              {t("profile.avatar.upload-text")}
             </span>
           </div>
         )}
@@ -240,14 +238,14 @@ function ProfileAvatar({ preview, handleOpenFileDialog }: ProfileAvatarProps) {
               >
                 <Camera className="w-8 h-8 text-white" />
                 <span className="text-sm text-white select-none px-3 text-center">
-                  {"profile.avatar.change-text"}
+                  {t("profile.avatar.change-text")}
                 </span>
               </div>
             </div>
             <div className="cursor-pointer" onClick={handleOpenFileDialog}>
               <img
                 src={preview}
-                alt={"profile.avatar.alt"}
+                alt={t("profile.avatar.alt")}
                 className={`${size} rounded-full shadow-sm object-cover object-center border border-gray-200`}
               />
             </div>

@@ -291,8 +291,8 @@ function SignupFormInner({ language }: { language: Language }) {
         toast.error(t("signup.form.error.unexpected"));
         return;
       }
-
-      const recaptchaToken = skipRecaptcha ? undefined : await executeRecaptcha("signup");
+      
+      const recaptchaToken = skipRecaptcha ? undefined : await executeRecaptcha!("signup");
 
       if (!isConnected || !address) {
         localStorage.removeItem("signup_message");

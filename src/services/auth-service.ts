@@ -1,3 +1,4 @@
+import 'server-only';
 import { getAddress, verifyMessage } from 'ethers';
 import roles from "@/roles";
 import OnChainAuthorizationService from './onchain-authorization-service';

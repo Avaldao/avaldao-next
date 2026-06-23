@@ -1,3 +1,4 @@
+import 'server-only';
 import getDb from "@/lib/mongodb";
 import { Aval, AvalRequest } from "@/types";
 import AvalModel from "@/lib/db/models/aval-model";
