@@ -187,7 +187,8 @@ export default class AvalesService {
 
     let solicitante;
     if (solicitanteAddress) {
-      solicitante = await UserModel.findOne({ address: new RegExp(`^${solicitanteAddress}$`, "i") }).select("name")
+      const validatedAddress = getAddress(solicitanteAddress.toLowerCase()); // throws if not a valid Ethereum address
+      solicitante = await UserModel.findOne({ address: new RegExp(`^${validatedAddress}$`, "i") }).select("name")
     }
 
     return {
