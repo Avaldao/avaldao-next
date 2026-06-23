@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { AvalTable } from "@/components/avaldao/avales/avales-table";
+
+export const metadata: Metadata = {
+  title: "Mis garantías",
+  robots: { index: false, follow: false },
+};
 import PageHeader from "@/components/ui/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { ConnectWalletBannerWrapper } from "@/components/connect-wallet-banner";

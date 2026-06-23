@@ -2,6 +2,12 @@ import SideImageLayout from "@/components/layout/side-image-layout";
 import { getLanguageCookie } from "@/lib/cookies";
 import { translations } from "@/translations";
 import ResetPasswordForm from "./reset-password-form";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Restablecer contraseña",
+  robots: { index: false, follow: false },
+};
 
 export default async function ResetPasswordPage({
   params,

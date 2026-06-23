@@ -1,6 +1,12 @@
 import SignupForm from "./form";
 import { getLanguageCookie } from "@/lib/cookies";
 import { translations } from "@/translations";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Registrarse",
+  robots: { index: false, follow: false },
+};
 
 export default async function SignupPage() {
   const language = await getLanguageCookie();
