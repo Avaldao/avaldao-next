@@ -12,17 +12,27 @@ import { getLanguageCookie } from '@/lib/cookies'
 import { getAbsoluteUrl, siteConfig } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Inicio',
+  title: {
+    absolute: `${siteConfig.name} - SGR Descentralizada`,
+  },
   description:
-    'Accedé a garantias onchain para credito comercial con AvalDAO, una SGR descentralizada para personas y microempresas.',
+    'Accedé a garantías onchain para crédito comercial con AvalDAO, una SGR descentralizada para personas y microempresas.',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: siteConfig.name,
+    title: `${siteConfig.name} - SGR Descentralizada`,
     description:
-      'SGR descentralizada con garantias onchain para ampliar el acceso al financiamiento.',
+      'SGR descentralizada con garantías onchain para ampliar el acceso al financiamiento.',
     url: siteConfig.siteUrl,
+    images: [
+      {
+        url: siteConfig.ogImage,
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.name} - SGR Descentralizada`,
+      },
+    ],
   },
 }
 

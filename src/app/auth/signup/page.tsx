@@ -5,6 +5,12 @@ import { getLanguageCookie } from "@/lib/cookies";
 import { translations } from "@/translations";
 import { LanguageToggle } from "@/translations/LanguageToggle";
 import Image from "next/image";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Crear cuenta",
+  robots: { index: false, follow: false },
+};
 
 export default async function SignupPage() {
   const language = await getLanguageCookie();
