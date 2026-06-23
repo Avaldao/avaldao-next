@@ -6,10 +6,12 @@ import Link from "next/link";
 import { AnimatePresence } from "framer-motion";
 import { AccountDropdown } from "./account-dropdown";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAppKit } from "@reown/appkit/react";
 
 function HeaderAuthInner() {
   const { data: session, status } = useSession();
   const { t } = useLanguage();
+  const { open } = useAppKit();
 
   if (status === "loading") return null;
 
@@ -28,7 +30,7 @@ function HeaderAuthInner() {
         className="rounded-full px-4 py-2 text-sm font-semibold text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700"
       >
         Sign Out
-      </button>
+      </button >
     );
   }
 
