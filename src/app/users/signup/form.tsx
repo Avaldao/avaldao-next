@@ -270,7 +270,7 @@ function SignupFormInner({ language }: { language: Language }) {
     if (!address) {
       throw new Error("No address connected");
     }
-    const res = await fetch(`/api/challenges?address=${address}`);
+    const res = await fetch(`/api/challenges?address=${address}&lang=${language}`);
     const { message: challenge } = await res.json();
     setSignChallenge(challenge);
     setSignStatus("idle");

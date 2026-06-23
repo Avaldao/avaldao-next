@@ -5,6 +5,7 @@ import OnChainAuthorizationService from './onchain-authorization-service';
 import { UserInfo, UserUpsert } from '@/types';
 import getDb from '@/lib/mongodb';
 import UsersService from './users-service';
+import ChallengeModel from '@/lib/db/models/challenge-model';
 
 
 export class AuthService {
@@ -52,7 +53,16 @@ export class AuthService {
 
   async loginWithSignature(message: string, signature: string): Promise<UserInfo | null> {
     const usersService = new UsersService();
-    const address = verifyMessage(message, signature); 
+    const address = getAddress(verifyMessage(message, signature));
+
+    const challenge = await ChallengeModel.findOneAndDelete({
+      address,
+      message,
+      expirationDate: { $gt: new Date() },
+    });
+    if (!challenge) {
+      throw new Error("INVALID_CHALLENGE");
+    }
 
     const db = await getDb();
     const user = await db.collection<UserInfo>("users").findOne({ "address": address });

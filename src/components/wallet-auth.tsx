@@ -81,7 +81,7 @@ const WalletAuth = ({ buttonContent, onSuccessLogin, onErrorLogin, forceButton =
 
 
   const getMessage = async () => {
-    const response = await fetch(`/api/challenges?address=${address}`)
+    const response = await fetch(`/api/challenges?address=${address}&lang=${language}`)
     const data = await response.json();
     return data.message;
   }

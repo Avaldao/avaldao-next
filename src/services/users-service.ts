@@ -1,12 +1,13 @@
 import 'server-only';
-  
+
 import getDb from '@/lib/mongodb';
 import { PaginatedResult, UserInfo, UserUpsert } from '@/types';
 import { ObjectId } from 'mongodb';
 import { getCurrentUser, requireRoles } from '@/lib/auth/authorization';
 import OnChainAuthorizationService from './onchain-authorization-service';
 import UsersModel, { UserStatus } from '@/lib/db/models/user-model';
-import { verifyMessage } from 'ethers';
+import ChallengeModel from '@/lib/db/models/challenge-model';
+import { getAddress, verifyMessage } from 'ethers';
 import { sendMail } from '@/lib/email';
 
 import path from 'path';
@@ -74,7 +75,15 @@ export default class UsersService {
     let addressExists = false;
 
     if (message && signature) {
-      address = verifyMessage(message, signature);
+      address = getAddress(verifyMessage(message, signature));
+      const challenge = await ChallengeModel.findOneAndDelete({
+        address,
+        message,
+        expirationDate: { $gt: new Date() },
+      });
+      if (!challenge) {
+        throw new Error("Invalid or expired challenge");
+      }
       addressExists = await UsersModel.findOne({ "address": address }) ?? false;
       if (addressExists) {
         throw new Error(`Address already registered: ${address}`);
@@ -160,7 +169,15 @@ export default class UsersService {
       if (!signature || !message) {
         throw new Error("Signature and message are required for web3 authentication");
       }
-      recoveredAddress = verifyMessage(message, signature);
+      recoveredAddress = getAddress(verifyMessage(message, signature));
+      const challenge = await ChallengeModel.findOneAndDelete({
+        address: recoveredAddress,
+        message,
+        expirationDate: { $gt: new Date() },
+      });
+      if (!challenge) {
+        throw new Error("Invalid or expired challenge");
+      }
     }
     if (authMethods.includes("email")) {
       if (!password) {
@@ -413,7 +430,16 @@ export default class UsersService {
   }
 
   async linkWallet(userId: string, message: string, signature: string) {
-    const recoveredAddress = verifyMessage(message, signature);
+    const recoveredAddress = getAddress(verifyMessage(message, signature));
+
+    const challenge = await ChallengeModel.findOneAndDelete({
+      address: recoveredAddress,
+      message,
+      expirationDate: { $gt: new Date() },
+    });
+    if (!challenge) {
+      throw new Error("Invalid or expired challenge");
+    }
 
     const existing = await UsersModel.findOne({ address: recoveredAddress });
     if (existing && existing._id.toString() !== userId) {

@@ -1163,5 +1163,10 @@ export const translations: Translations = {
   "profile.fields.name": { es: "Nombre", en: "Name" },
   "profile.fields.email": { es: "Correo electrónico", en: "Email" },
   "profile.fields.website": { es: "Sitio web", en: "Website" },
-  "profile.save": { es: "Guardar cambios", en: "Save changes"}
+  "profile.save": { es: "Guardar cambios", en: "Save changes" },
+
+  "challenge.message.body": {
+    "es": "Firma este mensaje para verificar tu billetera en AvalDAO.\n\nEsta firma no genera costos ni transacciones.\n\nNonce: {{nonce}}\nExpira: {{expiry}}",
+    "en": "Sign this message to verify your wallet on AvalDAO.\n\nThis signature does not create a transaction or incur gas fees.\n\nNonce: {{nonce}}\nExpires: {{expiry}}"
+  }
 }

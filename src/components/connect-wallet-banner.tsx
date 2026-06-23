@@ -16,7 +16,7 @@ export default function ConnectWalletBanner() {
   const { disconnect } = useDisconnect();
   const { isConnected, address } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider<Eip1193Provider>("eip155");
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [step, setStep] = useState<Step>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -26,7 +26,7 @@ export default function ConnectWalletBanner() {
   if (session?.user?.address || dismissed) return null;
 
   const getChallenge = async (addr: string) => {
-    const res = await fetch(`/api/challenges?address=${addr}`);
+    const res = await fetch(`/api/challenges?address=${addr}&lang=${language}`);
     const data = await res.json();
     return data.message as string;
   };

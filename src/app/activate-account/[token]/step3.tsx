@@ -20,7 +20,7 @@ interface Step3Props {
 
 export default function Step3({ setStep, stepIndicator, submitting, submitError, submitForm, signature, setSignature, message, setMessage }: Step3Props) {
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { open: openAppkit } = useAppKit();
   const { disconnect } = useDisconnect();
   const { isConnected, address } = useAppKitAccount();
@@ -54,7 +54,7 @@ export default function Step3({ setStep, stepIndicator, submitting, submitError,
     if (!address) {
       throw new Error("No address connected");
     }
-    const res = await fetch(`/api/challenges?address=${address}`);
+    const res = await fetch(`/api/challenges?address=${address}&lang=${language}`);
     const { message: challenge } = await res.json();
     setMessage(challenge);
     //setShowSignModal(true);
