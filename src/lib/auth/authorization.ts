@@ -1,3 +1,5 @@
+import "server-only";
+
 import { Role } from "@/roles";
 import { getServerSession, Session } from "next-auth";
 import { authOptions } from ".";

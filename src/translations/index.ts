@@ -875,7 +875,7 @@ export const translations: Translations = {
     es: 'Avales',
     en: 'Guarantees'
   },
-  "avals.title":{
+  "avals.title": {
     es: 'Avales',
     en: 'Guarantees'
   },
@@ -931,7 +931,7 @@ export const translations: Translations = {
     es: 'No se pudo cargar la información del aval. Por favor, intenta recargar la página o vuelve más tarde.',
     en: 'Could not load the aval information. Please try refreshing the page or come back later.'
   },
-  "aval.error.badge":{
+  "aval.error.badge": {
     es: 'Error del sistema',
     en: 'System error'
   },
@@ -1155,4 +1155,13 @@ export const translations: Translations = {
   "wallet.banner.error.save": { es: "Error al guardar la billetera", en: "Error saving wallet" },
   "wallet.banner.error.generic": { es: "Ocurrió un error", en: "An error occurred" },
 
+  "user.profile": { es: "Perfil de Usuario", en: "User Profile" },
+  "profile.avatar.upload-text": { es: "Subir Avatar", en: "Upload Avatar" },
+  "profile.avatar.change-text": { es: "Cambiar Avatar", en: "Change Avatar" },
+  "profile.avatar.alt": { es: "Avatar", en: "Avatar" },
+
+  "profile.fields.name": { es: "Nombre", en: "Name" },
+  "profile.fields.email": { es: "Correo electrónico", en: "Email" },
+  "profile.fields.website": { es: "Sitio web", en: "Website" },
+  "profile.save": { es: "Guardar cambios", en: "Save changes"}
 }

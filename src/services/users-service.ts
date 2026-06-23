@@ -1,3 +1,5 @@
+import 'server-only';
+  
 import getDb from '@/lib/mongodb';
 import { PaginatedResult, UserInfo, UserUpsert } from '@/types';
 import { ObjectId } from 'mongodb';
@@ -11,10 +13,15 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 
-
-
 import { translations } from '@/translations';
 
+export interface ProfileUser {
+  id: string;
+  name: string;
+  email: string;
+  website?: string;
+  avatar?: string;
+}
 
 interface GetAllUsersFilter {
   status?: UserStatus;
@@ -418,6 +425,26 @@ export default class UsersService {
 
     return recoveredAddress;
   }
+
+
+
+  async getUserProfile(userId: string): Promise<ProfileUser | null> {
+    const user = await UsersModel.findOne({ _id: userId });
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      website: user.website,
+      avatar: user.avatar,
+    };
+  }
+
+
+
 
   async updateProfile(data: UserUpsert) {
 

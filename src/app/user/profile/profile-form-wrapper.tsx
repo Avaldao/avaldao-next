@@ -1,29 +1,21 @@
 "use client";
 
-import { SessionProvider, useSession } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
 import ProfileForm from "./profile-form";
+import { ProfileUser } from "@/services/users-service";
+import { LanguageProvider } from "@/context/LanguageContext";
+import { Language } from "@/translations";
 
-export default function ProfileFormWrapper() {
+export default function ProfileFormWrapper({ profile, language }: { profile: ProfileUser, language: Language }) {
 
   return (
     <SessionProvider>
-      <_ProfileForm />
+      <LanguageProvider initialLanguage={language}>
+        <ProfileForm
+          key={new Date().getTime()}
+          user={profile}
+        />
+      </LanguageProvider>
     </SessionProvider>
   )
-}
-
-function _ProfileForm() {
-  const { data: session, status, update } = useSession();
-
-  if (status === "authenticated") {
-    return (
-      <ProfileForm
-        key={new Date().getTime()}
-        user={session?.user}
-        update={update}
-
-      />
-    )
-  }
-
 }

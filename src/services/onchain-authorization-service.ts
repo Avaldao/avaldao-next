@@ -1,3 +1,4 @@
+import 'server-only';
 import ContractsFactory from "@/blockchain/contracts";
 import roles, { Role } from "@/roles";
 import { Contract } from "ethers";

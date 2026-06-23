@@ -2,7 +2,6 @@ import Image from "next/image";
 import HeaderAuth from "./HeaderAuth";
 import Nav from "./nav";
 import Link from "next/link";
-import { LanguageProvider } from "@/context/LanguageContext";
 import { LanguageToggle } from "@/translations/LanguageToggle";
 import LanguageWrapper from "./LanguageWrapper";
 import { getLanguageCookie } from "@/lib/cookies";
