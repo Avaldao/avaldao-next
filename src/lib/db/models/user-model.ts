@@ -58,7 +58,6 @@ export const userSchema = new Schema<IUser>(
       type: String,
       match: /^0x[a-fA-F0-9]{40}$/,
       required: false,
-      unique: true,
       trim: true,
     },
     accountType: {
@@ -173,6 +172,15 @@ export const userSchema = new Schema<IUser>(
   },
   {
     timestamps: true, // crea createdAt y updatedAt
+  }
+);
+
+// Unicidad de address sólo sobre valores no nulos (permite múltiples usuarios sin address)
+userSchema.index(
+  { address: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { address: { $type: "string" } },
   }
 );
 
