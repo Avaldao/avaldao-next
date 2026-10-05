@@ -351,6 +351,15 @@ export default class UsersService {
     return bcrypt.compare(password, stored);
   }
 
+  /**
+   * El reseteo de contraseña solo se permite a usuarios cuyo único método de
+   * autenticación es la contraseña. Quien tiene un método más robusto (ej: firma
+   * con wallet) no debe poder degradar su seguridad vía email.
+   */
+  private static isPasswordOnly(authMethods: string[] | undefined): boolean {
+    return !!authMethods && authMethods.length > 0 && authMethods.every(m => m === "email");
+  }
+
   async forgotPassword(email: string, language: "en" | "es" = "es") {
     const t = (key: string) => translations[key]?.[language] ?? key;
 
@@ -373,7 +382,7 @@ export default class UsersService {
       return { sent: false, reason: "admin" };
     }
 
-    if (!user.authMethods.includes("email")) {
+    if (!UsersService.isPasswordOnly(user.authMethods)) {
       return { sent: false, reason: "no_email_auth" };
     }
 
@@ -418,6 +427,12 @@ export default class UsersService {
     });
 
     if (!user) {
+      throw new Error("invalid_token");
+    }
+
+    // Defensa en profundidad: si el usuario sumó un método más robusto después de
+    // pedir el reseteo, el token ya no sirve.
+    if (!UsersService.isPasswordOnly(user.authMethods)) {
       throw new Error("invalid_token");
     }
 
