@@ -185,6 +185,8 @@ function SignupFormInner({ language }: { language: Language }) {
   const [showTyCDialog, setShowTyCDialog] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | undefined>();
+  const [addressAlreadyRegistered, setAddressAlreadyRegistered] = useState(false);
 
   const accountTypeRef = useRef<HTMLInputElement | null>(null);
   const platformRolesRef = useRef<HTMLInputElement | null>(null);
@@ -208,6 +210,11 @@ function SignupFormInner({ language }: { language: Language }) {
       askSignature();
     }
   }, [shouldAskSignature, address, isConnected]);
+
+  useEffect(() => {
+    setSubmitError(undefined);
+    setAddressAlreadyRegistered(false);
+  }, [address]);
 
 
 
@@ -282,13 +289,16 @@ function SignupFormInner({ language }: { language: Language }) {
     e.preventDefault();
     if (!validate() || loading) return;
 
+    setSubmitError(undefined);
+    setAddressAlreadyRegistered(false);
+
     try {
       setLoading(true);
 
       const skipRecaptcha = process.env.NEXT_PUBLIC_SKIP_RECAPTCHA === "true";
 
       if (!executeRecaptcha && !skipRecaptcha) {
-        toast.error(t("signup.form.error.unexpected"));
+        setSubmitError(t("signup.form.error.unexpected"));
         return;
       }
       
@@ -313,10 +323,17 @@ function SignupFormInner({ language }: { language: Language }) {
         await askSignature();
       }
     } catch {
-      toast.error(t("signup.form.error.unexpected"));
+      setSubmitError(t("signup.form.error.unexpected"));
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleTryAnotherWallet = async () => {
+    setSubmitError(undefined);
+    setAddressAlreadyRegistered(false);
+    await disconnect();
+    await open({ view: "Connect" });
   };
 
   const handleSign = async () => {
@@ -380,6 +397,8 @@ function SignupFormInner({ language }: { language: Language }) {
 
     if (response.ok) {
       setLoading(false);
+      setSubmitError(undefined);
+      setAddressAlreadyRegistered(false);
       setShowSuccessModal(true);
     } else {
       setLoading(false);
@@ -398,9 +417,15 @@ function SignupFormInner({ language }: { language: Language }) {
         console.log(msg);
       }
 
-      toast.error(msg ?? t("signup.form.error.unexpected"));
+      const isAddressAlreadyRegistered =
+        typeof msg === "string" && msg.startsWith("Address already registered");
 
-
+      setAddressAlreadyRegistered(isAddressAlreadyRegistered);
+      setSubmitError(
+        isAddressAlreadyRegistered
+          ? t("signup.form.error.address-registered")
+          : msg ?? t("signup.form.error.unexpected")
+      );
     }
 
 
@@ -518,10 +543,19 @@ function SignupFormInner({ language }: { language: Language }) {
               <Input
                 readOnly
                 value={address ? getAddress(address) : ""}
-                className="bg-slate-100 cursor-not-allowed text-slate-500 font-mono"
+                onClick={
+                  !isConnected
+                    ? async () => {
+                        await open({ view: "Connect" });
+                      }
+                    : undefined
+                }
+                className={`bg-slate-100 text-slate-500 font-mono ${
+                  isConnected ? "cursor-not-allowed" : "cursor-pointer hover:bg-slate-200 transition-colors"
+                }`}
                 placeholder={t("signup.form.wallet.placeholder")}
               />
-              {isConnected && (
+              {isConnected ? (
                 <div className="absolute right-0 top-0 bottom-0 text-red-300 p-2 flex flex-col justify-center pb-5">
                   <button
                     title="Disconnect"
@@ -533,8 +567,20 @@ function SignupFormInner({ language }: { language: Language }) {
                     <PowerOff className="h-4 w-4 cursor-pointer hover:text-red-600 transition-colors" />
                   </button>
                 </div>
+              ) : (
+                <div className="absolute right-0 top-0 bottom-0 text-violet-400 p-2 flex flex-col justify-center pb-5">
+                  <button
+                    title={t("signup.form.wallet.connect")}
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      await open({ view: "Connect" });
+                    }}>
+                    <Power className="h-4 w-4 cursor-pointer hover:text-violet-600 transition-colors" />
+                  </button>
+                </div>
               )}
             </div>
+            <p className="text-xs text-slate-400 -mt-4 ml-1 mb-4 md:mb-0 ">* {t("signup.form.wallet.helper")}</p>
           </div>
         </section>
 
@@ -640,9 +686,23 @@ function SignupFormInner({ language }: { language: Language }) {
         </section>
 
         {/* ── Submit ─────────────────────────────────────── */}
-        <div className="pt-2 flex justify-center">
-          <Button type="submit" 
-          loading={loading} 
+        <div className="pt-2 flex flex-col items-center gap-3">
+          {submitError && (
+            <div className="text-center max-w-lg">
+              <p className="text-red-500 text-sm">{submitError}</p>
+              {addressAlreadyRegistered && (
+                <button
+                  type="button"
+                  onClick={handleTryAnotherWallet}
+                  className="mt-1 text-sm font-semibold text-violet-600 hover:text-violet-700 underline-offset-2 hover:underline"
+                >
+                  {t("signup.form.wallet.try-another")}
+                </button>
+              )}
+            </div>
+          )}
+          <Button type="submit"
+          loading={loading}
           className="w-full sm:w-auto px-10 min-w-100 min-h-12 rounded-2xl  bg-linear-to-r from-violet-600 to-fuchsia-600  hover:from-violet-700 hover:to-fuchsia-700  ">
             {t("signup.form.submit")}
             {loading && <Spinner variant="sm" />}

@@ -10,7 +10,7 @@ import { authOptions } from "@/lib/auth";
 
 export default async function Header() {
   const language = await getLanguageCookie();
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions); //can throw exception
   const nroles = session?.user?.nroles;
   const isAdmin =
     nroles?.[30]?.includes("ADMIN_ROLE") ||

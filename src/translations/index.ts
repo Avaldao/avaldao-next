@@ -362,6 +362,8 @@ export const translations: Translations = {
   "signup.form.email": { es: 'Email', en: 'Email' },
   "signup.form.wallet": { es: 'Wallet conectada', en: 'Connected wallet' },
   "signup.form.wallet.placeholder": { es: 'Conectá tu wallet para ver la dirección', en: 'Connect your wallet to see the address' },
+  "signup.form.wallet.connect": { es: 'Conectar wallet', en: 'Connect wallet' },
+  "signup.form.wallet.helper": { es: 'También podés crear tu cuenta sin wallet y asociarla más adelante.', en: 'You can also create your account without a wallet and link it later.' },
   "signup.form.location": { es: 'Ubicación', en: 'Location' },
   "signup.form.location.country": { es: 'País', en: 'Country' },
   "signup.form.location.country.placeholder": { es: 'Seleccioná tu país', en: 'Select your country' },
@@ -389,6 +391,8 @@ export const translations: Translations = {
   },
   "signup.form.error.required-fields": { es: 'Por favor completá todos los campos requeridos', en: 'Please complete all required fields' },
   "signup.form.error.unexpected": { es: 'Ocurrió un error inesperado', en: 'An unexpected error occurred' },
+  "signup.form.error.address-registered": { es: 'Esta dirección de wallet ya está registrada. Probá con otra wallet.', en: 'This wallet address is already registered. Try another wallet.' },
+  "signup.form.wallet.try-another": { es: 'Probar con otra wallet', en: 'Try another wallet' },
 
   // TyC content
   "signup.tyc.title": { es: 'Términos y Condiciones de AvalDAO (v1.0)', en: 'AvalDAO Terms and Conditions (v1.0)' },
