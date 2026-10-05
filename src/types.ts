@@ -35,6 +35,10 @@ export interface Aval {
   avaldaoSignature?: string;
   chainId: 30 | 31;
   rejectReason?: string;
+  terminos?: {
+    version: string;
+    textos: { es: string; en: string };
+  };
 }
 
 

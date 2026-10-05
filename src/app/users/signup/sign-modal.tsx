@@ -20,6 +20,13 @@ interface SignModalProps {
   badgeKey?: string;
   idleTitleKey?: string;
   idleDescKey?: string;
+  /** Texto completo de los términos que la firma compromete. Cuando se pasa, el
+   *  botón de firmar queda bloqueado hasta que la persona lo acepta. */
+  terms?: string;
+  /** CID del JSON de IPFS que contiene esos términos y que viaja en el mensaje firmado. */
+  infoCid?: string;
+  /** Aviso a mostrar sobre los términos (por ejemplo, que no están incluidos en el CID). */
+  termsWarning?: string;
 }
 
 function SpinnerRing({ status }: { status: SignStatus }) {
@@ -66,16 +73,18 @@ function SpinnerRing({ status }: { status: SignStatus }) {
   );
 }
 
-export default function SignModal({ address, message, status, errorMessage, onSign, onClose, t, canClose: propCanClose, badgeKey = "signup.sign.badge", idleTitleKey = "signup.sign.idle.title", idleDescKey = "signup.sign.idle.description" }: SignModalProps) {
+export default function SignModal({ address, message, status, errorMessage, onSign, onClose, t, canClose: propCanClose, badgeKey = "signup.sign.badge", idleTitleKey = "signup.sign.idle.title", idleDescKey = "signup.sign.idle.description", terms, infoCid, termsWarning }: SignModalProps) {
   const [mounted, setMounted] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
 
   const canClose = propCanClose ?? (status === "idle" || status === "error" || status === "success");
+  const canSign = !terms || termsAccepted;
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-zinc-900 shadow-xl ring-1 ring-black/5 dark:ring-white/10 overflow-hidden">
+      <div className={`w-full ${terms ? "max-w-lg" : "max-w-sm"} max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-zinc-900 shadow-xl ring-1 ring-black/5 dark:ring-white/10`}>
 
         {/* Header */}
         <div className="px-6 pt-6 pb-4 space-y-4">
@@ -134,6 +143,14 @@ export default function SignModal({ address, message, status, errorMessage, onSi
               </span>
             </div>
           )}
+          {infoCid && (
+            <div className="flex flex-col gap-1 px-4 py-3">
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("sign.terms.cid")}</span>
+              <span className="text-xs font-mono text-zinc-600 dark:text-zinc-300 break-all">
+                {infoCid}
+              </span>
+            </div>
+          )}
           <div className="flex items-center justify-between px-4 py-3">
             <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("signup.sign.info.cost")}</span>
             <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
@@ -142,12 +159,41 @@ export default function SignModal({ address, message, status, errorMessage, onSi
           </div>
         </div>
 
+        {/* Términos que la firma compromete */}
+        {terms && (
+          <div className="mx-6 mb-4 space-y-2">
+            <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("sign.terms.label")}</span>
+            {termsWarning && (
+              <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 rounded-lg px-3 py-2">
+                {termsWarning}
+              </p>
+            )}
+            <div className="max-h-64 overflow-y-auto rounded-xl bg-zinc-50 dark:bg-zinc-800 ring-1 ring-zinc-100 dark:ring-zinc-700 px-4 py-3">
+              <pre className="whitespace-pre-wrap wrap-break-word font-sans text-xs leading-relaxed text-zinc-700 dark:text-zinc-200">
+                {terms}
+              </pre>
+            </div>
+            {status === "idle" && (
+              <label className="flex items-start gap-2 text-xs text-zinc-600 dark:text-zinc-300 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={e => setTermsAccepted(e.target.checked)}
+                  className="mt-0.5 accent-violet-500"
+                />
+                <span>{t("sign.terms.accept")}</span>
+              </label>
+            )}
+          </div>
+        )}
+
         {/* Action */}
         <div className="px-6 pb-6">
           {status === "idle" && (
             <button
               onClick={onSign}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-violet-500 hover:bg-violet-600 active:bg-violet-700 text-white text-sm font-medium py-2.5 transition-colors"
+              disabled={!canSign}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-violet-500 hover:bg-violet-600 active:bg-violet-700 disabled:bg-zinc-200 disabled:text-zinc-400 disabled:cursor-not-allowed dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500 text-white text-sm font-medium py-2.5 transition-colors"
             >
               <PenLine className="w-4 h-4" />
               {t("signup.sign.button")}
