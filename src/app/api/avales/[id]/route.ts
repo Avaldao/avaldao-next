@@ -14,6 +14,11 @@ export async function PATCH(
       return OkResponse({ success: true });
     }
 
+    if (body.action === "repin") {
+      const { cid } = await new AvalesService().repinAval(id);
+      return OkResponse({ success: true, infoCid: cid });
+    }
+
     return new Response(JSON.stringify({ message: "Unknown action" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

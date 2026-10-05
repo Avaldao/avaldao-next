@@ -987,6 +987,18 @@ export const translations: Translations = {
   "aval.actions.incomplete-signatures": { es: "Firmas incompletas", en: "Incomplete signatures" },
   "aval.actions.unknown-error": { es: "Error desconocido", en: "Unknown error" },
   "aval.actions.reject-aval-error": { es: "Error al rechazar el aval", en: "Error rejecting the aval" },
+  "aval.actions.missing-info-cid": { es: "Este aval todavía no tiene su información publicada en IPFS (infoCid).", en: "This aval does not have its information published on IPFS yet (infoCid)." },
+  "aval.actions.missing-info-cid.title": { es: "Información del aval no publicada", en: "Aval information not published" },
+  "aval.actions.missing-info-cid.description": { es: "No se pudo publicar el JSON del aval en IPFS, así que no hay términos comprometidos por la firma. Hasta resolverlo, el aval no puede aceptarse ni firmarse.", en: "The aval JSON could not be published to IPFS, so there are no terms committed by the signature. Until this is fixed, the aval cannot be accepted or signed." },
+  "aval.actions.repin": { es: "Reintentar publicación en IPFS", en: "Retry IPFS publication" },
+  "aval.actions.repin.success": { es: "Información del aval publicada en IPFS.", en: "Aval information published to IPFS." },
+  "aval.actions.repin.error": { es: "No se pudo publicar la información en IPFS.", en: "Could not publish the information to IPFS." },
+
+  // Términos y condiciones mostrados al firmar
+  "sign.terms.label": { es: "Términos que estás firmando", en: "Terms you are signing" },
+  "sign.terms.cid": { es: "CID del documento (infoCid)", en: "Document CID (infoCid)" },
+  "sign.terms.accept": { es: "Leí y acepto estos términos y condiciones.", en: "I have read and accept these terms and conditions." },
+  "aval.sign.terms.not-committed": { es: "Atención: este aval fue creado antes de que los términos se incluyeran en el documento de IPFS. El texto que ves se generó localmente y no está comprometido por el infoCid que vas a firmar.", en: "Warning: this aval was created before terms were included in the IPFS document. The text shown was generated locally and is not committed by the infoCid you are about to sign." },
 
   // Platform status dashboard
   "dashboard.platform.network": { es: "Red", en: "Network" },

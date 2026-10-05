@@ -19,6 +19,7 @@ import { ROOTSTOCK_NETWORKS } from "@/config";
 import toast from "react-hot-toast";
 import avalAbi from "@/blockchain/contracts/avaldao/aval.abi";
 import { generateStructDataToSign, getTranchesTs } from "../entities/aval.entity";
+import { generateTerminosTexto } from "../entities/aval-terms.entity";
 import adminAbi from "@/blockchain/contracts/avaldao/admin.abi";
 import { AvalRoleEnum } from "@/services/avales-service";
 import { useRouter } from "next/navigation";
@@ -46,7 +47,7 @@ interface ContractsResult {
 
 export default function AvalActions({ aval }: { aval: Aval }) {
   const { data: session } = useSession();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const router = useRouter();
   const { walletProvider } = useAppKitProvider<Eip1193Provider>("eip155");
   const { address } = useAppKitAccount();
@@ -58,11 +59,29 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   const [showSignModal, setShowSignModal] = useState(false);
   const [signStatus, setSignStatus] = useState<SignStatus>("idle");
   const [signingRole, setSigningRole] = useState<AvalRoleEnum | null>(null);
+  const [repinning, setRepinning] = useState(false);
 
   const provider = useMemo(() => {
     if (!walletProvider) return null;
     return new BrowserProvider(walletProvider);
   }, [walletProvider]);
+
+  // Texto de términos a mostrar al firmar. Lo normal es que venga guardado en el
+  // aval, que es lo que quedó pineado bajo el infoCid. Para avales viejos, sin
+  // términos persistidos, lo generamos al vuelo y avisamos que el CID no los
+  // commitea.
+  const signTerms = useMemo(() => {
+    const stored = aval.terminos?.textos?.[language];
+    if (stored) return { texto: stored, warning: undefined as string | undefined };
+    try {
+      return {
+        texto: generateTerminosTexto(aval, language),
+        warning: t("aval.sign.terms.not-committed"),
+      };
+    } catch {
+      return null;
+    }
+  }, [aval, language, t]);
 
   const { run, txState, clearTxState } = useBlockchainTransaction(provider);
 
@@ -185,12 +204,16 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   }
 
   async function acceptAval() {
+    if (!aval.infoCid) {
+      toast.error(t("aval.actions.missing-info-cid"));
+      return;
+    }
     setShowTxTracker(true);
     await run(async () => {
       const { avaldao } = await getContracts(aval.chainId);
       const tx = await avaldao.saveAval(
         aval._id,
-        aval.infoCid ?? "",
+        aval.infoCid,
         [
           aval.avaldaoAddress,
           aval.solicitanteAddress,
@@ -227,12 +250,33 @@ export default function AvalActions({ aval }: { aval: Aval }) {
     }
   }
 
+  async function repinAval() {
+    setRepinning(true);
+    try {
+      const res = await fetch(`/api/avales/${aval._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "repin" }),
+      });
+      if (!res.ok) throw new Error(t("aval.actions.repin.error"));
+      toast.success(t("aval.actions.repin.success"));
+      router.refresh();
+    } catch (err: any) {
+      toast.error(err.message ?? t("aval.actions.unknown-error"));
+    } finally {
+      setRepinning(false);
+    }
+  }
+
   async function signAval(role: AvalRoleEnum) {
     const { avaldaoAddress, avalAddress, signer } = await getContracts(aval.chainId);
     if (!avalAddress)
       throw new Error(t("aval.actions.aval-address-not-found", { id: aval._id ?? "" }));
 
-    aval.infoCid = aval.infoCid ?? "";
+    // Sin infoCid la firma no compromete ningún término: el mensaje EIP-712
+    // quedaría sin referencia al JSON del aval.
+    if (!aval.infoCid) throw new Error(t("aval.actions.missing-info-cid"));
+
     aval.address = avalAddress;
 
     const data = JSON.stringify(generateStructDataToSign(aval, avaldaoAddress));
@@ -298,6 +342,27 @@ export default function AvalActions({ aval }: { aval: Aval }) {
           }}
         />
       )}
+
+      {/* Sin infoCid no hay términos publicados: ni aceptar ni firmar tienen sentido. */}
+      {!aval.infoCid &&
+        (aval.status === AvalState.SOLICITADO || aval.status === AvalState.ACEPTADO) && (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-5 mb-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <p className="font-semibold text-red-900">{t("aval.actions.missing-info-cid.title")}</p>
+                <p className="text-sm text-red-700 mt-0.5">
+                  {t("aval.actions.missing-info-cid.description")}
+                </p>
+                {hasAvaldaoRoleOnChain && (
+                  <Button className="mt-4" disabled={repinning} onClick={repinAval}>
+                    {t("aval.actions.repin")}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
       {/* ── Status 0: Solicitado ── */}
       {aval.status === AvalState.SOLICITADO && hasAvaldaoRoleOnChain && (
@@ -420,7 +485,10 @@ export default function AvalActions({ aval }: { aval: Aval }) {
               <div className="flex flex-row gap-2">
               {myRoles.filter(({ signature }) => !signature).map(({ role }) => (
                 <div key={role} className="flex items-center gap-3">
-                  <Button onClick={() => { setSigningRole(role); setShowSignModal(true); }}>
+                  <Button
+                    disabled={!aval.infoCid}
+                    onClick={() => { setSigningRole(role); setShowSignModal(true); }}
+                  >
                     <PenLine className="w-4 h-4 mr-2" />
                     {t("aval.actions.sign-as", { role })}
                   </Button>
@@ -502,6 +570,9 @@ export default function AvalActions({ aval }: { aval: Aval }) {
           badgeKey="aval.sign.badge"
           idleTitleKey="aval.sign.idle.title"
           idleDescKey="aval.sign.idle.description"
+          terms={signTerms?.texto}
+          termsWarning={signTerms?.warning}
+          infoCid={aval.infoCid}
         />
       )}
     </>

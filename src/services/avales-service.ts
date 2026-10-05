@@ -10,8 +10,34 @@ import { pinata } from "@/lib/pinata";
 import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
 import { contractsAddress } from "@/blockchain/contracts";
 import avalAbi from "@/blockchain/contracts/avaldao/aval.abi";
+import { AvalTerminos, generateTerminos } from "@/app/entities/aval-terms.entity";
 
 export type AvalRoleEnum = "avaldao" | "solicitante" | "comerciante" | "avalado";
+
+/**
+ * Campos del aval que integran el JSON pineado en IPFS. Modificar cualquiera de
+ * ellos cambia el CID y, por lo tanto, invalida las firmas EIP-712 ya
+ * registradas (el infoCid es uno de los campos firmados). Toda escritura que
+ * los toque tiene que pasar por `_updateAval`, que re-pinea y bloquea el cambio
+ * si el aval ya tiene firmas.
+ */
+const IPFS_JSON_FIELDS = [
+  "proyecto",
+  "objetivo",
+  "adquisicion",
+  "beneficiarios",
+  "montoFiat",
+  "cuotasCantidad",
+  "fechaInicio",
+  "duracionCuotaSeconds",
+  "desbloqueoSeconds",
+  "chainId",
+  "terminos",
+] as const;
+
+/** Identificador de formato del JSON pineado, para poder evolucionarlo sin
+ *  ambigüedad al leer CIDs viejos. */
+const IPFS_JSON_FORMAT = "avaldao.aval-info.v1";
 
 export default class AvalesService {
   constructor() {
@@ -81,32 +107,138 @@ export default class AvalesService {
     }));
   }
 
-  async _storeIpfs(avalId: string) {
-    let upload;
+  /**
+   * Arma el JSON que se publica en IPFS. La proyección es explícita (whitelist)
+   * y con orden de claves fijo: el JSON tiene que ser función determinista de
+   * los términos del aval. Si incluyera campos volátiles (firmas, estado, fechas
+   * de sincronización) cada re-pin daría un CID distinto y las firmas ya
+   * registradas quedarían inválidas.
+   */
+  private _buildIpfsPayload(aval: any, terminos: AvalTerminos) {
+    return {
+      formato: IPFS_JSON_FORMAT,
+      _id: aval._id.toString(),
+      proyecto: aval.proyecto,
+      objetivo: aval.objetivo,
+      adquisicion: aval.adquisicion,
+      beneficiarios: aval.beneficiarios,
+      montoFiat: aval.montoFiat,
+      cuotasCantidad: aval.cuotasCantidad,
+      fechaInicio: new Date(aval.fechaInicio).toISOString(),
+      duracionCuotaSeconds: aval.duracionCuotaSeconds,
+      desbloqueoSeconds: aval.desbloqueoSeconds,
+      chainId: aval.chainId,
+      terminos,
+    };
+  }
 
-    const aval = await AvalModel.findById(avalId)
-      .select("-__v -avaladoAddress -comercianteAddress -solicitanteAddress -avaldaoAddress -createdAt -updatedAt -status")
-      .lean();
+  /**
+   * Regenera los términos, pinea el JSON del aval y guarda el CID resultante.
+   * Es idempotente: IPFS es content-addressed, así que re-pinear un contenido
+   * idéntico devuelve el mismo CID y no se toca la base.
+   *
+   * Un fallo de Pinata se propaga: sin infoCid el aval no puede aceptarse ni
+   * firmarse, y el llamador tiene que enterarse.
+   */
+  async _storeIpfs(avalId: string): Promise<{ cid: string; changed: boolean }> {
+    const aval = await AvalModel.findById(avalId).lean();
     if (!aval) throw new Error("Aval not found");
+
+    const terminos = generateTerminos(aval as any);
+    const payload = this._buildIpfsPayload(aval, terminos);
+
+    let upload;
     try {
-      upload = await pinata.pinJSONToIPFS(aval, {
+      upload = await pinata.pinJSONToIPFS(payload, {
         pinataMetadata: {
           name: `aval-${aval._id.toString()}`,
         },
-      })
-
-      await AvalModel.findByIdAndUpdate(avalId, {
-        $set: {
-          infoCid: upload.IpfsHash,
-        }
       });
-
     } catch (error) {
       console.error("Error uploading to IPFS", error);
+      throw new Error(
+        `No se pudo publicar la información del aval en IPFS: ${(error as Error)?.message ?? error}`
+      );
     }
 
-    return upload;
+    const cid = upload.IpfsHash;
+    const changed = aval.infoCid !== cid;
 
+    await AvalModel.findByIdAndUpdate(avalId, {
+      $set: {
+        terminos,
+        infoCid: cid,
+      },
+    });
+
+    return { cid, changed };
+  }
+
+  /**
+   * Punto único de escritura sobre el aval. Si el cambio toca algún campo que
+   * forma parte del JSON de IPFS, re-pinea para que el infoCid siga
+   * describiendo el estado real del aval; y lo rechaza si ya hay firmas, porque
+   * en ese caso el CID nuevo dejaría inválidas las firmas registradas.
+   */
+  private async _updateAval(avalId: string, set: Record<string, unknown>) {
+    const touchesIpfsJson = Object.keys(set).some(key =>
+      (IPFS_JSON_FIELDS as readonly string[]).includes(key)
+    );
+
+    if (touchesIpfsJson) {
+      const current = await AvalModel.findById(avalId).lean();
+      if (!current) throw new Error("Aval not found");
+
+      const hasSignatures = [
+        current.avaldaoSignature,
+        current.solicitanteSignature,
+        current.comercianteSignature,
+        current.avaladoSignature,
+      ].some(Boolean);
+
+      if (hasSignatures) {
+        throw new Error(
+          "No se pueden modificar los términos de un aval que ya tiene firmas registradas: cambiaría el infoCid y las invalidaría."
+        );
+      }
+    }
+
+    await AvalModel.findByIdAndUpdate(avalId, { $set: set });
+
+    if (touchesIpfsJson) {
+      await this._storeIpfs(avalId);
+    }
+  }
+
+  /**
+   * Re-genera términos y CID de un aval. Sirve para reintentar cuando el pin
+   * falló durante la creación.
+   */
+  async repinAval(avalId: string): Promise<{ cid: string; changed: boolean }> {
+    const user = await getCurrentUser();
+    if (!user.roles.includes("AVALDAO_ROLE")) {
+      throw new Error("Unauthorized: missing AVALDAO_ROLE");
+    }
+
+    const aval = await AvalModel.findById(avalId).lean();
+    if (!aval) throw new Error("Aval not found");
+
+    const hasSignatures = [
+      aval.avaldaoSignature,
+      aval.solicitanteSignature,
+      aval.comercianteSignature,
+      aval.avaladoSignature,
+    ].some(Boolean);
+
+    if (hasSignatures) {
+      // Un aval firmado ya tiene infoCid (sin él no se puede firmar). Re-pinearlo
+      // solo podría reemplazar el CID que las firmas comprometen.
+      throw new Error(
+        "No se puede re-publicar en IPFS un aval que ya tiene firmas registradas."
+      );
+    }
+
+    return this._storeIpfs(avalId);
   }
 
   async saveAval(avalData: AvalRequest): Promise<Aval> {
@@ -120,14 +252,14 @@ export default class AvalesService {
 
     const result = await aval.save();
 
-    if (aval.chainId === 30) { //solo subimos a ipfs los avales de mainnet, los de testnet no
-      await this._storeIpfs(result._id.toString());
-    } else {
-      console.log("Aval created on testnet, skipping IPFS upload");
+    // Se pinea en todas las redes: un aval de testnet sin términos commiteados
+    // tampoco se puede firmar de forma informada.
+    await this._storeIpfs(result._id.toString());
 
-    }
-
-    return result;
+    // Recargado para devolver el aval con infoCid y términos ya persistidos.
+    const stored = await AvalModel.findById(result._id);
+    if (!stored) throw new Error("Aval not found");
+    return stored;
   }
 
 
@@ -150,12 +282,8 @@ export default class AvalesService {
       throw new Error(`Invalid request. Signer and role doesn't match. Stored ${role}: ${storedAddress} - signer: ${signer}`)
     }
 
-    const update = await AvalModel.findByIdAndUpdate(avalId, {
-      $set: {
-        [`${role}Signature`]: signature
-      }
-    }, {
-      new: true
+    await this._updateAval(avalId, {
+      [`${role}Signature`]: signature,
     });
 
     return true;
@@ -263,9 +391,7 @@ export default class AvalesService {
     if (!aval) throw new Error("Aval not found");
     if (aval.status !== 0) throw new Error("Solo se pueden rechazar avales en estado Solicitado");
 
-    await AvalModel.findByIdAndUpdate(avalId, {
-      $set: { status: 1, rejectReason: reason },
-    });
+    await this._updateAval(avalId, { status: 1, rejectReason: reason });
   }
 
   async syncAvalOnChain(avalId: string): Promise<void> {
@@ -285,24 +411,12 @@ export default class AvalesService {
 
     const onChainStatus = Number(await aval.status());
 
-    if (local.address == undefined) {
-      await AvalModel.findByIdAndUpdate(avalId, {
-        $set: {
-          address: onChainAddress,
-          onChainStatus: onChainStatus,
-          status: onChainStatus,
-          syncOnChain: new Date()
-        }
-      });
-    } else if (local.address != undefined) {
-      await AvalModel.findByIdAndUpdate(avalId, {
-        $set: {
-          onChainStatus: onChainStatus,
-          status: onChainStatus,
-          syncOnChain: new Date()
-        }
-      });
-    }
+    await this._updateAval(avalId, {
+      ...(local.address == undefined ? { address: onChainAddress } : {}),
+      onChainStatus: onChainStatus,
+      status: onChainStatus,
+      syncOnChain: new Date()
+    });
   }
 
 

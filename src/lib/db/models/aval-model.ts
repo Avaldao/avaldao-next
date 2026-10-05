@@ -41,6 +41,23 @@ export const avalSchema = new Schema(
     },
     chainId: { type: Number, required: true },
     infoCid: { type: String },
+    // Términos y condiciones legibles, derivados de los datos del aval con una
+    // plantilla versionada. Se guardan en todos los idiomas soportados y forman
+    // parte del JSON pineado en IPFS, así que el infoCid (y por lo tanto las
+    // firmas EIP-712) los commitea.
+    terminos: {
+      type: new Schema(
+        {
+          version: { type: String, required: true },
+          textos: {
+            es: { type: String, required: true },
+            en: { type: String, required: true },
+          },
+        },
+        { _id: false }
+      ),
+      required: false,
+    },
     rejectReason: { type: String },
   },
   {
