@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20 # Usá la misma versión que en el servidor (node -v)
-          cache: npm
 
       - name: Install
         run: npm install
