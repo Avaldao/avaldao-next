@@ -60,6 +60,10 @@ export const translations: Translations = {
     es: 'Invertir',
     en: 'Invest'
   },
+  "dashboard.new-aval": {
+    es: 'Nuevo aval',
+    en: 'New guarantee'
+  },
   "nav.request-aval": {
     es: 'Solicitar Aval',
     en: 'Request Aval'
@@ -714,7 +718,7 @@ export const translations: Translations = {
   },
   "aval.details.duration-tranche": {
     es: 'Duración cuota',
-    en: 'Tranche Duration'
+    en: 'Installment Duration'
   },
   "aval.details.unlock": {
     es: 'Desbloqueo',
@@ -722,7 +726,7 @@ export const translations: Translations = {
   },
   "aval.details.tranches-amount": {
     es: 'Cantidad de Cuotas',
-    en: 'Tranches Amount'
+    en: 'Number of Installments'
   },
   "aval.details.amount": {
     es: 'Monto',
@@ -730,7 +734,7 @@ export const translations: Translations = {
   },
   "aval.details.tranche-number": {
     es: 'Cuota #',
-    en: 'Tranche #'
+    en: 'Installment #'
   },
   "aval.details.maturity-date": {
     es: 'Vencimiento',
@@ -742,7 +746,7 @@ export const translations: Translations = {
   },
   "aval.details.tranche": {
     es: 'Cuota',
-    en: 'Tranche'
+    en: 'Installment'
   },
   "aval.details.status": {
     es: 'Estado',
@@ -766,27 +770,27 @@ export const translations: Translations = {
   },
   "aval.details.unlock-cuota.title": {
     es: 'Cuota lista para desbloquear',
-    en: 'Tranche Ready to Unlock'
+    en: 'Installment Ready to Unlock'
   },
   "aval.details.unlock-cuota.description": {
     es: 'Podés iniciar el desbloqueo de la próxima cuota.',
-    en: 'You can initiate the unlock of the next tranche.'
+    en: 'You can initiate the unlock of the next installment.'
   },
   "aval.details.unlock-cuota.button": {
     es: 'Desbloquear cuota',
-    en: 'Unlock Tranche'
+    en: 'Unlock Installment'
   },
   "aval.details.unlock-cuota.hint": {
     es: 'Al confirmar esta transacción, los fondos de la cuota serán liberados de vuelta al fondo de garantías y la cuota dejará de ser reclamable. Ejecutá esta acción con discreción y asegurate de que el pago al comerciante ya haya sido realizado.',
-    en: 'By confirming this transaction, the tranche funds will be released back to the guarantee fund and the tranche will no longer be claimable. Execute this action with discretion and make sure the payment to the merchant has already been made.'
+    en: 'By confirming this transaction, the installment funds will be released back to the guarantee fund and the installment will no longer be claimable. Execute this action with discretion and make sure the payment to the merchant has already been made.'
   },
   "aval.details.unlockable-tranches": {
     es: 'Cuotas Desbloqueables',
-    en: 'Unlockable Tranches'
+    en: 'Unlockable Installments'
   },
   "aval.details.no-unlockable-tranches": {
     es: 'No hay cuotas listas para desbloquear.',
-    en: 'No tranches ready to unlock.'
+    en: 'No installments ready to unlock.'
   },
   "aval.details.no-onchain-data": {
     es: 'Sin datos on-chain disponibles.',
@@ -1107,6 +1111,10 @@ export const translations: Translations = {
     es: 'El aval no se considera Vigente hasta que todos los participantes hayan registrado su firma y los fondos de garantía estén asignados en el smart contract.',
     en: 'The guarantee is not considered Active until all participants have registered their signatures and the guarantee funds are assigned in the smart contract.'
   },
+  "avals.new.info.title": {
+    es: 'Antes de empezar: cómo funciona',
+    en: 'Before you start: how it works'
+  },
   "avals.new.breadcrumb": {
     es: 'Nuevo',
     en: 'New'
@@ -1212,15 +1220,15 @@ export const translations: Translations = {
   "dashboard.platform.finalizados": { es: "Finalizados", en: "Finalized" },
   "dashboard.platform.unlockable": { es: "Desbloqueables", en: "Unlockable" },
   "dashboard.platform.avales": { es: "avales", en: "avales" },
-  "dashboard.platform.cuotas": { es: "cuotas", en: "tranches" },
-  "dashboard.platform.cuota-singular": { es: "cuota disponible", en: "tranche available" },
-  "dashboard.platform.cuotas-plural": { es: "cuotas disponibles", en: "tranches available" },
+  "dashboard.platform.cuotas": { es: "cuotas", en: "installments" },
+  "dashboard.platform.cuota-singular": { es: "cuota disponible", en: "installment available" },
+  "dashboard.platform.cuotas-plural": { es: "cuotas disponibles", en: "installments available" },
   "dashboard.platform.ready-to-unlock": { es: "para desbloquear", en: "to unlock" },
-  "dashboard.platform.unlock-description": { es: "Existen cuotas cuyo período de desbloqueo ha vencido.", en: "There are tranches whose unlock period has expired." },
-  "dashboard.platform.unlock-solicitante-hint": { es: "El desbloqueo automático no está disponible. Cada solicitante debe ingresar al aval correspondiente y desbloquear las cuotas manualmente.", en: "Automatic unlock is not available. Each solicitante must open the corresponding aval and unlock the tranches manually." },
+  "dashboard.platform.unlock-description": { es: "Existen cuotas cuyo período de desbloqueo ha vencido.", en: "There are installments whose unlock period has expired." },
+  "dashboard.platform.unlock-solicitante-hint": { es: "El desbloqueo automático no está disponible. Cada solicitante debe ingresar al aval correspondiente y desbloquear las cuotas manualmente.", en: "Automatic unlock is not available. Each solicitante must open the corresponding aval and unlock the installments manually." },
   "dashboard.platform.unlock-btn": { es: "Desbloquear", en: "Unlock" },
-  "dashboard.platform.unlock-manual-hint": { es: "Desbloqueando cuotas del aval como solicitante.", en: "Unlocking tranches for this aval as solicitante." },
-  "dashboard.platform.unlock-hint": { es: "Desbloqueando cuotas disponibles en todos los avales vigentes.", en: "Unlocking available tranches across all active avales." },
+  "dashboard.platform.unlock-manual-hint": { es: "Desbloqueando cuotas del aval como solicitante.", en: "Unlocking installments for this aval as solicitante." },
+  "dashboard.platform.unlock-hint": { es: "Desbloqueando cuotas disponibles en todos los avales vigentes.", en: "Unlocking available installments across all active avales." },
   "dashboard.platform.avales-onchain": { es: "Avales On-Chain", en: "On-Chain Avales" },
   "dashboard.platform.no-vigentes": { es: "No hay avales vigentes.", en: "No active avales." },
   "dashboard.platform.no-finalizados": { es: "No hay avales finalizados.", en: "No finalized avales." },
@@ -1229,7 +1237,7 @@ export const translations: Translations = {
   "dashboard.platform.col-status": { es: "Estado", en: "Status" },
   "dashboard.platform.col-end-date": { es: "Fecha de Fin", en: "End Date" },
   "dashboard.platform.col-monto": { es: "Monto (USD)", en: "Amount (USD)" },
-  "dashboard.platform.col-cuotas": { es: "Cuotas", en: "Tranches" },
+  "dashboard.platform.col-cuotas": { es: "Cuotas", en: "Installments" },
   "dashboard.platform.col-proyecto": { es: "Proyecto", en: "Project" },
   "dashboard.platform.col-unlockable-cuotas": { es: "Desbloqueables", en: "Unlockable" },
   "dashboard.platform.col-reclamos": { es: "Reclamos", en: "Claims" },
@@ -1252,7 +1260,7 @@ export const translations: Translations = {
   "dashboard.platform.col-block": { es: "Bloque", en: "Block" },
   "aval.unlockable-cuotas-tooltip": {
     es: "Estas cuotas están listas para ser desbloqueadas. Al hacerlo, los fondos se liberarán de vuelta al fondo de garantías y dejarán de estar reclamables.",
-    en: "These tranches are ready to be unlocked. By doing so, the funds will be released back to the guarantee fund and will no longer be claimable."
+    en: "These installments are ready to be unlocked. By doing so, the funds will be released back to the guarantee fund and will no longer be claimable."
   },
 
   // Transaction tracker
@@ -1297,10 +1305,19 @@ export const translations: Translations = {
   "aval.form.objective": { es: "Objetivo", en: "Objective" },
   "aval.form.acquisition": { es: "Adquisición", en: "Acquisition" },
   "aval.form.beneficiaries": { es: "Beneficiarios", en: "Beneficiaries" },
+  "aval.form.project.placeholder": { es: "Ej: Compra de equipamiento para el taller", en: "E.g. Purchase of workshop equipment" },
+  "aval.form.objective.placeholder": { es: "Describí brevemente para qué se solicita el aval y cómo se va a usar", en: "Briefly describe why the guarantee is requested and how it will be used" },
+  "aval.form.acquisition.placeholder": { es: "Ej: Horno industrial y mesa de trabajo", en: "E.g. Industrial oven and work table" },
+  "aval.form.beneficiaries.placeholder": { es: "Ej: 3 familias del taller cooperativo", en: "E.g. 3 families from the cooperative workshop" },
   "aval.form.amount": { es: "Monto (USD)", en: "Amount (USD)" },
   "aval.form.installments": { es: "Cuotas", en: "Installments" },
   "aval.form.start-date": { es: "Fecha inicio", en: "Start date" },
   "aval.form.duration-days": { es: "Duración (días)", en: "Duration (days)" },
+  "aval.form.project-info": { es: "El proyecto", en: "The project" },
+  "aval.form.schedule": { es: "Plan de cuotas", en: "Installment plan" },
+  "aval.form.schedule.note": { es: "Las fechas son estimadas según la fecha de inicio. El desbloqueo de cada cuota se habilita {days} días después de su vencimiento.", en: "Dates are estimates based on the start date. Each installment unlocks {days} days after its due date." },
+  "aval.form.conditions": { es: "Condiciones del aval", en: "Guarantee terms" },
+  "aval.form.participants": { es: "Participantes", en: "Participants" },
   "aval.form.applicant": { es: "Solicitante", en: "Applicant" },
   "aval.form.avaldao": { es: "AvalDAO", en: "AvalDAO" },
   "aval.form.merchant": { es: "Comerciante", en: "Merchant" },

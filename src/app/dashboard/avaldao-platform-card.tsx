@@ -204,6 +204,21 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
     return sum;
   }, 0);
 
+  const canUnlock = (aval: AvalOnchainData) =>
+    aval.onchainStatus === ONCHAIN_VIGENTE &&
+    aval.unlockableCuotasCount > 0 &&
+    aval.solicitante?.address?.toLowerCase() === currentAddress?.toLowerCase();
+
+  const UnlockButton = ({ aval }: { aval: AvalOnchainData }) => (
+    <button
+      onClick={() => handleUnlockManual(aval)}
+      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium text-violet-600 bg-violet-50 hover:bg-violet-100 ring-1 ring-violet-200 hover:ring-violet-300 transition-colors whitespace-nowrap"
+    >
+      <Unlock className="w-3 h-3" />
+      {t("dashboard.platform.unlock-btn")}
+    </button>
+  );
+
   return (
     <div className="space-y-4">
       {/* Network switch */}
@@ -401,7 +416,102 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
               {filteredAvales.length === 0 ? (
                 <p className="text-sm text-slate-400">{t("dashboard.platform.no-vigentes")}</p>
               ) : (
-                <div className="overflow-x-auto">
+                <>
+                {/* Mobile: cards */}
+                <div className="sm:hidden">
+                  <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+                    <button onClick={() => handleSort("status")} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 font-medium text-slate-700">
+                      {t("dashboard.platform.col-status")}
+                      <SortIcon field="status" />
+                    </button>
+                    <button onClick={() => handleSort("endDate")} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 font-medium text-slate-700">
+                      {t("dashboard.platform.col-end-date")}
+                      <SortIcon field="endDate" />
+                    </button>
+                  </div>
+                  <ul className="space-y-3">
+                    {sortedAvales.map((aval, idx) => (
+                      <li key={`${aval.address}-${idx}`} className="rounded-xl border border-slate-200 p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 space-y-1">
+                            <a href={`/avales/${aval.id}`} className="flex items-center gap-1 font-mono text-xs text-slate-500 hover:text-violet-600">
+                              {aval.id.slice(0, 10)}…
+                              <LinkIcon className="h-3 w-3 shrink-0" />
+                            </a>
+                            <Link
+                              href={`${networkInfo.explorerUrl}/address/${aval.address}`}
+                              className="flex items-center gap-1 font-mono text-xs text-violet-600 hover:underline"
+                            >
+                              {aval.address.slice(0, 8)}…{aval.address.slice(-6)}
+                              <ExternalLink className="h-3 w-3 shrink-0" />
+                            </Link>
+                          </div>
+                          <OnchainStatusBadge status={aval.onchainStatus} t={t} />
+                        </div>
+
+                        <div className="mt-2 text-xs text-slate-600">
+                          <span className="text-slate-400">{t("dashboard.platform.col-solicitante")}: </span>
+                          <SolicitanteCell solicitante={aval.solicitante} explorerUrl={networkInfo.explorerUrl} />
+                        </div>
+
+                        <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 border-t border-slate-100 pt-3 text-xs">
+                          <div>
+                            <dt className="text-slate-400">{t("dashboard.platform.col-monto")}</dt>
+                            <dd className="font-medium text-slate-700">$ {(aval.montoFiat ?? 0).toLocaleString("es-AR", { minimumFractionDigits: 2 })}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-slate-400">{t("dashboard.platform.col-cuotas")}</dt>
+                            <dd className="font-medium text-slate-700">{aval.cuotasCantidad}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-slate-400">{t("dashboard.platform.col-unlockable-cuotas")}</dt>
+                            <dd>
+                              {aval.onchainStatus === ONCHAIN_VIGENTE && aval.unlockableCuotasCount > 0 ? (
+                                <span className="font-medium text-orange-500">
+                                  {aval.unlockableCuotasCount}{" "}
+                                  (${(aval.unlockableCuotasCount * (aval.montoFiat / aval.cuotasCantidad)).toLocaleString("es-AR", { minimumFractionDigits: 2 })})
+                                </span>
+                              ) : (
+                                <span className="text-slate-400">—</span>
+                              )}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-slate-400">{t("dashboard.platform.col-reclamos")}</dt>
+                            <dd>
+                              {aval.openReclamosCount > 0 ? (
+                                <span className="inline-flex items-center gap-1 font-medium text-red-600">
+                                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                                  {aval.openReclamosCount}
+                                </span>
+                              ) : (
+                                <span className="text-slate-400">—</span>
+                              )}
+                            </dd>
+                          </div>
+                          <div className="col-span-2">
+                            <dt className="text-slate-400">{t("dashboard.platform.col-end-date")}</dt>
+                            <dd className="font-medium text-slate-700">
+                              {aval.lastCuotaTimestamp > 0
+                                ? format(new Date(aval.lastCuotaTimestamp * 1000), "dd/MM/yyyy")
+                                : "—"}
+                            </dd>
+                          </div>
+                        </dl>
+
+                        {canUnlock(aval) && (
+                          <div className="mt-3">
+                            <UnlockButton aval={aval} />
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Desktop: tabla */}
+                <div className="hidden overflow-x-auto sm:block">
+
                   <table className="w-full text-sm max-sm:whitespace-nowrap">
                     <thead>
                       <tr className="text-left text-slate-500 border-b">
@@ -446,24 +556,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
                             </Link>
                           </td>
                           <td className="py-2 pr-6 font-sans text-xs text-slate-600">
-                            {(() => {
-                              const { name, address: addr } = aval.solicitante ?? {};
-                              const shortAddr = addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : null;
-                              const addrLink = addr ? (
-                                <a
-                                  href={`${networkInfo.explorerUrl}/address/${addr}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="font-mono text-violet-500 hover:underline"
-                                >
-                                  {shortAddr}
-                                </a>
-                              ) : null;
-                              if (name && addrLink) return <span>{name} ({addrLink})</span>;
-                              if (name) return <span>{name}</span>;
-                              if (addrLink) return addrLink;
-                              return <span className="text-slate-400">—</span>;
-                            })()}
+                            <SolicitanteCell solicitante={aval.solicitante} explorerUrl={networkInfo.explorerUrl} />
                           </td>
                           <td className="py-2 pr-6 text-right font-sans text-xs">
                             $ {(aval.montoFiat ?? 0).toLocaleString("es-AR", { minimumFractionDigits: 2 })}
@@ -498,23 +591,14 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
                               : "—"}
                           </td>
                           <td className="py-2">
-                            {aval.onchainStatus === ONCHAIN_VIGENTE &&
-                              aval.unlockableCuotasCount > 0 &&
-                              aval.solicitante?.address?.toLowerCase() === currentAddress?.toLowerCase() && (
-                              <button
-                                onClick={() => handleUnlockManual(aval)}
-                                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium text-violet-600 bg-violet-50 hover:bg-violet-100 ring-1 ring-violet-200 hover:ring-violet-300 transition-colors whitespace-nowrap"
-                              >
-                                <Unlock className="w-3 h-3" />
-                                {t("dashboard.platform.unlock-btn")}
-                              </button>
-                            )}
+                            {canUnlock(aval) && <UnlockButton aval={aval} />}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
+                </>
               )}
             </CardContent>
           </Card>
@@ -638,4 +722,29 @@ function OnchainStatusBadge({ status, t }: { status: number; t: (key: string) =>
     );
   }
   return <span className="text-xs text-slate-400">{status}</span>;
+}
+
+function SolicitanteCell({
+  solicitante,
+  explorerUrl,
+}: {
+  solicitante?: { name?: string | null; address?: string | null } | null;
+  explorerUrl: string;
+}) {
+  const { name, address: addr } = solicitante ?? {};
+  const shortAddr = addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : null;
+  const addrLink = addr ? (
+    <a
+      href={`${explorerUrl}/address/${addr}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-mono text-violet-500 hover:underline"
+    >
+      {shortAddr}
+    </a>
+  ) : null;
+  if (name && addrLink) return <span>{name} ({addrLink})</span>;
+  if (name) return <span>{name}</span>;
+  if (addrLink) return addrLink;
+  return <span className="text-slate-400">—</span>;
 }
