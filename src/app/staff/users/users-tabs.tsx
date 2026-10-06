@@ -10,7 +10,6 @@ import { shortenAddress } from "@/utils";
 import type { UserStatus } from "@/lib/db/models/user-model";
 import type { PaginatedResult, UserInfo } from "@/types";
 import IPFSUserAvatar from "./ipfs-user-avatar";
-import { span } from "framer-motion/client";
 
 interface UsersTabsProps {
   usersByStatus: Record<UserStatus, PaginatedResult<UserInfo>>;
@@ -45,11 +44,11 @@ export default function UsersTabs({ usersByStatus, selectedStatus }: UsersTabsPr
       selectedIndex={selectedIndex}
       onChange={(index) => updateSearchParams({ status: tabs[index].status })}
     >
-      <TabList className="mb-6 flex flex-wrap gap-2 rounded-2xl ">
+      <TabList className="mb-4 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:mb-6 sm:flex-wrap sm:overflow-visible sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {tabs.map((tab) => (
           <Tab
             key={tab.status}
-            className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 
+            className="shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium text-slate-600 sm:px-4
             data-selected:bg-slate-100
             data-selected:text-slate-900 
             data-selected:border-slate-300
@@ -68,7 +67,7 @@ export default function UsersTabs({ usersByStatus, selectedStatus }: UsersTabsPr
 
       <TabPanels>
         {tabs.map((tab) => (
-          <TabPanel key={tab.status} className="focus:outline-none min-h-[700px]">
+          <TabPanel key={tab.status} className="focus:outline-none md:min-h-[700px]">
             <UsersTable
               paginatedUsers={usersByStatus[tab.status]}
               emptyLabel={tab.label}
@@ -108,7 +107,32 @@ function UsersTable({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-800 shadow-sm">
-      <div className="overflow-x-auto">
+      <ul className="divide-y divide-slate-100 md:hidden">
+        {users.map((user) => (
+          <li key={user.id}>
+            <Link
+              href={`/staff/users/${user.id}`}
+              className="flex items-center gap-3 px-4 py-3 transition-colors active:bg-slate-50"
+            >
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="truncate text-sm font-medium text-slate-900">{user.name}</p>
+                <p className="truncate text-sm text-slate-500">{user.email}</p>
+                <p className="font-mono text-xs text-slate-500">{shortenAddress(user.address)}</p>
+                {user.status === "pending" && user.platformRoles.length > 0 && (
+                  <div className="flex flex-wrap gap-y-1 pt-1">
+                    {user.platformRoles.map((role) => (
+                      <RoleCard role={role} key={`${user.id}-${role}`} />
+                    ))}
+                  </div>
+                )}
+              </div>
+              <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden overflow-x-auto md:block">
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-50 text-left text-sm font-medium text-slate-500">
             <tr>
@@ -164,11 +188,11 @@ function UsersTable({
         </table>
       </div>
 
-      <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3 text-sm text-slate-600">
-        <div>
+      <div className="flex flex-col gap-3 border-t border-slate-200 px-4 py-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-center sm:text-left">
           {startItem}-{endItem} de {totalItems}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2">
           <button
             type="button"
             onClick={() => onPageChange(page - 1)}
@@ -224,7 +248,7 @@ function RoleCard({ role }: { role: string }) {
 
 
   return (
-    <div className={`inline-flex items-center rounded-full ${colorClasses} px-3 py-1 text-xs mx-1 font-medium capitalize`}>
+    <div className={`inline-flex items-center rounded-full ${colorClasses} px-3 py-1 text-xs mr-1 font-medium capitalize`}>
       {roleStr}
     </div>
   );
