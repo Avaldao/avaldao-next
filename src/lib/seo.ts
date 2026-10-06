@@ -21,7 +21,6 @@ export const siteConfig = {
   locale: "es_AR",
   alternateLocale: "en_US",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? defaultSiteUrl,
-  ogImage: "/images/background.jpg",
   xHandle: "@avaldao",
 };
 
