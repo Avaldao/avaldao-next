@@ -39,10 +39,8 @@ export async function requireRoles(requiredRoles: Role | Role[]) {
     throw new UnauthenticatedError("No user session found");
   }
 
-  const testnetRoles = session.user.roles?.["31"] || [];
-  const mainnetRoles = session.user.roles?.["30"] || [];
-
-  const userRoles = mainnetRoles || [];
+  // Los roles por red viven en nroles; roles es un array plano.
+  const userRoles = session.user.nroles?.[30] || [];
 
   const requiredRolesArray = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
   const hasRequiredRole = requiredRolesArray.some(role => userRoles.includes(role));
