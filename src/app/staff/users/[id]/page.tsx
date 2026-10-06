@@ -1,3 +1,5 @@
+import { shortenAddress } from "@/utils";
+import CopyAddress from "@/components/copy-address";
 import PageHeader from "@/components/ui/layout/page-header";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,6 +8,7 @@ import { handleError } from "@/lib/auth/page-guards";
 import UsersService from "@/services/users-service";
 import { UserIcon } from "lucide-react";
 import Image from "next/image";
+import NetworkRoles, { NRoles } from "@/components/ui/layout/network-roles";
 
 interface UersDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -80,25 +83,14 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
           <Input
             id="address"
             readOnly
-            value={user.address}
+            value={shortenAddress(user.address)}
+            className="pr-12"
+            trailing={<CopyAddress address={user.address} className="" />}
           />
         </div>
         <div>
           <Label htmlFor="name">Roles</Label>
-          <div className="flex gap-x-2 gap-y-2 mt-2">
-            {user.roles.length == 0 && (
-              <div className="italic">
-                No se encontraron roles asociados a este usuario
-              </div>
-            )}
-            {user.roles?.map(role => {
-              return (
-                <div className="bg-secondary text-white px-3 py-1 rounded-2xl select-none">
-                  {role.split("_")[0]}
-                </div>
-              )
-            })}
-          </div>
+          <NetworkRoles nroles={user.nroles as NRoles} className="mt-2" />
         </div>
       </div>
     </div>

@@ -8,9 +8,9 @@ import UsersTabs from "./users-tabs";
 
 export const dynamic = 'force-dynamic';
 
-const userStatuses: UserStatus[] = ["pending", "active", "rejected", "suspended"];
-const defaultStatus: UserStatus = "pending";
-const defaultPageSize = 10;
+const userStatuses: UserStatus[] = ["active", "pending", "rejected", "suspended"];
+const defaultStatus: UserStatus = "active";
+const defaultPageSize = 50;
 
 function parsePageParam(value: string | string[] | undefined) {
   const rawValue = Array.isArray(value) ? value[0] : value;

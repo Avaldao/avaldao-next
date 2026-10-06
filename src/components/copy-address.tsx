@@ -2,7 +2,7 @@
 import { Copy } from "lucide-react";
 import { useState } from "react";
 
-export default function CopyAddress({ address }: { address: string }) {
+export default function CopyAddress({ address, className = "ml-3" }: { address: string; className?: string }) {
 
   const [copied, setCopied] = useState(false);
 
@@ -17,7 +17,7 @@ export default function CopyAddress({ address }: { address: string }) {
 
 
   return (
-    <div className="relative inline ml-3">
+    <div className={`relative inline ${className}`}>
       <button
         onClick={handleCopy}
         title="Copy"
