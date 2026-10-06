@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 import PageHeader from "@/components/ui/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { ConnectWalletBannerWrapper } from "@/components/connect-wallet-banner";
+import LanguageWrapper from "@/components/LanguageWrapper";
 import { getCurrentUser, UnauthenticatedError } from "@/lib/auth/authorization";
 import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
@@ -55,10 +56,12 @@ export default async function GuaranteesPage() {
       />
       {!hasWallet && (
         <div className="mb-6">
-          <ConnectWalletBannerWrapper />
+          <LanguageWrapper language={language}>
+            <ConnectWalletBannerWrapper />
+          </LanguageWrapper>
         </div>
       )}
-      <AvalTable avales={avales ?? []} />
+      <AvalTable avales={avales ?? []} language={language} />
     </div>
   );
 }

@@ -8,20 +8,21 @@ import { contractsAddress } from "@/blockchain/contracts";
 import { ConnectWalletBannerWrapper } from "@/components/connect-wallet-banner";
 import LanguageWrapper from "@/components/LanguageWrapper";
 import { getLanguage } from "@/lib/cookies";
+import { createT, type Language } from "@/translations";
 import { format } from "date-fns";
 import { LayoutDashboard, ChevronRight, FileCheck } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
 
-function getGreeting() {
+function getGreeting(t: ReturnType<typeof createT>) {
   const hour = new Date().getHours();
-  if (hour < 12) return "Buenos días";
-  if (hour < 19) return "Buenas tardes";
-  return "Buenas noches";
+  if (hour < 12) return t("dashboard.greeting.morning");
+  if (hour < 19) return t("dashboard.greeting.afternoon");
+  return t("dashboard.greeting.evening");
 }
 
-function formatDate() {
-  return new Date().toLocaleDateString("es-AR", {
+function formatDate(language: Language) {
+  return new Date().toLocaleDateString(language === "en" ? "en-US" : "es-AR", {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -44,13 +45,14 @@ const NetworkChip = ({ chainId }: { chainId: Aval["chainId"] }) => {
   );
 };
 
-function MisAvalesTable({ avales }: { avales: Aval[] }) {
+function MisAvalesTable({ avales, language }: { avales: Aval[]; language: Language }) {
+  const t = createT(language);
   if (avales.length === 0) {
     return (
       <div className="rounded-xl border border-slate-100 bg-slate-50 py-12 text-center">
         <FileCheck className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-        <p className="text-sm font-medium text-slate-500">No participás en ningún aval todavía</p>
-        <p className="mt-1 text-xs text-slate-400">Cuando participes en un aval, aparecerá aquí</p>
+        <p className="text-sm font-medium text-slate-500">{t("dashboard.empty.title")}</p>
+        <p className="mt-1 text-xs text-slate-400">{t("dashboard.empty.description")}</p>
       </div>
     );
   }
@@ -60,11 +62,11 @@ function MisAvalesTable({ avales }: { avales: Aval[] }) {
       <table className="min-w-full divide-y divide-gray-100">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Fecha</th>
-            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Proyecto</th>
-            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Red</th>
-            <th className="px-3 py-3 sm:px-4 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Monto</th>
-            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Estado</th>
+            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">{t("dashboard.col.date")}</th>
+            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">{t("dashboard.col.project")}</th>
+            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">{t("dashboard.col.network")}</th>
+            <th className="px-3 py-3 sm:px-4 text-right text-xs font-medium uppercase tracking-wider text-gray-500">{t("dashboard.col.amount")}</th>
+            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">{t("dashboard.col.status")}</th>
             <th className="px-3 py-3 sm:px-4" />
           </tr>
         </thead>
@@ -85,13 +87,13 @@ function MisAvalesTable({ avales }: { avales: Aval[] }) {
                 ${(aval.montoFiat / 100).toFixed(2)}
               </td>
               <td className="whitespace-nowrap px-3 py-3 sm:px-4">
-                <AvalStatusChip status={aval.status} variant="compact" />
+                <AvalStatusChip status={aval.status} variant="compact" language={language} />
               </td>
               <td className="whitespace-nowrap px-3 py-3 sm:px-4 text-center">
                 <Link
                   href={`/avales/${aval._id}`}
                   className="inline-flex items-center justify-center rounded-lg bg-secondary p-1.5 text-white transition-colors hover:bg-secondary-accent"
-                  title="Ver detalles"
+                  title={t("dashboard.view-details")}
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Link>
@@ -107,6 +109,7 @@ function MisAvalesTable({ avales }: { avales: Aval[] }) {
 export default async function CommonUserDashboard() {
   const session = await getServerSession(authOptions);
   const language = await getLanguage();
+  const t = createT(language);
   const firstName = session?.user?.name?.split(" ")[0] ?? "";
   const hasAddress = !!session?.user?.address;
 
@@ -129,13 +132,13 @@ export default async function CommonUserDashboard() {
           </div>
           <div>
             <p className="text-xs font-medium uppercase tracking-wider sm:tracking-widest text-slate-400">
-              {formatDate()}
+              {formatDate(language)}
             </p>
             <h1 className="mt-0.5 text-xl sm:text-2xl font-bold text-slate-800">
-              {getGreeting()}{firstName ? `, ${firstName}` : ""}
+              {getGreeting(t)}{firstName ? `, ${firstName}` : ""}
             </h1>
             <p className="mt-1 text-sm text-slate-500">
-              Plataforma Avaldao · Tu panel personal
+              {t("dashboard.subtitle.user")}
             </p>
           </div>
         </div>
@@ -151,10 +154,10 @@ export default async function CommonUserDashboard() {
       {/* Mis Avales */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-800">Mis Avales</h2>
-          <span className="text-xs text-slate-400">{avales.length} aval{avales.length !== 1 ? "es" : ""}</span>
+          <h2 className="text-base font-semibold text-slate-800">{t("dashboard.my-avales")}</h2>
+          <span className="text-xs text-slate-400">{t(avales.length === 1 ? "dashboard.avales-count.one" : "dashboard.avales-count.other", { n: String(avales.length) })}</span>
         </div>
-        <MisAvalesTable avales={avales} />
+        <MisAvalesTable avales={avales} language={language} />
       </div>
     </div>
   );

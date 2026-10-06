@@ -138,7 +138,7 @@ export default function NavLinks({ language }: { language: Language }) {
 
               {status === "authenticated" && (
                 <>
-                  <NetworkRoles nroles={user?.nroles} className="border-t border-slate-100 py-3" />
+                  <NetworkRoles nroles={user?.nroles} language={language} className="border-t border-slate-100 py-3" />
                   <div className="flex flex-col divide-y divide-slate-100 border-t border-slate-100">
                     <Link href="/user/profile" onClick={() => setOpen(false)} className={accountLinkClass}>
                       <UserIcon className="mr-3 h-4 w-4" />{t("nav.profile")}

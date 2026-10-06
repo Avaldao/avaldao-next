@@ -5,6 +5,8 @@ import { handleError } from "@/lib/auth/page-guards";
 import type { UserStatus } from "@/lib/db/models/user-model";
 import type { PaginatedResult, UserInfo } from "@/types";
 import UsersTabs from "./users-tabs";
+import { getLanguage } from "@/lib/cookies";
+import { createT } from "@/translations";
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +31,8 @@ export default async function UsersPage({
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const language = await getLanguage();
+  const t = createT(language);
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const rawStatus = resolvedSearchParams.status;
   const selectedStatus = userStatuses.includes(rawStatus as UserStatus)
@@ -59,19 +63,19 @@ export default async function UsersPage({
   return (
     <div className="max-w-6xl">
       <PageHeader
-        title="Usuarios"
-        description="Gestión de usuarios de la plataforma"
+        title={t("staff.users.title")}
+        description={t("staff.users.description")}
         icon={<Users className="h-5 w-5" />}
-        breadcrumbs={[{ label: "Usuarios" }]}
+        breadcrumbs={[{ label: t("staff.users.title") }]}
       />
 
       {usersByStatus && (
-        <UsersTabs usersByStatus={usersByStatus} selectedStatus={selectedStatus} />
+        <UsersTabs usersByStatus={usersByStatus} selectedStatus={selectedStatus} language={language} />
       )}
       {!usersByStatus && (
         <div className="bg-red-100 text-red-500 rounded-xl p-4 max-w-lg flex gap-x-2 items-center">
           <AlertCircle className="w-15 h-15" />
-          No podemos recuperar los usuarios en este momento. Intenta nuevamente más tarde
+          {t("staff.users.load-error")}
         </div>
       )}
     </div>

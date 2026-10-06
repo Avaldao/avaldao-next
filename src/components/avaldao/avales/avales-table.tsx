@@ -8,6 +8,7 @@ import { Aval } from "@/types";
 import { AvalStatusChip } from "./aval-status-chip";
 import { contractsAddress } from "@/blockchain/contracts";
 import { format } from "date-fns";
+import { createT, type Language } from "@/translations";
 
 interface TableProps<T extends { _id: string }> {
   columns: ReactNode[];
@@ -16,6 +17,7 @@ interface TableProps<T extends { _id: string }> {
   itemsPerPage?: number;
   /** Si se pasa, en mobile (< md) se muestran tarjetas en lugar de la tabla. */
   renderCard?: (item: T) => ReactNode;
+  language?: Language;
 }
 
 export function Table<T extends { _id: string }>({
@@ -23,8 +25,10 @@ export function Table<T extends { _id: string }>({
   getValues,
   items,
   itemsPerPage = 10,
-  renderCard
+  renderCard,
+  language = "es"
 }: TableProps<T>) {
+  const t = createT(language);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [currentItems, setCurrentItems] = useState<T[]>([]);
   const totalItems = items.length;
@@ -67,12 +71,12 @@ export function Table<T extends { _id: string }>({
 
         {items.length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            No hay avales para mostrar
+            {t("avales-table.empty")}
           </div>
         )}
 
         {items.length > 0 && (
-          <nav aria-label="Table pagination" className="flex items-center justify-center gap-x-2 my-2.5">
+          <nav aria-label={t("avales-table.pagination")} className="flex items-center justify-center gap-x-2 my-2.5">
             <button
               className="bg-gray-200 hover:bg-gray-300 hover:text-gray-800 select-none cursor-pointer rounded-md p-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => setCurrentPage(0)}
@@ -89,7 +93,7 @@ export function Table<T extends { _id: string }>({
             </button>
 
             <div className="text-sm bg-gray-100 p-1.5 rounded-md tracking-wide text-gray-700 font-medium">
-              {start + 1}-{(end > totalItems) ? totalItems : end} de {totalItems}
+              {t("avales-table.range", { from: String(start + 1), to: String(Math.min(end, totalItems)), total: String(totalItems) })}
             </div>
 
             <button
@@ -139,12 +143,15 @@ export const Td = ({ className, children, colspan }: { className?: string, colsp
 const ParticipantAvatars = ({
   solicitante,
   comerciante,
-  avalado
+  avalado,
+  language
 }: {
   solicitante: string;
   comerciante: string;
   avalado: string;
+  language: Language;
 }) => {
+  const t = createT(language);
   const getColor = (address: string) => {
     const colors = [
       'bg-blue-500', 'bg-green-500', 'bg-purple-500',
@@ -155,9 +162,9 @@ const ParticipantAvatars = ({
   };
 
   const participants = [
-    { address: solicitante, label: 'Solicitante', initials: 'SOL' },
-    { address: comerciante, label: 'Comerciante', initials: 'COM' },
-    { address: avalado, label: 'Avalado', initials: 'AVA' }
+    { address: solicitante, label: t('avales-table.role.solicitante'), initials: 'SOL' },
+    { address: comerciante, label: t('avales-table.role.comerciante'), initials: 'COM' },
+    { address: avalado, label: t('avales-table.role.avalado'), initials: 'AVA' }
   ];
 
   return (
@@ -177,13 +184,14 @@ const ParticipantAvatars = ({
 };
 
 // Componente para la columna de acciones
-const Actions = ({ id }: { id: string }) => {
+const Actions = ({ id, language }: { id: string; language: Language }) => {
+  const t = createT(language);
   return (
     <div className="flex justify-center items-center">
       <Link
         href={`/avales/${id}`}
         className="inline-flex items-center justify-center p-2 bg-secondary hover:bg-secondary-accent text-white rounded-lg transition-colors duration-200"
-        title="Ver detalles del aval"
+        title={t("avales-table.view-details")}
       >
         <ChevronRight className="w-4 h-4" />
       </Link>
@@ -209,7 +217,7 @@ const NetworkChip = ({ chainId }: { chainId: Aval["chainId"] }) => {
 };
 
 // Tarjeta de un aval para mobile: toda la tarjeta es un link al detalle
-const AvalCard = ({ aval }: { aval: Aval }) => {
+const AvalCard = ({ aval, language }: { aval: Aval; language: Language }) => {
   return (
     <Link
       href={`/avales/${aval._id}`}
@@ -217,7 +225,7 @@ const AvalCard = ({ aval }: { aval: Aval }) => {
     >
       <div className="flex items-start justify-between gap-3">
         <h3 className="min-w-0 flex-1 font-semibold text-slate-800 line-clamp-2 break-words">{aval.proyecto}</h3>
-        <AvalStatusChip status={aval.status} variant="compact" className="shrink-0" />
+        <AvalStatusChip status={aval.status} variant="compact" className="shrink-0" language={language} />
       </div>
       <p className="mt-1 text-sm text-slate-500 line-clamp-2">{aval.objetivo}</p>
 
@@ -227,6 +235,7 @@ const AvalCard = ({ aval }: { aval: Aval }) => {
           solicitante={aval.solicitanteAddress}
           comerciante={aval.comercianteAddress}
           avalado={aval.avaladoAddress}
+          language={language}
         />
       </div>
 
@@ -239,17 +248,18 @@ const AvalCard = ({ aval }: { aval: Aval }) => {
 };
 
 // Componente específico para la tabla de avales
-export const AvalTable = ({ avales }: { avales: Aval[] }) => {
+export const AvalTable = ({ avales, language = "es" }: { avales: Aval[]; language?: Language }) => {
+  const t = createT(language);
   const columns = [
-    <Th key="createdAt">Fecha Creación</Th>,
+    <Th key="createdAt">{t("avales-table.col.created-at")}</Th>,
     /* <Th key="beneficiario">Beneficiario</Th>, */
-    <Th key="proyecto">Proyecto</Th>,
+    <Th key="proyecto">{t("avales-table.col.project")}</Th>,
 
     <Th key="participantes" className="w-[1%]"></Th>,
-    <Th key="red">Red</Th>,
-    <Th key="monto">Monto</Th>,
-    <Th key="estado">Estado</Th>,
-    <Th key="actions" className="text-center">Acciones</Th>,
+    <Th key="red">{t("avales-table.col.network")}</Th>,
+    <Th key="monto">{t("avales-table.col.amount")}</Th>,
+    <Th key="estado">{t("avales-table.col.status")}</Th>,
+    <Th key="actions" className="text-center">{t("avales-table.col.actions")}</Th>,
   ];
 
   const getValues = (aval: Aval) => [
@@ -270,6 +280,7 @@ export const AvalTable = ({ avales }: { avales: Aval[] }) => {
         solicitante={aval.solicitanteAddress}
         comerciante={aval.comercianteAddress}
         avalado={aval.avaladoAddress}
+        language={language}
       />
     </Td>,
     <Td key="red">
@@ -286,11 +297,12 @@ export const AvalTable = ({ avales }: { avales: Aval[] }) => {
         status={aval.status}
         variant="compact"
         className="w-full"
+        language={language}
       />
 
     </Td>,
     <Td key="actions">
-      <Actions id={aval._id} />
+      <Actions id={aval._id} language={language} />
     </Td>,
   ];
 
@@ -300,7 +312,8 @@ export const AvalTable = ({ avales }: { avales: Aval[] }) => {
       getValues={getValues}
       items={avales}
       itemsPerPage={10}
-      renderCard={(aval) => <AvalCard aval={aval} />}
+      renderCard={(aval) => <AvalCard aval={aval} language={language} />}
+      language={language}
     />
   );
 };

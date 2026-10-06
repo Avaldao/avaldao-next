@@ -1,8 +1,10 @@
 "use client";
 import { Copy } from "lucide-react";
 import { useState } from "react";
+import { createT, type Language } from "@/translations";
 
-export default function CopyAddress({ address, className = "ml-3" }: { address: string; className?: string }) {
+export default function CopyAddress({ address, className = "ml-3", language = "es" }: { address: string; className?: string; language?: Language }) {
+  const t = createT(language);
 
   const [copied, setCopied] = useState(false);
 
@@ -20,14 +22,14 @@ export default function CopyAddress({ address, className = "ml-3" }: { address: 
     <div className={`relative inline ${className}`}>
       <button
         onClick={handleCopy}
-        title="Copy"
+        title={t("common.copy")}
         className="p-1.5 text-slate-500 hover:text-slate-700 cursor-pointer transition-colors">
         <Copy className="w-3 h-3" />
       </button>
       {copied && (
         <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 
                          bg-gray-800 text-white text-xs px-2 py-1 rounded shadow">
-          Copied!
+          {t("common.copied")}
         </span>
       )}
     </div>

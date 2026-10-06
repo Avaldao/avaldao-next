@@ -1,6 +1,7 @@
 import { ReactNode, useState } from "react";
 import { AuthMethod, Step } from "./activate-account-client";
 import { ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { createT, type Language } from "@/translations";
 
 interface Step2Props {
   selected: AuthMethod[];
@@ -11,9 +12,11 @@ interface Step2Props {
   submitting: boolean;
   submitError: string | undefined;
   submitForm: () => Promise<void>;
+  language: Language;
 }
 
-export default function Step2({ selected, password, setPassword, setStep, stepIndicator, submitForm }: Step2Props) {
+export default function Step2({ selected, password, setPassword, setStep, stepIndicator, submitForm, language }: Step2Props) {
+  const t = createT(language);
   const [confirm, setConfirm] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -29,7 +32,7 @@ export default function Step2({ selected, password, setPassword, setStep, stepIn
 
   const strengthLevel = strength(password);
   const strengthColors = ["bg-red-400", "bg-amber-400", "bg-lime-500", "bg-emerald-500"];
-  const strengthLabels = ["", "Débil", "Aceptable", "Buena", "Fuerte"];
+  const strengthLabels = ["", t("activate.step2.strength.1"), t("activate.step2.strength.2"), t("activate.step2.strength.3"), t("activate.step2.strength.4")];
 
   const passwordsMatch = confirm.length > 0 && password === confirm;
   const passwordMismatch = confirm.length > 0 && password !== confirm;
@@ -44,11 +47,11 @@ export default function Step2({ selected, password, setPassword, setStep, stepIn
         </div>
         {stepIndicator}
         <h1 className="text-xl font-bold text-gray-900 leading-snug">
-          Tu cuenta está casi lista
+          {t("activate.step1.title")}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Elegí una contraseña segura para tu cuenta.{" "}
-          <span className="text-gray-400">(podés cambiarla después)</span>
+          {t("activate.step2.description")}{" "}
+          <span className="text-gray-400">{t("activate.step2.change-later")}</span>
         </p>
       </div>
 
@@ -57,13 +60,13 @@ export default function Step2({ selected, password, setPassword, setStep, stepIn
 
         {/* Contraseña */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-600">Contraseña</label>
+          <label className="text-sm font-medium text-gray-600">{t("activate.step2.password")}</label>
           <div className="relative flex items-center">
             <input
               type={showPwd ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Mínimo 8 caracteres"
+              placeholder={t("activate.step2.password.placeholder")}
               autoComplete="new-password"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm text-gray-800 
                          placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500/30 
@@ -73,7 +76,7 @@ export default function Step2({ selected, password, setPassword, setStep, stepIn
               type="button"
               onClick={() => setShowPwd((v) => !v)}
               className="absolute right-3 text-gray-400 hover:text-gray-600 transition-colors"
-              aria-label={showPwd ? "Ocultar contraseña" : "Mostrar contraseña"}
+              aria-label={showPwd ? t("activate.step2.hide") : t("activate.step2.show")}
             >
               {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -107,13 +110,13 @@ export default function Step2({ selected, password, setPassword, setStep, stepIn
 
         {/* Confirmar contraseña */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-600">Confirmar contraseña</label>
+          <label className="text-sm font-medium text-gray-600">{t("activate.step2.confirm")}</label>
           <div className="relative flex items-center">
             <input
               type={showConfirm ? "text" : "password"}
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              placeholder="Repetí tu contraseña"
+              placeholder={t("activate.step2.confirm.placeholder")}
               autoComplete="new-password"
               className={`w-full border rounded-xl px-4 py-3 pr-10 text-sm text-gray-800 
                           placeholder-gray-300 focus:outline-none focus:ring-2 transition-all
@@ -128,7 +131,7 @@ export default function Step2({ selected, password, setPassword, setStep, stepIn
               type="button"
               onClick={() => setShowConfirm((v) => !v)}
               className="absolute right-3 text-gray-400 hover:text-gray-600 transition-colors"
-              aria-label={showConfirm ? "Ocultar contraseña" : "Mostrar contraseña"}
+              aria-label={showConfirm ? t("activate.step2.hide") : t("activate.step2.show")}
             >
               {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -139,13 +142,13 @@ export default function Step2({ selected, password, setPassword, setStep, stepIn
               className={`text-xs ${passwordsMatch ? "text-emerald-500" : "text-red-400"
                 }`}
             >
-              {passwordsMatch ? "Las contraseñas coinciden" : "Las contraseñas no coinciden"}
+              {passwordsMatch ? t("activate.step2.match") : t("activate.step2.mismatch")}
             </p>
           )}
         </div>
 
         <div className="text-xs text-gray-500 mt-2">
-          Usa una contraseña de al menos 8 caracteres. Para aumentar su seguridad, combina letras mayúsculas y minúsculas, números y caracteres especiales (por ejemplo: !, @, #, $).
+          {t("activate.step2.hint")}
         </div>
       </div>
 
@@ -167,7 +170,7 @@ export default function Step2({ selected, password, setPassword, setStep, stepIn
             
           }}
         >
-          Continuar
+          {t("activate.step2.continue")}
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

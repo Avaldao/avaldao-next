@@ -27,10 +27,10 @@ export async function sendMail({
   html?: string;
 }) {
   try {
-    const isVerified = await transporter.verify();
+    await transporter.verify();
   } catch (error) {
-    console.error('Something Went Wrong', error);
-    return;
+    console.error('SMTP verification failed', error);
+    throw new Error('Email service unavailable', { cause: error });
   }
   const info = await transporter.sendMail({
     from: `"Avaldao SGR" <${process.env.SMTP_USER}>`,

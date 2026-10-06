@@ -1,3 +1,5 @@
+import { createT, type Language } from "@/translations";
+
 export const networks = [
   {
     id: "30",
@@ -27,7 +29,8 @@ const roleColors: Record<string, string> = {
 export type NRoles = Partial<Record<"30" | "31", string[]>>;
 
 /** Tarjetas con la red y los roles del usuario en cada una. */
-export default function NetworkRoles({ nroles, className = "" }: { nroles?: NRoles; className?: string }) {
+export default function NetworkRoles({ nroles, className = "", language = "es" }: { nroles?: NRoles; className?: string; language?: Language }) {
+  const t = createT(language);
   return (
     <div className={`flex flex-col gap-2 text-xs ${className}`}>
       {networks.map((network) => {
@@ -37,7 +40,7 @@ export default function NetworkRoles({ nroles, className = "" }: { nroles?: NRol
             <div className="flex items-center justify-between mb-1">
               <span className="font-medium text-slate-700">{network.name}</span>
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${network.badgeClassName}`}>
-                {roles.length} roles
+                {t("staff.roles.count", { n: String(roles.length) })}
               </span>
             </div>
             <div className="flex flex-wrap gap-1">
@@ -53,7 +56,7 @@ export default function NetworkRoles({ nroles, className = "" }: { nroles?: NRol
                   </span>
                 ))
               ) : (
-                <span className="text-[10px] text-slate-400 italic">No permissions assigned</span>
+                <span className="text-[10px] text-slate-400 italic">{t("staff.roles.none")}</span>
               )}
             </div>
           </div>

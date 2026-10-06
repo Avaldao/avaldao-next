@@ -7,7 +7,7 @@ import Step2 from "./step2";
 import Step3 from "./step3";
 import AppkitContextProvider from "@/context/appkit-context";
 import { LanguageProvider } from "@/context/LanguageContext";
-import { Language } from "@/translations";
+import { Language, createT } from "@/translations";
 import StepSuccess from "./step-success";
 import StepError from "../step-error";
 import StepSubmitting from "./step-submitting";
@@ -30,6 +30,7 @@ export default function ActivateAccountClient({ language, token }: ActivateAccou
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string>();
+  const t = createT(language);
 
   const submitForm = async () => {
     try {
@@ -53,7 +54,7 @@ export default function ActivateAccountClient({ language, token }: ActivateAccou
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Error al activar la cuenta");
+        throw new Error(errorData.message || t("activate.error.generic"));
       }
 
       const data = await res.json();
@@ -64,7 +65,7 @@ export default function ActivateAccountClient({ language, token }: ActivateAccou
 
 
     } catch (err) {
-      setSubmitError("Error al activar la cuenta. Por favor, inténtalo de nuevo.");
+      setSubmitError(t("activate.error.generic"));
     } finally {
       setSubmitting(false);
     }
@@ -76,6 +77,7 @@ export default function ActivateAccountClient({ language, token }: ActivateAccou
       selected={selected}
       setSelected={setSelected}
       setStep={setStep}
+      language={language}
       stepIndicator={<StepIndicator step={step} />
       }
     />
@@ -86,6 +88,7 @@ export default function ActivateAccountClient({ language, token }: ActivateAccou
       <Step2
         selected={selected}
         setStep={setStep}
+        language={language}
         password={password}
         setPassword={setPassword}
         stepIndicator={<StepIndicator step={step} />}
@@ -119,12 +122,13 @@ export default function ActivateAccountClient({ language, token }: ActivateAccou
   return (
     <div className="flex flex-row justify-start w-full min-h-[90vh]">
       {success ? (
-        <StepSuccess stepIndicator={<StepIndicator step={step} />} />
+        <StepSuccess stepIndicator={<StepIndicator step={step} />} language={language} />
       ) : submitting ? (
-        <StepSubmitting stepIndicator={<StepIndicator step={step} />} />
+        <StepSubmitting stepIndicator={<StepIndicator step={step} />} language={language} />
       ) : submitError ? (
         <StepError
           errorDetails={submitError}
+          language={language}
           stepIndicator={<StepIndicator step={step} />}
           retry={() => {
             setSubmitError(undefined);
