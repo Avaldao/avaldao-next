@@ -6,9 +6,9 @@ import { Label } from "@/components/ui/label";
 import { requireRoles } from "@/lib/auth/authorization";
 import { handleError } from "@/lib/auth/page-guards";
 import UsersService from "@/services/users-service";
-import { UserIcon } from "lucide-react";
+import { ShieldCheck, UserIcon } from "lucide-react";
 import Image from "next/image";
-import NetworkRoles, { NRoles } from "@/components/ui/layout/network-roles";
+import { networks, NRoles } from "@/components/ui/layout/network-roles";
 
 interface UersDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -90,7 +90,34 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
         </div>
         <div>
           <Label htmlFor="name">Roles</Label>
-          <NetworkRoles nroles={user.nroles as NRoles} className="mt-2" />
+          <div className="mt-2 divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
+            {networks.map((network) => {
+              const networkRoles = (user.nroles as NRoles)?.[network.id as "30" | "31"] ?? [];
+              return (
+                <div key={network.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:gap-4">
+                  <div className="flex items-center gap-2 sm:w-48 shrink-0">
+                    <span className={`h-2 w-2 rounded-full ${network.dotClassName}`} />
+                    <span className="text-sm font-medium text-gray-700">{network.name}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {networkRoles.length ? (
+                      networkRoles.map((role) => (
+                        <span
+                          key={role}
+                          className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-2 py-0.5 text-sm text-gray-800"
+                        >
+                          <ShieldCheck className="h-3.5 w-3.5 text-gray-500" />
+                          {role.replace(/_ROLE$/, "")}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-sm italic text-gray-400">Sin roles en esta red</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
