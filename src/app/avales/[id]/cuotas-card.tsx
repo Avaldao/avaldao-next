@@ -8,6 +8,7 @@ import { contractsAddress } from "@/blockchain/contracts";
 import { Contract, JsonRpcProvider } from "ethers";
 import avalAbi from "@/blockchain/contracts/avaldao/aval.abi";
 import UnlockCuotaButton from "./unlock-cuota-button";
+import InstallmentList from "@/components/avales/installment-list";
 
 interface OnchainCuota {
   numero: number;
@@ -112,61 +113,31 @@ export default async function CuotasCard({ aval, avalAddress, language }: Props)
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Cuotas */}
-          <div className="overflow-x-auto">
+          <div>
             <p className="text-sm font-semibold text-slate-700 mb-2">{t("aval.details.schedule")}</p>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-slate-500 border-b">
-                  <th className="pb-2 pr-6 font-medium">{t("aval.details.tranche-number")}</th>
-                  <th className="pb-2 pr-6 font-medium">{t("aval.details.maturity-date")}</th>
-                  {onchainCuotas && <th className="pb-2 pr-6 font-medium">{t("aval.details.status")}</th>}
-                  <th className="pb-2 font-medium text-right">{t("aval.details.amount")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {onchainCuotas
-                  ? onchainCuotas.map((cuota) => (
-                      <tr key={cuota.numero} className="font-mono border-b border-slate-50 hover:bg-gray-50 transition-colors">
-                        <td className="py-2 pr-6">{t("aval.details.tranche")} {cuota.numero}</td>
-                        <td className="py-2 pr-6">{format(new Date(cuota.timestampVencimiento * 1000), "dd/MM/yyyy")}</td>
-                        <td className="py-2 pr-6">
-                          {isReadyToUnlock(cuota) && (
-                            <span className="inline-flex items-center gap-1.5 text-xs text-blue-700">
-                              <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
-                              {t("aval.details.cuota-status.ready-to-unlock")}
-                            </span>
-                          )}
-                          {cuota.status === 0 && !isReadyToUnlock(cuota) && (
-                            <span className="inline-flex items-center gap-1.5 text-xs text-slate-600">
-                              <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0" />
-                              {t("aval.details.cuota-status.pending")}
-                            </span>
-                          )}
-                          {cuota.status === 1 && (
-                            <span className="inline-flex items-center gap-1.5 text-xs text-green-700">
-                              <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
-                              {t("aval.details.cuota-status.cancelled")}
-                            </span>
-                          )}
-                          {cuota.status === 2 && (
-                            <span className="inline-flex items-center gap-1.5 text-xs text-amber-700">
-                              <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-                              {t("aval.details.cuota-status.executed")}
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-2 text-right">$ {(cuota.montoFiat / 100).toFixed(2)}</td>
-                      </tr>
-                    ))
-                  : generateTranchesFromAval(aval).map((tranche: Tranche) => (
-                      <tr key={tranche.index} className="font-mono border-b border-slate-50 hover:bg-gray-50 transition-colors">
-                        <td className="py-2 pr-6">{t("aval.details.tranche")} {tranche.index}</td>
-                        <td className="py-2 pr-6">{format(new Date(tranche.maturityDateSeconds * 1000), "dd/MM/yyyy")}</td>
-                        <td className="py-2 text-right">$ {(aval.montoFiat / 100 / aval.cuotasCantidad).toFixed(2)}</td>
-                      </tr>
-                    ))}
-              </tbody>
-            </table>
+            <InstallmentList
+              t={t}
+              items={
+                onchainCuotas
+                  ? onchainCuotas.map((cuota) => ({
+                      key: cuota.numero,
+                      label: `${t("aval.details.tranche")} ${cuota.numero}`,
+                      amount: `$ ${(cuota.montoFiat / 100).toFixed(2)}`,
+                      startSeconds: cuota.timestampVencimiento - aval.duracionCuotaSeconds,
+                      maturitySeconds: cuota.timestampVencimiento,
+                      unlockSeconds: cuota.timestampDesbloqueo,
+                      status: <CuotaStatus cuota={cuota} ready={isReadyToUnlock(cuota)} t={t} />,
+                    }))
+                  : generateTranchesFromAval(aval).map((tranche: Tranche) => ({
+                      key: tranche.index,
+                      label: `${t("aval.details.tranche")} ${tranche.index}`,
+                      amount: `$ ${(aval.montoFiat / 100 / aval.cuotasCantidad).toFixed(2)}`,
+                      startSeconds: tranche.startDateSeconds,
+                      maturitySeconds: tranche.maturityDateSeconds,
+                      unlockSeconds: tranche.unlockDateSeconds,
+                    }))
+              }
+            />
           </div>
 
           {/* Cuotas Desbloqueables */}
@@ -214,5 +185,38 @@ export default async function CuotasCard({ aval, avalAddress, language }: Props)
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function CuotaStatus({ cuota, ready, t }: { cuota: OnchainCuota; ready: boolean; t: (key: string) => string }) {
+  if (ready) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs text-blue-700">
+        <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+        {t("aval.details.cuota-status.ready-to-unlock")}
+      </span>
+    );
+  }
+  if (cuota.status === 0) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs text-slate-600">
+        <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0" />
+        {t("aval.details.cuota-status.pending")}
+      </span>
+    );
+  }
+  if (cuota.status === 1) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs text-green-700">
+        <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
+        {t("aval.details.cuota-status.cancelled")}
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs text-amber-700">
+      <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+      {t("aval.details.cuota-status.executed")}
+    </span>
   );
 }

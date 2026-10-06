@@ -25,6 +25,7 @@ import {
 
 import { useLanguage } from "@/context/LanguageContext";
 import { Language, translations } from "@/translations";
+import NetworkRoles, { networks } from "@/components/ui/layout/network-roles";
 
 interface SidebarItem {
   key: string;
@@ -56,13 +57,6 @@ const items: SidebarItem[] = [
   },
 ];
 
-const roleColors: Record<string, string> = {
-  admin: "bg-emerald-100 text-emerald-800",
-  auditor: "bg-yellow-100 text-yellow-800",
-  ups_revisor: "bg-blue-100 text-blue-800",
-  technician: "bg-purple-100 text-purple-800",
-};
-
 interface StaffSidebarProps {
   userName?: string;
   nroles: {
@@ -72,25 +66,6 @@ interface StaffSidebarProps {
   badges?: Record<string, number>;
   language: Language;
 }
-
-const networks = [
-  {
-    id: "30",
-    name: "Rootstock Mainnet",
-    shortName: "RSK",
-    className: "border-emerald-200 bg-emerald-50",
-    badgeClassName: "bg-emerald-100 text-emerald-700",
-    dotClassName: "bg-emerald-500",
-  },
-  {
-    id: "31",
-    name: "Rootstock Testnet",
-    shortName: "tRSK",
-    className: "border-amber-200 bg-amber-50",
-    badgeClassName: "bg-amber-100 text-amber-700",
-    dotClassName: "bg-amber-400",
-  },
-];
 
 export default function StaffSidebar({ userName, nroles, badges, language }: StaffSidebarProps) {
   const t = (key: string) => translations[key]?.[language] ?? key;
@@ -129,13 +104,13 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
       >
         {!collapsed && (
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            Menú
+            {t("staff.sidebar.menu")}
           </span>
         )}
         <button
           onClick={toggle}
           className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-          title={collapsed ? "Expandir menú" : "Colapsar menú"}
+          title={collapsed ? t("staff.sidebar.expand") : t("staff.sidebar.collapse")}
         >
           <PanelRight className="h-4 w-4" />
         </button>
@@ -200,41 +175,7 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
       </nav>
 
       {/* Network roles — expanded */}
-      {!collapsed && (
-        <div className="absolute bottom-5 left-3 right-3 flex flex-col gap-2 text-xs">
-          {networks.map((network) => (
-            <div
-              key={network.id}
-              className={`rounded-lg border p-2 ${network.className}`}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-medium text-slate-700">{network.name}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${network.badgeClassName}`}>
-                  {nroles?.[network.id as "30" | "31"]?.length ?? 0} roles
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {nroles?.[network.id as "30" | "31"]?.length ? (
-                  nroles[network.id as "30" | "31"].map((role) => (
-                    <span
-                      key={role}
-                      className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${roleColors[role.toLowerCase()] ??
-                        `${role === "ADMIN_ROLE" ? "bg-violet-100 text-violet-500" : "bg-gray-100 text-gray-700"}`
-                        }`}
-                    >
-                      {role.replaceAll("_", " ")}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-[10px] text-slate-400 italic">
-                    No permissions assigned
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {!collapsed && <NetworkRoles nroles={nroles} language={language} className="absolute bottom-5 left-3 right-3" />}
 
       {/* Network roles — collapsed (compact) */}
       {collapsed && (
@@ -242,7 +183,7 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
           {networks.map((network) => {
             const count = nroles?.[network.id as "30" | "31"]?.length ?? 0;
             const roles = nroles?.[network.id as "30" | "31"] ?? [];
-            const tooltip = `${network.name}\n${roles.length ? roles.map((r) => r.replaceAll("_", " ")).join(", ") : "No permissions"}`;
+            const tooltip = `${network.name}\n${roles.length ? roles.map((r) => r.replaceAll("_", " ")).join(", ") : t("staff.roles.none-short")}`;
             return (
               <div
                 key={network.id}

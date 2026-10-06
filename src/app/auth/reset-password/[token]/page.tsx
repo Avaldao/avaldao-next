@@ -1,5 +1,5 @@
 import SideImageLayout from "@/components/layout/side-image-layout";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import ResetPasswordForm from "./reset-password-form";
 import type { Metadata } from "next";
@@ -15,7 +15,7 @@ export default async function ResetPasswordPage({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (

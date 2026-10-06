@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import { Calendar } from "lucide-react";
@@ -29,6 +29,7 @@ export default function InputDatePicker({ onChange }: InputDatePickerProps) {
           <Input
             value={selected ? format(selected, "dd/MM/yyyy") : ""}
             className="pl-10 cursor-default"
+            compactError
 
           />
           <div className="absolute top-2 left-2">
@@ -36,11 +37,19 @@ export default function InputDatePicker({ onChange }: InputDatePickerProps) {
           </div>
         </div>
       </PopoverButton>
-      <PopoverPanel anchor="bottom" className={"z-2 mt-3"} >
+      <PopoverPanel anchor={{ to: "bottom start", gap: 8, padding: 16 }} className="z-50">
         {({ close }) => (
-          <div className="bg-white text-slate-800 p-1 rounded-xl shadow-md">
+          <div className="bg-white text-slate-800 p-2 rounded-xl border border-gray-200 shadow-lg">
             <DayPicker
               lang="en"
+              style={{
+                "--rdp-accent-color": "var(--color-violet-600)",
+                "--rdp-accent-background-color": "var(--color-violet-50)",
+                "--rdp-day-width": "34px",
+                "--rdp-day-height": "34px",
+                "--rdp-day_button-width": "32px",
+                "--rdp-day_button-height": "32px",
+              } as React.CSSProperties}
               animate
               mode="single"
               selected={selected}

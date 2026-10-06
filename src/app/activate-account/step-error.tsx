@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight, Repeat } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { createT, type Language } from "@/translations";
 
 
 interface StepErrorProps {
@@ -8,11 +8,12 @@ interface StepErrorProps {
   retry: () => void;
   submitting: boolean;
   errorDetails: string | undefined;
+  language: Language;
 }
 
 
-export default function StepError({ stepIndicator, retry, submitting, errorDetails }: StepErrorProps) {
-  const router = useRouter();
+export default function StepError({ stepIndicator, retry, submitting, errorDetails, language }: StepErrorProps) {
+  const t = createT(language);
   return (
     <div className="w-full max-w-lg xl:max-w-xl mx-auto flex flex-col gap-4 p-4">
       {/* Progress + Header */}
@@ -22,16 +23,16 @@ export default function StepError({ stepIndicator, retry, submitting, errorDetai
         </div>
         {stepIndicator}
         <h1 className="text-xl font-bold text-gray-900 leading-snug">
-          Error al activar la cuenta
+          {t("activate.error.title")}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Ha ocurrido un error durante el proceso de activación. Por favor, inténtalo de nuevo más tarde.
+          {t("activate.error.description")}
         </p>
       </div>
 
       {errorDetails && (
         <div className="mt-2 text-sm text-gray-500">
-          Detalles:
+          {t("activate.error.details")}
           <div className="text-sm text-gray-400 mt-1">
             {errorDetails}
           </div>
@@ -41,7 +42,7 @@ export default function StepError({ stepIndicator, retry, submitting, errorDetai
       <div className="flex-1 flex flex-col justify-center items-center">
         <Image
           src="/images/account-error.svg"
-          alt="Error"
+          alt={t("activate.error.alt")}
           width={140}
           height={100}
           className="max-w-xl"
@@ -57,7 +58,7 @@ export default function StepError({ stepIndicator, retry, submitting, errorDetai
         disabled={submitting}
       >
         <Repeat className="w-4 h-4" />
-        Reintentar
+        {t("activate.error.retry")}
 
       </button>
 

@@ -305,6 +305,10 @@ export default class UsersService {
       console.log(`Fetching roles using chainid? ${process.env.DEFAULT_CHAIN_ID}`);
       const authorizationService = new OnChainAuthorizationService();
       user.roles = await authorizationService.getRoles(user.address);
+      user.nroles = {
+        30: await this.getRolesSafe(30, user.address),
+        31: await this.getRolesSafe(31, user.address),
+      };
       user.website = user.url ?? user.website;
 
       //resolve infocid
@@ -322,6 +326,16 @@ export default class UsersService {
     }
 
     return user;
+  }
+
+  private async getRolesSafe(chainId: number, address?: string) {
+    if (!address) return [];
+    try {
+      return await new OnChainAuthorizationService(chainId).getRoles(address);
+    } catch (err) {
+      console.error(`Error fetching roles on chain ${chainId} for ${address}`, err);
+      return [];
+    }
   }
 
   async getUserByAddress(address: string): Promise<UserInfo | null> {

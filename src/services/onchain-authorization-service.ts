@@ -1,7 +1,8 @@
 import 'server-only';
 import ContractsFactory from "@/blockchain/contracts";
 import roles, { Role } from "@/roles";
-import { Contract } from "ethers";
+import { Contract, Signer } from "ethers";
+import { setUserRoles } from "@/blockchain/roles-admin";
 
 export default class OnChainAuthorizationService {
 
@@ -40,7 +41,32 @@ export default class OnChainAuthorizationService {
   }
 
 
-  assignRole() { } //o roles puede ser plural but we need a signer
+  /**
+   * Agrega y/o quita roles de un address a través del contrato admin (setUserRoles).
+   * Requiere un signer cuya cuenta tenga ADMIN_ROLE y esté conectado a la misma red del servicio.
+   * Devuelve la transacción enviada; el caller decide cómo esperar la confirmación.
+   */
+  async assignRole(
+    signer: Signer,
+    address: string,
+    rolesToAdd: Role[] = [],
+    rolesToRemove: Role[] = []
+  ) {
+    if (!rolesToAdd.length && !rolesToRemove.length) {
+      throw new Error("No roles to add or remove");
+    }
+
+    const resolve = (role: Role) => {
+      const role_ = roles[this.chainId].find(r => r.value === role);
+      if (!role_) throw new Error(`Invalid role value: ${role}`);
+      return role_;
+    };
+
+    const toAdd = rolesToAdd.map(resolve);
+    const toRemove = rolesToRemove.map(resolve);
+
+    return setUserRoles(signer, await this.admin.getAddress(), address, toAdd, toRemove);
+  }
 
 
 }

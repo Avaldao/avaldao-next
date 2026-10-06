@@ -63,7 +63,7 @@ export default function AccountTypeSelector({ initialType, onTypeSelected: onTyp
         <ComboboxOptions
           static
           modal={false}
-          className="empty:invisible grid min-h-45 w-full grid-cols-1 gap-4 rounded-2xl bg-white  sm:grid-cols-2 py-5"
+          className="empty:invisible grid sm:min-h-45 w-full grid-cols-1 gap-3 sm:gap-4 rounded-2xl bg-white sm:grid-cols-2 py-3 sm:py-5"
         >
           {accountTypes.map((activityType) => (
             <ComboboxOption
@@ -73,7 +73,7 @@ export default function AccountTypeSelector({ initialType, onTypeSelected: onTyp
             >
               {({ selected }) => (
                 <div
-                  className={`relative flex min-h-47.5 flex-col items-start justify-between gap-4 rounded-2xl border p-5 transition-all duration-200 ease-out ${selected
+                  className={`relative flex flex-row items-center gap-3 p-4 sm:min-h-47.5 sm:flex-col sm:items-start sm:justify-between sm:gap-4 sm:p-5 rounded-2xl border transition-all duration-200 ease-out ${selected
                     ? "border-secondary/40 bg-white shadow-[0_14px_32px_-16px_rgba(120,104,229,0.55)]"
                     : "border-slate-200 bg-white/85 hover:-translate-y-0.5 hover:border-secondary/25 hover:shadow-[0_12px_24px_-16px_rgba(15,23,42,0.4)]"
                     }`}
@@ -85,7 +85,7 @@ export default function AccountTypeSelector({ initialType, onTypeSelected: onTyp
                   )}
 
                   <div
-                    className={`inline-flex h-12 w-12 items-center justify-center rounded-xl border text-secondary transition-colors [&>svg]:h-6 [&>svg]:w-6 ${selected
+                    className={`inline-flex h-10 w-10 shrink-0 sm:h-12 sm:w-12 items-center justify-center rounded-xl border text-secondary transition-colors [&>svg]:h-5 [&>svg]:w-5 sm:[&>svg]:h-6 sm:[&>svg]:w-6 ${selected
                       ? "border-secondary/30 bg-secondary/10"
                       : "border-slate-200 bg-slate-50 group-hover:border-secondary/20 group-hover:bg-secondary/5"
                       }`}
@@ -93,15 +93,15 @@ export default function AccountTypeSelector({ initialType, onTypeSelected: onTyp
                     {activityType.icon}
                   </div>
 
-                  <div className="text-lg font-semibold text-slate-800 capitalize">
+                  <div className="min-w-0 pr-8 sm:contents">
+                    <div className="text-base sm:text-lg font-semibold text-slate-800 capitalize">
+                      {t(`account-type.${activityType.value}.name`)}
+                    </div>
 
-                    {t(`account-type.${activityType.value}.name`)}
+                    <div className="text-sm leading-snug sm:leading-relaxed text-slate-500">
+                      {t(`account-type.${activityType.value}.description`)}
+                    </div>
                   </div>
-
-                  <div className="text-sm leading-relaxed text-slate-500">
-                    {t(`account-type.${activityType.value}.description`)}
-                  </div>
-
                 </div>
 
               )}

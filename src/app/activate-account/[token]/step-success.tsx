@@ -1,16 +1,19 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { createT, type Language } from "@/translations";
 
 
 interface StepSuccessProps {
 
   stepIndicator: React.ReactNode;
+  language: Language;
 }
 
 
-export default function StepSuccess({ stepIndicator }: StepSuccessProps) {
+export default function StepSuccess({ stepIndicator, language }: StepSuccessProps) {
   const router = useRouter();
+  const t = createT(language);
   return (
     <div className="w-full max-w-lg xl:max-w-xl mx-auto flex flex-col gap-4 p-4">
       {/* Progress + Header */}
@@ -20,17 +23,17 @@ export default function StepSuccess({ stepIndicator }: StepSuccessProps) {
         </div>
         {stepIndicator}
         <h1 className="text-xl font-bold text-gray-900 leading-snug">
-          ¡Cuenta activada con éxito!
+          {t("activate.success.title")}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Tu cuenta ha sido activada correctamente. Ahora puedes iniciar sesión y comenzar a usar nuestros servicios.
+          {t("activate.success.description")}
         </p>
       </div>
 
       <div className="flex-1 flex flex-col justify-center items-center">
         <Image
           src="/images/account-success.svg"
-          alt="Success"
+          alt={t("activate.success.alt")}
           width={140}
           height={100}
           className="max-w-xl"
@@ -43,7 +46,7 @@ export default function StepSuccess({ stepIndicator }: StepSuccessProps) {
 
         onClick={() => router.push("/auth/login")}
       >
-        Iniciar sesión <ArrowRight className="w-4 h-4" />
+        {t("activate.success.login")} <ArrowRight className="w-4 h-4" />
 
       </button>
 

@@ -24,7 +24,7 @@ export default function useBlockchainTransaction(provider: Provider | null) {
     } else if (message.includes("expired") || message.includes("timeout")) {
       setTxState({ step: 1, status: "expired" });
     } else {
-      setTxState({ step: 1, status: "error", errReason: err instanceof Error ? err.message : "Unknown error" });
+      setTxState({ step: 1, status: "error", errReason: err instanceof Error ? err.message : undefined });
     }
     return;
   }
@@ -33,7 +33,7 @@ export default function useBlockchainTransaction(provider: Provider | null) {
     let errReason: string | undefined = undefined;
 
     if(!provider) {
-      setTxState({ step: 2, status: "error", txHash: txResponse.hash, errReason: "Unknown error. Unable to get provider to check reason" });
+      setTxState({ step: 2, status: "error", txHash: txResponse.hash });
       return;
     }
 

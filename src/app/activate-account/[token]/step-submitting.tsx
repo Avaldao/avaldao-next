@@ -1,15 +1,16 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { createT, type Language } from "@/translations";
 
 
 interface StepSubmittingProps {
 
   stepIndicator: React.ReactNode;
+  language: Language;
 }
 
 
-export default function StepSubmitting({ stepIndicator }: StepSubmittingProps) {
-  const router = useRouter();
+export default function StepSubmitting({ stepIndicator, language }: StepSubmittingProps) {
+  const t = createT(language);
   return (
     <div className="w-full max-w-lg xl:max-w-xl mx-auto flex flex-col gap-4 p-4">
       {/* Progress + Header */}
@@ -19,10 +20,10 @@ export default function StepSubmitting({ stepIndicator }: StepSubmittingProps) {
         </div>
         {stepIndicator}
         <h1 className="text-xl font-bold text-gray-900 leading-snug">
-          Activando tu cuenta
+          {t("activate.submitting.title")}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Estamos activando tu cuenta. Esto puede tardar unos segundos, por favor no cierres esta ventana ni actualices la página.
+          {t("activate.submitting.description")}
         </p>
       </div>
 
