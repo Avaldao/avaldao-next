@@ -17,8 +17,8 @@ interface UsersTabsProps {
 }
 
 const tabs: Array<{ status: UserStatus; label: string }> = [
-  { status: "pending", label: "Pending" },
   { status: "active", label: "Active" },
+  { status: "pending", label: "Pending" },
   { status: "rejected", label: "Rejected" },
   { status: "suspended", label: "Suspended" },
 ];
