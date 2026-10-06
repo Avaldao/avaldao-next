@@ -19,15 +19,18 @@ function HeaderAuthInner() {
     const address = session?.user?.address;
     if (address) {
       return (
-        <AnimatePresence>
-          <AccountDropdown address={address} />
-        </AnimatePresence>
+        // En mobile la cuenta vive dentro del menú hamburguesa.
+        <div className="hidden lg:block">
+          <AnimatePresence>
+            <AccountDropdown address={address} />
+          </AnimatePresence>
+        </div>
       );
     }
     return (
       <button
         onClick={() => signOut({ callbackUrl: "/" })}
-        className="whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700"
+        className="hidden whitespace-nowrap lg:block rounded-full px-4 py-2 text-sm font-semibold text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700"
       >
         Sign Out
       </button >
