@@ -37,6 +37,12 @@ export default function NavLinks({ language }: { language: Language }) {
           >
             {t("nav.about")}
           </a>
+          <a
+            href="#como-funciona"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
+          >
+            {t("nav.how")}
+          </a>
           <a 
             href="#dashboard" 
             className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
@@ -49,12 +55,12 @@ export default function NavLinks({ language }: { language: Language }) {
           >
             {t("nav.invest")}
           </Link>
-          <a 
-            href="#aval" 
+          <Link
+            href="/avales/new"
             className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4 lg:text-base"
           >
             {t("nav.request-aval")}
-          </a>
+          </Link>
         </>
       )}
     </nav>

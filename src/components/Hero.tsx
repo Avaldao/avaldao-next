@@ -1,10 +1,12 @@
-"use client";
-
-import { useCallback, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import EmblaCarousel from "embla-carousel";
-import Autoplay from "embla-carousel-autoplay";
+import { Suspense } from "react";
+import Link from "next/link";
+import { ArrowRight, ExternalLink, ShieldCheck } from "lucide-react";
+import ContractsFactory from "@/blockchain/contracts";
 import { Language, translations } from "@/translations";
+import { FadeIn } from "@/components/ui/AnimatedSection";
+import GuaranteeFundValue from "./GuaranteeFundValue";
+
+const ROOTSTOCK_MAINNET_CHAIN_ID = 30;
 
 interface HeroProps {
   language: Language;
@@ -13,178 +15,86 @@ interface HeroProps {
 export default function Hero({ language }: HeroProps) {
   const t = (key: string) => translations[key]?.[language] ?? key;
 
-  const emblaRef = useRef<HTMLDivElement>(null);
-  const [embla, setEmbla] = useState<any>(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
-
-
-  // Initialize Embla
-  useEffect(() => {
-    if (!emblaRef.current) return;
-
-    const autoplay = Autoplay({ delay: 5000, stopOnInteraction: false });
-
-    const instance = EmblaCarousel(emblaRef.current, {
-      loop: true,
-      align: "start",
-    }, [autoplay]);
-
-    setEmbla(instance);
-    setScrollSnaps(instance.scrollSnapList());
-    setSelectedIndex(instance.selectedScrollSnap());
-
-    instance.on("select", () => {
-      setSelectedIndex(instance.selectedScrollSnap());
-    });
-
-    return () => instance.destroy();
-  }, []);
-
-  // Arrow handlers
-  const scrollPrev = useCallback(() => embla && embla.scrollPrev(), [embla]);
-  const scrollNext = useCallback(() => embla && embla.scrollNext(), [embla]);
-  const scrollTo = useCallback((i: number) => embla && embla.scrollTo(i), [embla]);
+  // La landing siempre muestra el fondo real (Rootstock Mainnet), independientemente de DEFAULT_CHAIN_ID.
+  const chainId = ROOTSTOCK_MAINNET_CHAIN_ID;
+  const { vault: vaultAddress, explorerUrl, networkName, tokens } = ContractsFactory.getNetworkInfo(chainId)!;
 
   return (
-    <section
-      className="relative"
-      aria-label="Carrusel principal"
-      aria-roledescription="carousel"
-    >
-      {/* Accesibilidad: anunciar slide activo */}
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {`Slide ${selectedIndex + 1} de ${scrollSnaps.length}`}
-      </div>
+    <section className="relative overflow-hidden bg-[url('/images/slide-bg1.jpg')] bg-cover bg-center bg-no-repeat">
+      <div className="absolute inset-0 bg-linear-to-r from-white/90 via-white/75 to-white/30" />
 
-      {/* Embla viewport */}
-      <div className="embla overflow-hidden" ref={emblaRef}>
-        <div className="embla__container flex">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.4fr_1fr] lg:gap-16 lg:px-8 lg:py-28">
+        <FadeIn className="flex flex-col items-start">
+          <span className="inline-flex rounded-full border border-violet-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-violet-700 shadow-sm sm:px-4 sm:text-sm">
+            {t("hero.eyebrow")}
+          </span>
 
-          <div className="embla__slide flex-[0_0_100%]">
-            <Slide
-              title={t("slide1.title")}
-              description={t("slide1.description")}
-              bg="bg-[url('/images/slide-bg1.jpg')]"
-              btn={t("slide1.btn")}
-              headingLevel="h1"
-            />
-          </div>
+          <h1 className="mt-5 font-heading text-3xl font-bold leading-tight tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
+            {t("hero.title")}
+          </h1>
 
-          <div className="embla__slide flex-[0_0_100%]">
-            <Slide
-              title={t("slide2.title")}
-              description={t("slide2.description")}
-              bg="bg-[url('/images/slide-bg2.jpg')]"
-              btn={t("slide2.btn")}
-              headingLevel="h2"
-            />
-          </div>
-
-          <div className="embla__slide flex-[0_0_100%]">
-            <Slide
-              title={t("slide3.title")}
-              description={t("slide3.description")}
-              bg="bg-[url('/images/slide-bg3.jpg')]"
-              btn={t("slide3.btn")}
-              headingLevel="h2"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Arrows */}
-      <button
-        onClick={scrollPrev}
-        className="group absolute left-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-2xl text-white backdrop-blur-md transition-all duration-300 hover:border-violet-400/50 hover:bg-violet-600/90 hover:shadow-lg hover:shadow-violet-500/50 sm:left-4 sm:h-12 sm:w-12 sm:text-3xl"
-        aria-label="Previous slide"
-      >
-        ‹
-      </button>
-
-      <button
-        onClick={scrollNext}
-        className="group absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-2xl text-white backdrop-blur-md transition-all duration-300 hover:border-violet-400/50 hover:bg-violet-600/90 hover:shadow-lg hover:shadow-violet-500/50 sm:right-4 sm:h-12 sm:w-12 sm:text-3xl"
-        aria-label="Next slide"
-      >
-        ›
-      </button>
-
-      {/* Pagination dots */}
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 sm:bottom-6 sm:gap-3">
-        {scrollSnaps.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => scrollTo(i)}
-            className={`
-              h-2 rounded-full transition-all duration-300
-              ${i === selectedIndex
-                ? "w-8 bg-linear-to-r from-violet-600 to-fuchsia-600 shadow-md shadow-violet-500/50"
-                : "w-2 bg-white/60 hover:bg-white/80"}
-            `}
-            aria-label={`Ir al slide ${i + 1}`}
-            aria-current={i === selectedIndex ? "true" : undefined}
-          />
-        ))}
-      </div>
-
-    </section>
-  );
-}
-
-interface SlideProps {
-  title: string;
-  description: string;
-  bg: string;
-  btn: string;
-  headingLevel: "h1" | "h2";
-}
-
-function Slide({ title, description, bg, btn, headingLevel }: SlideProps) {
-  const HeadingTag = headingLevel;
-
-  return (
-    <div
-      className={`
-        flex
-        py-20
-        min-h-[75vh]
-        bg-cover bg-no-repeat bg-center
-        ${bg}
-      `}
-    >
-      <div className="
-          container mx-auto
-          px-15
-          md:px-8
-          flex flex-col justify-center items-start
-          max-w-lg
-          md:max-w-2xl
-          lg:max-w-4xl lg:pb-[15%] xl:pb-[5%]
-          xl:max-w-6xl
-          text-left">
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-          viewport={{ once: true }}
-          className="flex flex-col items-start"
-        >
-          <HeadingTag className="font-heading text-3xl md:text-4xl text-primary mb-4 font-bold leading-11 select-none">
-            {title}
-          </HeadingTag>
-
-          <p className="text-md md:text-lg text-slate-700 mb-12 max-w-xl select-none">
-            {description}
+          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-700 sm:text-lg sm:leading-8">
+            {t("hero.description")}
           </p>
 
-          <button className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 px-6 py-3 font-heading text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-violet-600/40 transition-all duration-300 hover:shadow-xl hover:shadow-violet-600/60 hover:from-violet-700 hover:to-fuchsia-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 sm:px-8 sm:py-3.5 sm:text-base">
-            <span className="relative z-10">{btn}</span>
-            <div className="absolute inset-0 -z-10 bg-linear-to-r from-violet-700 to-fuchsia-700 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-          </button>
-        </motion.div>
+          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <Link
+              href="/avales/new"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 px-6 py-3 font-heading text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-violet-600/40 transition-all duration-300 hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-xl hover:shadow-violet-600/60 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 sm:px-8 sm:py-3.5 sm:text-base"
+            >
+              {t("hero.cta.request")}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/auth/signup"
+              className="inline-flex items-center justify-center rounded-full border border-violet-300 bg-white px-6 py-3 font-heading text-sm font-semibold uppercase tracking-wide text-violet-700 shadow-sm transition-all duration-300 hover:border-violet-500 hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 sm:px-8 sm:py-3.5 sm:text-base"
+            >
+              {t("hero.cta.merchant")}
+            </Link>
+          </div>
+
+          <a
+            href="#como-funciona"
+            className="mt-5 text-sm font-semibold text-violet-700 underline-offset-4 hover:underline"
+          >
+            {t("hero.cta.how")} ↓
+          </a>
+        </FadeIn>
+
+        {/* Prueba en vivo: saldo del fondo de garantía */}
+        <FadeIn delay={0.15}>
+          <div className="rounded-3xl border border-violet-100 bg-white/90 p-6 shadow-[0_24px_80px_rgba(91,33,182,0.18)] backdrop-blur-sm sm:p-8">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <ShieldCheck className="h-5 w-5 text-violet-600" />
+                {t("hero.fund.label")}
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                {t("hero.fund.live")}
+              </span>
+            </div>
+
+            <div className="mt-4 flex items-baseline gap-2 font-heading text-4xl font-bold text-slate-950 sm:text-5xl">
+              <Suspense fallback={<div className="h-12 w-40 animate-pulse rounded-md bg-violet-100" />}>
+                <GuaranteeFundValue chainId={chainId} docAddress={tokens?.doc!} />
+              </Suspense>
+              <span className="text-xl text-slate-500 sm:text-2xl">USD</span>
+            </div>
+            <p className="mt-1 text-xs text-slate-500">{t("dashboard.guarantee-fund.clarification")}</p>
+
+            <a
+              href={`${explorerUrl}/address/${vaultAddress}?tab=tokens`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-violet-700 hover:text-violet-900"
+            >
+              {t("hero.fund.verify")} ({networkName})
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+        </FadeIn>
       </div>
-    </div>
+    </section>
   );
 }
