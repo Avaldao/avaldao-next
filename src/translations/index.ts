@@ -1015,6 +1015,14 @@ export const translations: Translations = {
     es: 'Iniciar sesión con Wallet',
     en: 'Log in with Wallet'
   },
+  "login.back": {
+    es: 'Volver al inicio',
+    en: 'Back to home'
+  },
+  "forgot-password.back": {
+    es: 'Volver a iniciar sesión',
+    en: 'Back to log in'
+  },
   "login.forgot-password": {
     es: '¿Olvidaste tu contraseña?',
     en: 'Forgot your password?'
