@@ -44,10 +44,10 @@ export default async function GuaranteesPage() {
         breadcrumbs={[{ label: t("avals.title") }]}
         actions={
           hasWallet ? (
-            <Button asChild>
-              <Link href="/avales/new">
+            <Button asChild className="max-sm:w-10 max-sm:px-0">
+              <Link href="/avales/new" aria-label={t("avals.new-aval")}>
                 <PlusCircle className="h-4 w-4" />
-                {t("avals.new-aval")}
+                <span className="max-sm:sr-only">{t("avals.new-aval")}</span>
               </Link>
             </Button>
           ) : undefined
