@@ -2,20 +2,36 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProjectTimeline from "@/components/ProjectTimeline";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getAbsoluteUrl, getLanguageAlternates, openGraphLocales, siteConfig } from "@/lib/seo";
 import { translations } from "@/translations";
+import { Language, languages, localizeHref } from "@/translations/locales";
 import Link from "next/link";
 import { Clock, Wrench, ArrowLeft } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Invertir",
-  description:
-    "La funcionalidad de inversión en AvalDAO está en desarrollo. Estamos actualizando los smart contracts para soportarla.",
-};
+type PageProps = { params: Promise<{ lang: string }> };
 
-export default async function InvertirPage() {
-  const language = await getLanguageCookie();
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const language = (await params).lang as Language;
   const t = (key: string) => translations[key]?.[language] ?? key;
+
+  return {
+    title: t("meta.invest.title"),
+    description: t("meta.invest.description"),
+    alternates: getLanguageAlternates("/invertir", language),
+    openGraph: {
+      type: "website",
+      siteName: siteConfig.name,
+      locale: openGraphLocales[language],
+      alternateLocale: languages.filter((l) => l !== language).map((l) => openGraphLocales[l]),
+      title: t("meta.invest.title"),
+      description: t("meta.invest.description"),
+      url: getAbsoluteUrl(localizeHref("/invertir", language)),
+    },
+  };
+}
+
+export default async function InvertirPage({ params }: PageProps) {
+  const language = (await params).lang as Language;
 
   const isEs = language === "es";
 
@@ -55,7 +71,7 @@ export default async function InvertirPage() {
                   : "Updating smart contracts"}
               </div>
               <Link
-                href="/"
+                href={localizeHref("/", language)}
                 className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-600 shadow-sm transition-all hover:border-violet-200 hover:text-violet-700"
               >
                 <ArrowLeft className="h-4 w-4" />

@@ -1,4 +1,4 @@
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/AnimatedSection"
 
@@ -27,14 +27,14 @@ const milestones = [
 ];
 
 export default async function ProjectTimeline() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (
     <section className="bg-linear-to-br from-[#f6f0ff] via-white to-[#eef2ff] py-24 text-slate-900">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <FadeIn className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex rounded-full border border-violet-200 bg-white px-4 py-1 text-sm font-semibold uppercase tracking-[0.2em] text-violet-700 shadow-sm">
+          <span className="text-sm font-semibold uppercase tracking-[0.2em] text-violet-700">
             {t("timeline.eyebrow")}
           </span>
           <h2 className="mt-6 font-heading text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">

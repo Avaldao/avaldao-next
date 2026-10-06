@@ -104,7 +104,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       });
 
       if (response.ok) {
-        toast.success("Perfil actualizado exitosamente");
+        toast.success(t("profile.updated"));
         if (update) {
           await update();
           console.log("Updated was called")

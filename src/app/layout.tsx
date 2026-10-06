@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Manrope } from "next/font/google";
 import { Toaster } from "react-hot-toast";
-import { getAbsoluteUrl, getBaseUrl, siteConfig } from "@/lib/seo";
+import { getBaseUrl, siteConfig } from "@/lib/seo";
+import { getLanguage } from "@/lib/cookies";
 import "./globals.css";
 
 const inter = Inter({
@@ -38,9 +39,6 @@ export const metadata: Metadata = {
   authors: [{ name: siteConfig.name }],
   creator: siteConfig.name,
   publisher: siteConfig.name,
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     type: "website",
     locale: siteConfig.locale,
@@ -49,34 +47,27 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     title: siteConfig.name,
     description: siteConfig.description,
-    images: [
-      {
-        url: siteConfig.ogImage,
-        width: 1200,
-        height: 630,
-        alt: `${siteConfig.name} brand image`,
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
     creator: siteConfig.xHandle,
-    images: [getAbsoluteUrl(siteConfig.ogImage)],
   },
   category: "finance",
 };
 
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const language = await getLanguage();
+
   return (
-    <html lang="es">
+    <html lang={language}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${manrope.variable} antialiased`}
       >

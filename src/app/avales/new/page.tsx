@@ -1,7 +1,7 @@
 import { getAddress } from "ethers";
 import AvalFormWrapper from "./aval-form-wrapper";
 import { defaultAvaldaoAddress } from "@/blockchain/contracts";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import PageHeader from "@/components/ui/layout/page-header";
 import { translations } from "@/translations";
 import { FilePlus } from "lucide-react";
@@ -9,7 +9,7 @@ import { FilePlus } from "lucide-react";
 export const dynamic = 'force-dynamic';
 
 export default async function AvalesPage() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (

@@ -97,10 +97,10 @@ export default function Step3({ setStep, stepIndicator, submitting, submitError,
         </div>
         {stepIndicator}
         <h1 className="text-xl font-bold text-gray-900 leading-snug">
-          Conecta tu wallet y firma el mensaje
+          {t("activate.step3.title")}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          No se realizarán transacciones ni se cobrará ninguna tarifa. Esto es solo para verificar que eres el propietario de la wallet.{" "}
+          {t("activate.step3.description")}
         </p>
       </div>
 
@@ -114,7 +114,7 @@ export default function Step3({ setStep, stepIndicator, submitting, submitError,
 
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-              Wallet conectada
+              {t("activate.step3.connected")}
             </p>
             <p className="truncate font-mono text-sm font-semibold text-slate-900">
               {address}
@@ -128,7 +128,7 @@ export default function Step3({ setStep, stepIndicator, submitting, submitError,
             type="button"
             onClick={() => disconnect()}
             className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600"
-            title="Desconectar wallet"
+            title={t("activate.step3.disconnect")}
           >
             <LogOut className="h-4 w-4" />
           </button>
@@ -149,7 +149,7 @@ export default function Step3({ setStep, stepIndicator, submitting, submitError,
             onClick={() => connectWallet()}
           >
             <Wallet className="w-5 h-5" />
-            Conectar wallet
+            {t("activate.step3.connect")}
           </button>
         )}
 
@@ -164,7 +164,7 @@ export default function Step3({ setStep, stepIndicator, submitting, submitError,
             }}
           >
             <Wallet className="w-5 h-5" />
-            Firmar mensaje
+            {t("activate.step3.sign")}
           </button>
         )}
         {signature && (
@@ -178,7 +178,7 @@ export default function Step3({ setStep, stepIndicator, submitting, submitError,
             }}
           >
             <Check className="w-5 h-5" />
-            Submit form
+            {t("activate.step3.submit")}
           </button>
           )}
 

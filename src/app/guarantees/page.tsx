@@ -8,8 +8,9 @@ export const metadata: Metadata = {
 import PageHeader from "@/components/ui/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { ConnectWalletBannerWrapper } from "@/components/connect-wallet-banner";
+import LanguageWrapper from "@/components/LanguageWrapper";
 import { getCurrentUser, UnauthenticatedError } from "@/lib/auth/authorization";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import AvalesService from "@/services/avales-service";
 import { FileCheck, PlusCircle } from "lucide-react";
@@ -19,7 +20,7 @@ import { redirect } from "next/navigation";
 export const dynamic = 'force-dynamic';
 
 export default async function GuaranteesPage() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   let avales;
@@ -44,10 +45,10 @@ export default async function GuaranteesPage() {
         breadcrumbs={[{ label: t("avals.title") }]}
         actions={
           hasWallet ? (
-            <Button asChild>
-              <Link href="/avales/new">
+            <Button asChild className="max-sm:w-10 max-sm:px-0">
+              <Link href="/avales/new" aria-label={t("avals.new-aval")}>
                 <PlusCircle className="h-4 w-4" />
-                {t("avals.new-aval")}
+                <span className="max-sm:sr-only">{t("avals.new-aval")}</span>
               </Link>
             </Button>
           ) : undefined
@@ -55,10 +56,12 @@ export default async function GuaranteesPage() {
       />
       {!hasWallet && (
         <div className="mb-6">
-          <ConnectWalletBannerWrapper />
+          <LanguageWrapper language={language}>
+            <ConnectWalletBannerWrapper />
+          </LanguageWrapper>
         </div>
       )}
-      <AvalTable avales={avales ?? []} />
+      <AvalTable avales={avales ?? []} language={language} />
     </div>
   );
 }

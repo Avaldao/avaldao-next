@@ -1,3 +1,5 @@
+import { Language, languages, localizeHref } from "@/translations/locales";
+
 const defaultSiteUrl = "https://avaldao.org";
 
 export const siteConfig = {
@@ -19,7 +21,6 @@ export const siteConfig = {
   locale: "es_AR",
   alternateLocale: "en_US",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? defaultSiteUrl,
-  ogImage: "/images/background.jpg",
   xHandle: "@avaldao",
 };
 
@@ -29,4 +30,20 @@ export function getBaseUrl() {
 
 export function getAbsoluteUrl(path = "/") {
   return new URL(path, getBaseUrl()).toString();
+}
+
+export const openGraphLocales: Record<Language, string> = {
+  es: "es_AR",
+  en: "en_US",
+};
+
+/** Canonical y hreflang de una página pública localizada (`path` sin prefijo de idioma). */
+export function getLanguageAlternates(path: string, language: Language) {
+  return {
+    canonical: localizeHref(path, language),
+    languages: {
+      ...Object.fromEntries(languages.map((l) => [l, localizeHref(path, l)])),
+      "x-default": path,
+    },
+  };
 }

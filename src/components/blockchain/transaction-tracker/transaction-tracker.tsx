@@ -18,6 +18,7 @@ import {
   explorerTxUrl
 } from "./utils";
 import { useLanguage, LanguageContext, LanguageProvider } from "@/context/LanguageContext";
+import type { Language } from "@/translations";
 
 
 interface TransactionTrackerProps {
@@ -28,6 +29,8 @@ interface TransactionTrackerProps {
   hint?: string;
   transactionCost?: string;
   onClose?: () => void;
+  /** Idioma a usar si no hay un LanguageProvider arriba. */
+  language?: Language;
 }
 
 
@@ -44,7 +47,7 @@ function TransactionTrackerInner({
   const { caipNetwork } = useAppKitNetwork();
   const { t } = useLanguage();
   const [copiedReason, setCopiedReason] = useState(false);
-  const networkName = caipNetwork?.name ?? "Unknown network";
+  const networkName = caipNetwork?.name ?? t("tx.info.unknown-network");
 
   const currentStatus = txState.status as Step1Status | Step2Status;
   const copy = getStatusCopy(t)[currentStatus];
@@ -215,7 +218,7 @@ function TransactionTrackerInner({
                   currentStatus === "rejected" ? t("tx.error.rejected")
                     : t("tx.error.reverted")}
                 <div className="w-full overflow-hidden break-all mt-1">
-                  {txState.errReason && `${txState.errReason}`}
+                  {txState.errReason ?? (currentStatus === "error" ? t("tx.error.unknown") : null)}
                 </div>
               </div>
             </div>
@@ -251,13 +254,13 @@ function TransactionTrackerInner({
 }
 
 
-export default function TransactionTracker(props: TransactionTrackerProps) {
+export default function TransactionTracker({ language = "es", ...props }: TransactionTrackerProps) {
   const ctx = useContext(LanguageContext);
   if (ctx) {
     return <TransactionTrackerInner {...props} />;
   }
   return (
-    <LanguageProvider initialLanguage="es">
+    <LanguageProvider initialLanguage={language}>
       <TransactionTrackerInner {...props} />
     </LanguageProvider>
   );

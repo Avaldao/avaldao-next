@@ -1,5 +1,5 @@
 import SignupForm from "./form";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import type { Metadata } from "next";
 
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SignupPage() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (

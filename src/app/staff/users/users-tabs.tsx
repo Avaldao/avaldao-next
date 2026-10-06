@@ -9,22 +9,23 @@ import CopyAddress from "@/components/copy-address";
 import { shortenAddress } from "@/utils";
 import type { UserStatus } from "@/lib/db/models/user-model";
 import type { PaginatedResult, UserInfo } from "@/types";
-import IPFSUserAvatar from "./ipfs-user-avatar";
-import { span } from "framer-motion/client";
+import { createT, type Language } from "@/translations";
 
 interface UsersTabsProps {
   usersByStatus: Record<UserStatus, PaginatedResult<UserInfo>>;
   selectedStatus: UserStatus;
+  language: Language;
 }
 
-const tabs: Array<{ status: UserStatus; label: string }> = [
-  { status: "pending", label: "Pending" },
-  { status: "active", label: "Active" },
-  { status: "rejected", label: "Rejected" },
-  { status: "suspended", label: "Suspended" },
+const tabs: Array<{ status: UserStatus; labelKey: string }> = [
+  { status: "active", labelKey: "staff.users.status.active" },
+  { status: "pending", labelKey: "staff.users.status.pending" },
+  { status: "rejected", labelKey: "staff.users.status.rejected" },
+  { status: "suspended", labelKey: "staff.users.status.suspended" },
 ];
 
-export default function UsersTabs({ usersByStatus, selectedStatus }: UsersTabsProps) {
+export default function UsersTabs({ usersByStatus, selectedStatus, language }: UsersTabsProps) {
+  const t = createT(language);
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -45,11 +46,11 @@ export default function UsersTabs({ usersByStatus, selectedStatus }: UsersTabsPr
       selectedIndex={selectedIndex}
       onChange={(index) => updateSearchParams({ status: tabs[index].status })}
     >
-      <TabList className="mb-6 flex flex-wrap gap-2 rounded-2xl ">
+      <TabList className="mb-4 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:mb-6 sm:flex-wrap sm:overflow-visible sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {tabs.map((tab) => (
           <Tab
             key={tab.status}
-            className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 
+            className="shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium text-slate-600 sm:px-4
             data-selected:bg-slate-100
             data-selected:text-slate-900 
             data-selected:border-slate-300
@@ -58,7 +59,7 @@ export default function UsersTabs({ usersByStatus, selectedStatus }: UsersTabsPr
               
               "
           >
-            <span>{tab.label}</span>
+            <span>{t(tab.labelKey)}</span>
             <span className="ml-2 rounded-full bg-slate-200 px-2 py-0.5 text-xs text-slate-700 data-selected:bg-slate-900 data-selected:text-white">
               {usersByStatus[tab.status]?.totalItems ?? 0}
             </span>
@@ -68,10 +69,11 @@ export default function UsersTabs({ usersByStatus, selectedStatus }: UsersTabsPr
 
       <TabPanels>
         {tabs.map((tab) => (
-          <TabPanel key={tab.status} className="focus:outline-none min-h-[700px]">
+          <TabPanel key={tab.status} className="focus:outline-none md:min-h-[700px]">
             <UsersTable
               paginatedUsers={usersByStatus[tab.status]}
-              emptyLabel={tab.label}
+              emptyLabel={t(tab.labelKey)}
+              language={language}
               onPageChange={(page) => updateSearchParams({
                 status: tab.status,
                 [`${tab.status}Page`]: String(page),
@@ -87,18 +89,21 @@ export default function UsersTabs({ usersByStatus, selectedStatus }: UsersTabsPr
 function UsersTable({
   paginatedUsers,
   emptyLabel,
+  language,
   onPageChange,
 }: {
   paginatedUsers: PaginatedResult<UserInfo>;
   emptyLabel: string;
+  language: Language;
   onPageChange: (page: number) => void;
 }) {
+  const t = createT(language);
   const { items: users, page, pageSize, totalItems, totalPages } = paginatedUsers;
 
   if (users.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">
-        No hay usuarios con estado {emptyLabel.toLowerCase()}.
+        {t("staff.users.empty", { status: emptyLabel.toLowerCase() })}
       </div>
     );
   }
@@ -108,16 +113,41 @@ function UsersTable({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-800 shadow-sm">
-      <div className="overflow-x-auto">
+      <ul className="divide-y divide-slate-100 md:hidden">
+        {users.map((user) => (
+          <li key={user.id}>
+            <Link
+              href={`/staff/users/${user.id}`}
+              className="flex items-center gap-3 px-4 py-3 transition-colors active:bg-slate-50"
+            >
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="truncate text-sm font-medium text-slate-900">{user.name}</p>
+                <p className="truncate text-sm text-slate-500">{user.email}</p>
+                <p className="font-mono text-xs text-slate-500">{shortenAddress(user.address)}</p>
+                {user.status === "pending" && user.platformRoles.length > 0 && (
+                  <div className="flex flex-wrap gap-y-1 pt-1">
+                    {user.platformRoles.map((role) => (
+                      <RoleCard role={role} key={`${user.id}-${role}`} />
+                    ))}
+                  </div>
+                )}
+              </div>
+              <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden overflow-x-auto md:block">
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-50 text-left text-sm font-medium text-slate-500">
             <tr>
-              <th className="px-4 py-3">Nombre</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Address</th>
-              <th className="px-4 py-3">Roles</th>
+              <th className="px-4 py-3">{t("staff.users.col.name")}</th>
+              <th className="px-4 py-3">{t("staff.users.col.email")}</th>
+              <th className="px-4 py-3">{t("staff.users.col.address")}</th>
+              <th className="px-4 py-3">{t("staff.users.col.roles")}</th>
               <th className="px-4 py-3">
-                <span className="opacity-0">Actions</span>
+                <span className="sr-only">{t("staff.users.col.actions")}</span>
               </th>
             </tr>
           </thead>
@@ -134,7 +164,7 @@ function UsersTable({
                   <div className="flex items-center">
                     <span className="select-none">{shortenAddress(user.address)}</span>
                     <div className="invisible opacity-0 transition-all duration-200 ease-in-out group-hover:visible group-hover:opacity-100">
-                      <CopyAddress address={user.address} />
+                      <CopyAddress address={user.address} language={language} />
                     </div>
                   </div>
                 </td>
@@ -152,7 +182,7 @@ function UsersTable({
                     <Link
                       href={`/staff/users/${user.id}`}
                       className="inline-flex items-center justify-center rounded-lg bg-secondary p-2 text-white transition-colors duration-200 hover:bg-secondary-accent"
-                      title="Ver detalles del usuario"
+                      title={t("staff.users.view-details")}
                     >
                       <ChevronRight className="w-4 h-4" />
                     </Link>
@@ -164,11 +194,11 @@ function UsersTable({
         </table>
       </div>
 
-      <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3 text-sm text-slate-600">
-        <div>
-          {startItem}-{endItem} de {totalItems}
+      <div className="flex flex-col gap-3 border-t border-slate-200 px-4 py-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-center sm:text-left">
+          {t("staff.users.range", { from: String(startItem), to: String(endItem), total: String(totalItems) })}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2">
           <button
             type="button"
             onClick={() => onPageChange(page - 1)}
@@ -176,10 +206,10 @@ function UsersTable({
             className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ChevronLeft className="h-4 w-4" />
-            Anterior
+            {t("staff.users.prev")}
           </button>
           <span className="min-w-20 text-center">
-            Página {page} de {totalPages}
+            {t("staff.users.page", { page: String(page), total: String(totalPages) })}
           </span>
           <button
             type="button"
@@ -187,7 +217,7 @@ function UsersTable({
             disabled={page === totalPages}
             className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Siguiente
+            {t("staff.users.next")}
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
@@ -224,7 +254,7 @@ function RoleCard({ role }: { role: string }) {
 
 
   return (
-    <div className={`inline-flex items-center rounded-full ${colorClasses} px-3 py-1 text-xs mx-1 font-medium capitalize`}>
+    <div className={`inline-flex items-center rounded-full ${colorClasses} px-3 py-1 text-xs mr-1 font-medium capitalize`}>
       {roleStr}
     </div>
   );

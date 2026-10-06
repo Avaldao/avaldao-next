@@ -1,4 +1,4 @@
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 
 const socialLinks = [
@@ -32,7 +32,7 @@ const socialLinks = [
 ];
 
 export default async function Footer() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (

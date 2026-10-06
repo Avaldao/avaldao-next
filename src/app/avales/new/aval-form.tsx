@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Info, Wallet } from "lucide-react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { CalendarDays, ChevronDown, Info, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textarea";
 import { useSession } from "next-auth/react";
@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
 import { Language, translations } from "@/translations";
+import CuotasPreview from "./cuotas-preview";
 
 
 interface FieldErrors {
@@ -76,6 +77,13 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
   });
 
   const [loading, setLoading] = useState(false);
+
+  // En mobile las addresses editables se abrevian mientras el campo no tiene foco.
+  const isMobile = useIsMobile();
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const displayAddress = (name: string, value: string) =>
+    isMobile && focusedField !== name && /^0x[a-fA-F0-9]{40}$/.test(value) ? shortAddress(value) : value;
+  const [infoOpen, setInfoOpen] = useState(false);
 
   const [comerciante, setComerciante] = useState<UserInfo | null>();
   const [avalado, setAvalado] = useState<UserInfo | null>();
@@ -255,24 +263,44 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
       {/* Info notice */}
-      <div className="rounded-lg border border-violet-200 bg-violet-50 p-5 -mt-10 mb-4">
-        <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-violet-600 mt-0.5 shrink-0" />
-          <ul className="space-y-1 text-sm text-violet-700 list-disc list-inside">
-            <li>{t("avals.new.info.evaluation")}</li>
-            <li>{t("avals.new.info.addresses")}</li>
-            <li>{t("avals.new.info.vigente")}</li>
-          </ul>
+      <div className="rounded-lg border border-violet-200 bg-violet-50 -mt-10 mb-4">
+        <button
+          type="button"
+          onClick={() => setInfoOpen((v) => !v)}
+          aria-expanded={infoOpen}
+          aria-controls="aval-info-notice"
+          className="flex w-full items-center gap-3 p-4 text-left cursor-pointer"
+        >
+          <Info className="w-5 h-5 text-violet-600 shrink-0" />
+          <span className="flex-1 text-sm font-medium text-violet-700">{t("avals.new.info.title")}</span>
+          <ChevronDown className={`w-4 h-4 text-violet-600 shrink-0 transition-transform duration-300 ${infoOpen ? "rotate-180" : ""}`} />
+        </button>
+        <div
+          id="aval-info-notice"
+          className={`grid transition-all duration-300 ease-out ${infoOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+        >
+          <div className="overflow-hidden">
+            <ul className="space-y-1 text-sm text-violet-700 list-disc list-inside px-4 pb-4">
+              <li>{t("avals.new.info.evaluation")}</li>
+              <li>{t("avals.new.info.addresses")}</li>
+              <li>{t("avals.new.info.vigente")}</li>
+            </ul>
+          </div>
         </div>
       </div>
 
       {/* Proyecto */}
+      <fieldset className="rounded-xl border border-slate-200 px-3 sm:px-4 pb-4 pt-2 space-y-3">
+        <legend className="px-2 text-sm font-semibold text-slate-800">{t("aval.form.project-info")}</legend>
+
       <div>
         <Label required>{t("aval.form.project")}</Label>
         <Input
+          compactError
           name="proyecto"
           value={form.proyecto}
           onChange={handleChange}
+          placeholder={t("aval.form.project.placeholder")}
           required
         />
       </div>
@@ -284,6 +312,8 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
           name="objetivo"
           value={form.objetivo}
           onChange={handleChange}
+          placeholder={t("aval.form.objective.placeholder")}
+          className="placeholder-gray-300"
           required
         />
       </div>
@@ -293,28 +323,38 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
         <div>
           <Label required>{t("aval.form.acquisition")}</Label>
           <Input
+            compactError
             name="adquisicion"
             value={form.adquisicion}
             onChange={handleChange}
+            placeholder={t("aval.form.acquisition.placeholder")}
             required
           />
         </div>
         <div>
           <Label required>{t("aval.form.beneficiaries")}</Label>
           <Input
+            compactError
             name="beneficiarios"
             value={form.beneficiarios}
             onChange={handleChange}
+            placeholder={t("aval.form.beneficiaries.placeholder")}
             required
           />
         </div>
       </div>
 
-      {/* Row: Monto, Cuotas, Fecha, Duración */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      </fieldset>
+
+      {/* Condiciones */}
+      <fieldset className="rounded-xl border border-slate-200 px-3 sm:px-4 pb-4 pt-2 space-y-3">
+        <legend className="px-2 text-sm font-semibold text-slate-800">{t("aval.form.conditions")}</legend>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-3 sm:gap-4">
         <div>
           <Label required>{t("aval.form.amount")}</Label>
           <Input
+            compactError
             type="number"
             name="montoFiat"
             value={form.montoFiat}
@@ -326,6 +366,7 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
         <div>
           <Label required>{t("aval.form.installments")}</Label>
           <Input
+            compactError
             type="number"
             name="cuotasCantidad"
             value={form.cuotasCantidad}
@@ -351,6 +392,7 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
         <div>
           <Label required>{t("aval.form.duration-days")}</Label>
           <Input
+            compactError
             type="number"
             name="duracionCuotaDias"
             value={form.duracionCuotaDias}
@@ -359,36 +401,30 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
           />
         </div>
       </div>
+      </fieldset>
 
-      {/* Row: Direcciones */}
+      {/* Plan de cuotas (vista previa) */}
+      <CuotasPreview
+        fechaInicio={form.fechaInicio}
+        duracionCuotaDias={form.duracionCuotaDias}
+        cuotasCantidad={form.cuotasCantidad}
+        montoFiat={form.montoFiat}
+        t={t}
+      />
+
+      {/* Participantes */}
+      <fieldset className="rounded-xl border border-slate-200 px-4 pb-4 pt-2 space-y-3">
+        <legend className="px-2 text-sm font-semibold text-slate-800">{t("aval.form.participants")}</legend>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label>{t("aval.form.applicant")}</Label>
-          <div className="relative">
-            <Wallet className="absolute left-3 top-2.5 text-slate-700 h-5 w-5 z-1" />
-            <Input
-              name="solicitanteAddress"
-              value={form.solicitanteAddress}
-              onChange={handleChange}
-              placeholder="0x..."
-              className="w-full pl-10 mt-1 "
-              readOnly
-            />
-          </div>
+          <ReadOnlyAddress name="solicitanteAddress" value={form.solicitanteAddress} />
         </div>
 
         <div>
           <Label>{t("aval.form.avaldao")}</Label>
-          <div className="relative">
-            <Wallet className="absolute left-3 top-2.5 text-slate-800 z-1 h-5 w-5" />
-            <Input
-              name="avaldaoAddress"
-              value={form.avaldaoAddress}
-              readOnly
-              placeholder="0x..."
-              className="w-full pl-10 mt-1 "
-            />
-          </div>
+          <ReadOnlyAddress name="avaldaoAddress" value={form.avaldaoAddress} />
         </div>
       </div>
 
@@ -398,8 +434,11 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
           <div className="relative">
             <Wallet className="absolute left-3 top-2.5 text-slate-800 z-1 h-5 w-5" />
             <Input
+            compactError
               name="comercianteAddress"
-              value={form.comercianteAddress}
+              value={displayAddress("comercianteAddress", form.comercianteAddress)}
+              onFocus={() => setFocusedField("comercianteAddress")}
+              onBlur={() => setFocusedField(null)}
               onChange={handleChange}
               placeholder="0x..."
               className="w-full pl-10 mt-1 "
@@ -407,16 +446,16 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
             />
 
             {loadingComerciante ?
-              (<div className="-mt-4 text-sm text-gray-400 italic">
+              (<div className="mt-1 text-sm text-gray-400 italic">
                 <Spinner variant="sm" /> {t("aval.form.loading")}</div>)
               : comerciante && !fieldErrors.comercianteAddress
                 ? (
-                  <div className="-mt-4 text-primary italic text-sm">
+                  <div className="mt-1 text-primary italic text-sm">
                     {comerciante?.name} &lt;{comerciante.email}&gt;
                   </div>
                 )
                 : comercianteNotFound && !fieldErrors.comercianteAddress && (
-                  <div className="-mt-4 text-amber-600 text-sm">
+                  <div className="mt-1 text-amber-600 text-sm">
                     {t("aval.form.user-not-found")}
                   </div>
                 )}
@@ -429,8 +468,11 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
           <div className="relative">
             <Wallet className="absolute left-3 top-2.5 text-slate-800 z-1 h-5 w-5" />
             <Input
+            compactError
               name="avaladoAddress"
-              value={form.avaladoAddress}
+              value={displayAddress("avaladoAddress", form.avaladoAddress)}
+              onFocus={() => setFocusedField("avaladoAddress")}
+              onBlur={() => setFocusedField(null)}
               onChange={handleChange}
               placeholder="0x..."
               className="w-full pl-10 mt-1 "
@@ -438,16 +480,16 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
             />
 
             {loadingAvalado ?
-              (<div className="-mt-4 text-sm text-gray-400 italic">
+              (<div className="mt-1 text-sm text-gray-400 italic">
                 <Spinner variant="sm" /> {t("aval.form.loading")}</div>)
               : avalado && !fieldErrors.avaladoAddress
                 ? (
-                  <div className="-mt-4 text-primary italic text-sm">
+                  <div className="mt-1 text-primary italic text-sm">
                     {avalado?.name} &lt;{avalado.email}&gt;
                   </div>
                 )
                 : avaladoNotFound && !fieldErrors.avaladoAddress && (
-                  <div className="-mt-4 text-amber-600 text-sm">
+                  <div className="mt-1 text-amber-600 text-sm">
                     {t("aval.form.user-not-found")}
                   </div>
                 )}
@@ -456,10 +498,11 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
           </div>
         </div>
       </div>
+      </fieldset>
 
       {/* Buttons */}
 
-      <div className="flex justify-end gap-3 pt-4">
+      <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
         <button
           type="button"
           onClick={() => setForm({
@@ -476,13 +519,13 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
             comercianteAddress: "",
             avaladoAddress: "",
           })}
-          className="px-4 py-2 bg-slate-700 hover:bg-slate-800 text-gray-100 rounded-md transition"
+          className="w-full sm:w-auto min-h-12 px-6 rounded-2xl bg-slate-100 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 cursor-pointer"
         >
           {t("aval.form.cancel")}
         </button>
 
         <Button
-          className="min-w-[220px] bg-linear-to-r from-violet-600 to-fuchsia-600  hover:from-violet-700 hover:to-fuchsia-700 "
+          className="w-full sm:w-auto sm:min-w-[220px] min-h-12 px-8 rounded-2xl font-semibold bg-linear-to-r from-violet-600 to-fuchsia-600 shadow-lg shadow-violet-500/30 transition-all duration-200 hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2"
           type="submit"
           loading={loading}
           disabled={loading /* || success */}
@@ -494,5 +537,39 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
 
     </form>
 
+  );
+}
+
+function shortAddress(address?: string) {
+  if (!address || address.length <= 18) return address ?? "";
+  return `${address.slice(0, 8)}…${address.slice(-6)}`;
+}
+
+// En mobile se muestran solo el inicio y el final de la address, porque completa no entra en el campo.
+function ReadOnlyAddress({ name, value }: { name: string; value?: string }) {
+  return (
+    <div className="relative">
+      <Wallet className="absolute left-3 top-2.5 text-slate-700 h-5 w-5 z-1" />
+      <div className="hidden sm:block">
+        <Input compactError name={name} value={value ?? ""} readOnly placeholder="0x..." className="w-full pl-10 mt-1" />
+      </div>
+      <div className="sm:hidden">
+        <Input compactError value={shortAddress(value)} title={value} readOnly aria-label={name} placeholder="0x..." className="w-full pl-10 mt-1 font-mono" />
+      </div>
+    </div>
+  );
+}
+
+const MOBILE_QUERY = "(max-width: 639px)";
+
+function useIsMobile() {
+  return useSyncExternalStore(
+    (callback) => {
+      const mql = window.matchMedia(MOBILE_QUERY);
+      mql.addEventListener("change", callback);
+      return () => mql.removeEventListener("change", callback);
+    },
+    () => window.matchMedia(MOBILE_QUERY).matches,
+    () => false
   );
 }

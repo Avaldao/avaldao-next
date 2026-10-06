@@ -1,4 +1,4 @@
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import Image from "next/image";
 import LanguageWrapper from "../LanguageWrapper";
@@ -6,7 +6,7 @@ import { LanguageToggle } from "@/translations/LanguageToggle";
 
 export default async function SideImageLayout({children}: {children: React.ReactNode}) {
 
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
 
@@ -34,8 +34,8 @@ export default async function SideImageLayout({children}: {children: React.React
         </div>
       </aside>
 
-      <div className="p-10 max-h-screen overflow-auto">
-        <div className="flex justify-end fixed right-10 z-50">
+      <div className="relative px-5 pt-5 pb-10 sm:px-8 sm:pt-8 xl:p-10 xl:max-h-screen xl:overflow-auto">
+        <div className="flex justify-end absolute top-5 right-5 sm:top-8 sm:right-8 xl:fixed xl:top-auto xl:right-10 z-50">
 
           <div className="w-fit">
             <LanguageWrapper language={language}>

@@ -1,43 +1,44 @@
 import { ReactNode } from "react";
 import { AuthMethod, Step } from "./activate-account-client";
 import { ArrowLeft, ArrowRight, Check, Mail, Wallet } from "lucide-react";
+import { createT, type Language } from "@/translations";
 
 interface Step1Props {
   selected: AuthMethod[];
   setSelected: React.Dispatch<React.SetStateAction<AuthMethod[]>>;
   setStep: React.Dispatch<React.SetStateAction<Step>>;
   stepIndicator: ReactNode;
+  language: Language;
 }
 
 interface Option {
   id: AuthMethod;
   icon: ReactNode;
-  title: string;
-  description: string;
-  badge?: string;
+  titleKey: string;
+  descriptionKey: string;
+  badgeKey?: string;
 }
 
 const options: Option[] = [
   {
     id: "email",
     icon: <Mail className="w-5 h-5" />,
-    title: "Autenticación con email y contraseña",
-    description:
-      "Acceso tradicional seguro. Ideal para usuarios que prefieren la gestión clásica de credenciales.",
+    titleKey: "activate.step1.email.title",
+    descriptionKey: "activate.step1.email.description",
   },
   {
     id: "web3",
     icon: <Wallet className="w-5 h-5" />,
-    title: "Autenticación web3. Inicia sesión firmando un mensaje",
-    description:
-      "Acceso descentralizado rápido y ultra-seguro usando tu billetera cripto. Sin contraseñas que recordar.",
-    badge: "RECOMENDADO",
+    titleKey: "activate.step1.web3.title",
+    descriptionKey: "activate.step1.web3.description",
+    badgeKey: "activate.step1.recommended",
   },
 ];
 
 
 
-export default function Step1({ selected, setSelected, setStep, stepIndicator }: Step1Props) {
+export default function Step1({ selected, setSelected, setStep, stepIndicator, language }: Step1Props) {
+  const t = createT(language);
   return (
     <div className="w-full max-w-lg xl:max-w-xl mx-auto flex flex-col gap-4 p-4">
       {/* Progress + Header */}
@@ -49,11 +50,11 @@ export default function Step1({ selected, setSelected, setStep, stepIndicator }:
 
         {stepIndicator}
         <h1 className="text-xl font-bold text-gray-900 leading-snug">
-          Tu cuenta está casi lista
+          {t("activate.step1.title")}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Un paso antes de finalizar. Especifica cómo vas a iniciar sesión:{" "}
-          <span className="text-gray-400">(puedes cambiar esto después)</span>
+          {t("activate.step1.description")}{" "}
+          <span className="text-gray-400">{t("activate.step1.change-later")}</span>
         </p>
       </div>
 
@@ -85,14 +86,14 @@ export default function Step1({ selected, setSelected, setStep, stepIndicator }:
                   className={`text-sm font-semibold leading-snug
                     ${isSelected ? "text-gray-900" : "text-gray-700"}`}
                 >
-                  {opt.title}
+                  {t(opt.titleKey)}
                 </p>
                 <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                  {opt.description}
+                  {t(opt.descriptionKey)}
                 </p>
-                {opt.badge && (
+                {opt.badgeKey && (
                   <span className="inline-block mt-2 text-[10px] font-semibold tracking-wider text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full">
-                    {opt.badge}
+                    {t(opt.badgeKey)}
                   </span>
                 )}
               </div>
@@ -126,7 +127,7 @@ export default function Step1({ selected, setSelected, setStep, stepIndicator }:
         >
 
 
-          Confirmar selección
+          {t("activate.step1.confirm")}
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

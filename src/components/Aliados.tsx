@@ -1,7 +1,6 @@
 import Image from "next/image"
-import { getLanguageCookie } from "@/lib/cookies"
+import { getLanguage } from "@/lib/cookies"
 import { translations } from "@/translations"
-import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/AnimatedSection"
 
 const aliados = [
   { name: "ACDI", url: "https://www.acdi.org.ar", logo: "/aliados/acdi.png" },
@@ -10,43 +9,42 @@ const aliados = [
   { name: "Rootstock", url: "https://www.rsk.co", logo: "/aliados/rootstock.svg" },
 ]
 
+/** Franja compacta de aliados, pensada para ir debajo del hero como prueba social. */
 export default async function Aliados() {
-  const language = await getLanguageCookie()
+  const language = await getLanguage()
   const t = (key: string) => translations[key]?.[language] ?? key
 
   return (
-    <section className="relative overflow-hidden bg-white py-12 sm:py-16 md:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <FadeIn className="mx-auto max-w-2xl text-center mb-10 sm:mb-14">
-          <span className="inline-flex rounded-full border border-violet-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-violet-700 shadow-sm sm:px-4 sm:text-sm sm:tracking-[0.24em]">
-            {t("aliados.eyebrow")}
-          </span>
-          <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-slate-950 sm:mt-6 sm:text-4xl">
-            {t("aliados.title")}
-          </h2>
-        </FadeIn>
+    <section aria-labelledby="aliados-title" className="border-y border-violet-100 bg-white py-8 sm:py-10">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 sm:px-6 lg:flex-row lg:gap-12 lg:px-8">
+        <p
+          id="aliados-title"
+          className="shrink-0 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 sm:text-sm"
+        >
+          {t("aliados.eyebrow")}
+        </p>
 
-        <StaggerContainer className="flex flex-wrap justify-center items-center gap-12 sm:gap-16 lg:gap-24">
+        <ul className="flex flex-1 flex-wrap items-center justify-center gap-x-10 gap-y-6 sm:gap-x-14 lg:justify-between">
           {aliados.map(({ name, url, logo }) => (
-            <StaggerItem key={name}>
+            <li key={name}>
               <a
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`${name} — abre en nueva pestaña`}
-                className="group relative flex items-center justify-center h-14 w-32 sm:h-16 sm:w-40 transition-all duration-300 hover:grayscale-0 hover:opacity-100 hover:scale-105"
+                className="relative flex h-10 w-28 items-center justify-center transition-transform duration-300 hover:scale-105 sm:h-12 sm:w-32"
               >
                 <Image
                   src={logo}
                   alt={name}
                   fill
                   className="object-contain"
-                  sizes="(max-width: 640px) 128px, 160px"
+                  sizes="(max-width: 640px) 112px, 128px"
                 />
               </a>
-            </StaggerItem>
+            </li>
           ))}
-        </StaggerContainer>
+        </ul>
       </div>
     </section>
   )
