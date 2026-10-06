@@ -35,14 +35,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description: t('meta.home.og-description'),
       url: getAbsoluteUrl(`/${language}`),
-      images: [
-        {
-          url: siteConfig.ogImage,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
     },
   }
 }
@@ -58,7 +50,7 @@ export default async function Home({ params }: PageProps) {
         '@id': `${siteConfig.siteUrl}/#organization`,
         name: siteConfig.name,
         url: siteConfig.siteUrl,
-        logo: getAbsoluteUrl('/images/avaldao.svg'),
+        logo: getAbsoluteUrl('/images/logo.png'),
         description: siteConfig.description,
       },
       {

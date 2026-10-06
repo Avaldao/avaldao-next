@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProjectTimeline from "@/components/ProjectTimeline";
-import { getLanguageAlternates } from "@/lib/seo";
+import { getAbsoluteUrl, getLanguageAlternates, openGraphLocales, siteConfig } from "@/lib/seo";
 import { translations } from "@/translations";
-import { Language, localizeHref } from "@/translations/locales";
+import { Language, languages, localizeHref } from "@/translations/locales";
 import Link from "next/link";
 import { Clock, Wrench, ArrowLeft } from "lucide-react";
 
@@ -18,6 +18,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: t("meta.invest.title"),
     description: t("meta.invest.description"),
     alternates: getLanguageAlternates("/invertir", language),
+    openGraph: {
+      type: "website",
+      siteName: siteConfig.name,
+      locale: openGraphLocales[language],
+      alternateLocale: languages.filter((l) => l !== language).map((l) => openGraphLocales[l]),
+      title: t("meta.invest.title"),
+      description: t("meta.invest.description"),
+      url: getAbsoluteUrl(localizeHref("/invertir", language)),
+    },
   };
 }
 
