@@ -38,6 +38,7 @@ export default function NavLinks({ language }: { language: Language }) {
   const items: NavItem[] = status == "authenticated"
     ? [
       { href: "/dashboard", label: t("nav.dashboard") },
+      { href: "/guarantees", label: t("sidebar.avales") },
       ...(isAdmin ? [{ href: "/staff/users", label: t("nav.users") }] : []),
     ]
     : [

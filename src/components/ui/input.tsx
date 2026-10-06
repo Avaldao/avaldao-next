@@ -1,13 +1,16 @@
 import React, { ReactNode } from "react";
+import FieldError from "./field-error";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   leading?: ReactNode;
   trailing?: ReactNode;
+  /** Colapsa el espacio del error cuando no hay error (con animación). */
+  compactError?: boolean;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, trailing, error, ...props }, ref) => (
+  ({ className, trailing, error, compactError = false, ...props }, ref) => (
     <>
       <div className="relative">
         <input
@@ -26,9 +29,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {trailing}
         </div>
       </div>
-      <div className="text-sm text-red-500 mt-1 mb-2 ml-1 overflow-hidden transition-all duration-300 min-h-[0.5rem]">
-        {error}
-      </div>
+      <FieldError error={error} compact={compactError} />
     </>
   )
 );
