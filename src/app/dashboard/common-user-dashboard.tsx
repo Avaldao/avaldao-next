@@ -60,34 +60,34 @@ function MisAvalesTable({ avales }: { avales: Aval[] }) {
       <table className="min-w-full divide-y divide-gray-100">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Fecha</th>
-            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Proyecto</th>
-            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Red</th>
-            <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Monto</th>
-            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Estado</th>
-            <th className="px-4 py-3" />
+            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Fecha</th>
+            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Proyecto</th>
+            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Red</th>
+            <th className="px-3 py-3 sm:px-4 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Monto</th>
+            <th className="px-3 py-3 sm:px-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Estado</th>
+            <th className="px-3 py-3 sm:px-4" />
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100 bg-white">
           {avales.map((aval) => (
             <tr key={aval._id} className="transition-colors hover:bg-slate-50">
-              <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
+              <td className="whitespace-nowrap px-3 py-3 sm:px-4 text-sm text-gray-600">
                 {format(new Date(aval.createdAt), "dd/MM/yyyy")}
               </td>
-              <td className="px-4 py-3">
-                <p className="text-sm font-medium text-slate-800 truncate max-w-xs">{aval.proyecto}</p>
+              <td className="px-3 py-3 sm:px-4">
+                <p className="text-sm font-medium text-slate-800 truncate max-w-40 sm:max-w-xs">{aval.proyecto}</p>
                 <p className="mt-0.5 text-xs text-gray-400 line-clamp-1">{aval.objetivo}</p>
               </td>
-              <td className="whitespace-nowrap px-4 py-3">
+              <td className="whitespace-nowrap px-3 py-3 sm:px-4">
                 <NetworkChip chainId={aval.chainId} />
               </td>
-              <td className="whitespace-nowrap px-4 py-3 text-right text-sm font-semibold text-slate-600">
+              <td className="whitespace-nowrap px-3 py-3 sm:px-4 text-right text-sm font-semibold text-slate-600">
                 ${(aval.montoFiat / 100).toFixed(2)}
               </td>
-              <td className="whitespace-nowrap px-4 py-3">
+              <td className="whitespace-nowrap px-3 py-3 sm:px-4">
                 <AvalStatusChip status={aval.status} variant="compact" />
               </td>
-              <td className="whitespace-nowrap px-4 py-3 text-center">
+              <td className="whitespace-nowrap px-3 py-3 sm:px-4 text-center">
                 <Link
                   href={`/avales/${aval._id}`}
                   className="inline-flex items-center justify-center rounded-lg bg-secondary p-1.5 text-white transition-colors hover:bg-secondary-accent"
@@ -122,16 +122,16 @@ export default async function CommonUserDashboard() {
   return (
     <div className="max-w-4xl space-y-6">
       {/* Greeting */}
-      <div className="border-b border-slate-100 pb-6">
+      <div className="border-b border-slate-100 pb-4 sm:pb-6">
         <div className="flex items-start gap-3">
           <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
             <LayoutDashboard className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
+            <p className="text-xs font-medium uppercase tracking-wider sm:tracking-widest text-slate-400">
               {formatDate()}
             </p>
-            <h1 className="mt-0.5 text-2xl font-bold text-slate-800">
+            <h1 className="mt-0.5 text-xl sm:text-2xl font-bold text-slate-800">
               {getGreeting()}{firstName ? `, ${firstName}` : ""}
             </h1>
             <p className="mt-1 text-sm text-slate-500">
