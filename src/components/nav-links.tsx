@@ -3,13 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import { Language, translations } from "@/translations";
 import { localizeHref } from "@/translations/locales";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useDisconnect } from "@reown/appkit/react";
+// Side effect: inicializa AppKit (createAppKit) para poder usar sus hooks acá.
+import "@/context/appkit-context";
+import { LogOut, Menu, Settings, UserIcon, X } from "lucide-react";
 import { LanguageToggle } from "@/translations/LanguageToggle";
+import NetworkRoles from "@/components/ui/layout/network-roles";
 
 const linkClass = "whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 xl:px-4 xl:text-base";
+const accountLinkClass = "flex items-center px-2 py-3 text-base font-medium text-slate-700 transition-colors duration-200 hover:bg-violet-50 hover:text-violet-700";
 const mobileLinkClass = "block px-2 py-3 text-base font-medium text-slate-700 transition-colors duration-200 hover:bg-violet-50 hover:text-violet-700";
 
 interface NavItem {
@@ -34,6 +39,17 @@ export default function NavLinks({ language }: { language: Language }) {
     false;
 
   const t = (key: string) => translations[key]?.[language] ?? key;
+  const router = useRouter();
+  const { disconnect } = useDisconnect();
+  const user = session?.user;
+  const address = user?.address;
+
+  const handleSignOut = async () => {
+    setOpen(false);
+    signOut({ callbackUrl: "/" });
+    await disconnect();
+    router.push("/");
+  };
 
   const items: NavItem[] = status == "authenticated"
     ? [
@@ -96,9 +112,50 @@ export default function NavLinks({ language }: { language: Language }) {
             className="absolute inset-x-0 top-full max-h-[calc(100dvh-56px)] sm:max-h-[calc(100dvh-75px)] overflow-y-auto rounded-b-2xl border-b border-violet-100/50 bg-white px-4 pb-4 pt-1 shadow-xl sm:px-6"
           >
             <div className="mx-auto flex max-w-7xl flex-col">
+              {status === "authenticated" && user && (
+                <div className="flex items-center gap-3 border-b border-slate-100 py-3">
+                  {user.avatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={user.avatar} alt="" className="h-12 w-12 shrink-0 rounded-full object-cover shadow-sm" />
+                  ) : (
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-lg font-bold text-white">
+                      {user.name?.substring(0, 1)?.toUpperCase() || "U"}
+                    </div>
+                  )}
+                  <div className="min-w-0 text-xs">
+                    <div className="truncate text-sm font-semibold text-gray-900">{user.name || "User"}</div>
+                    {user.email && <div className="truncate text-gray-500">{user.email}</div>}
+                    {address && (
+                      <div className="font-mono text-gray-500">{`${address.slice(0, 6)}...${address.slice(-4)}`}</div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col divide-y divide-slate-100">
                 {items.map((item) => renderLink(item, mobileLinkClass, () => setOpen(false)))}
               </div>
+
+              {status === "authenticated" && (
+                <>
+                  <NetworkRoles nroles={user?.nroles} className="border-t border-slate-100 py-3" />
+                  <div className="flex flex-col divide-y divide-slate-100 border-t border-slate-100">
+                    <Link href="/user/profile" onClick={() => setOpen(false)} className={accountLinkClass}>
+                      <UserIcon className="mr-3 h-4 w-4" />{t("nav.profile")}
+                    </Link>
+                    <Link href="/settings" onClick={() => setOpen(false)} className={accountLinkClass}>
+                      <Settings className="mr-3 h-4 w-4" />{t("nav.settings")}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="flex items-center px-2 py-3 text-left text-base font-medium text-red-600 transition-colors hover:bg-red-50"
+                    >
+                      <LogOut className="mr-3 h-4 w-4" />{t("nav.signout")}
+                    </button>
+                  </div>
+                </>
+              )}
 
               <div className="flex items-center gap-3 border-t border-slate-100 pt-3">
                 {status === "unauthenticated" && (

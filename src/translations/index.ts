@@ -76,6 +76,18 @@ export const translations: Translations = {
     es: 'Cerrar menú',
     en: 'Close menu'
   },
+  "nav.profile": {
+    es: 'Perfil',
+    en: 'Profile'
+  },
+  "nav.settings": {
+    es: 'Configuración',
+    en: 'Settings'
+  },
+  "nav.signout": {
+    es: 'Cerrar sesión',
+    en: 'Sign out'
+  },
   "nav.login": {
     es: 'Iniciar sesión',
     en: 'Log in'
