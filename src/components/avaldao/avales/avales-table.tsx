@@ -14,13 +14,16 @@ interface TableProps<T extends { _id: string }> {
   getValues: (item: T) => ReactNode[];
   items: T[];
   itemsPerPage?: number;
+  /** Si se pasa, en mobile (< md) se muestran tarjetas en lugar de la tabla. */
+  renderCard?: (item: T) => ReactNode;
 }
 
 export function Table<T extends { _id: string }>({
   columns,
   getValues,
   items,
-  itemsPerPage = 10
+  itemsPerPage = 10,
+  renderCard
 }: TableProps<T>) {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [currentItems, setCurrentItems] = useState<T[]>([]);
@@ -39,7 +42,15 @@ export function Table<T extends { _id: string }>({
   return (
     <>
       <div className="max-w-[100vw] xl:max-w-7xl overflow-auto pb-3 w-full mx-auto">
-        <table className="min-w-full divide-y divide-gray-200 shadow-md rounded-lg overflow-hidden">
+        {renderCard && (
+          <ul className="space-y-3 md:hidden">
+            {currentItems?.map((item: T) => (
+              <li key={item._id}>{renderCard(item)}</li>
+            ))}
+          </ul>
+        )}
+
+        <table className={clsx("min-w-full divide-y divide-gray-200 shadow-md rounded-lg overflow-hidden", renderCard && "hidden md:table")}>
           <thead className="bg-gray-100">
             <tr>
               {columns}
@@ -197,6 +208,36 @@ const NetworkChip = ({ chainId }: { chainId: Aval["chainId"] }) => {
   );
 };
 
+// Tarjeta de un aval para mobile: toda la tarjeta es un link al detalle
+const AvalCard = ({ aval }: { aval: Aval }) => {
+  return (
+    <Link
+      href={`/avales/${aval._id}`}
+      className="block rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors active:bg-slate-50"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="min-w-0 flex-1 font-semibold text-slate-800 line-clamp-2 break-words">{aval.proyecto}</h3>
+        <AvalStatusChip status={aval.status} variant="compact" className="shrink-0" />
+      </div>
+      <p className="mt-1 text-sm text-slate-500 line-clamp-2">{aval.objetivo}</p>
+
+      <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+        <span className="text-base font-semibold text-slate-700">${(aval.montoFiat / 100).toFixed(2)}</span>
+        <ParticipantAvatars
+          solicitante={aval.solicitanteAddress}
+          comerciante={aval.comercianteAddress}
+          avalado={aval.avaladoAddress}
+        />
+      </div>
+
+      <div className="mt-2 flex items-center justify-between gap-2 text-xs text-slate-400">
+        <span>{format(new Date(aval.createdAt), "dd/MM/yyyy")}</span>
+        <NetworkChip chainId={aval.chainId} />
+      </div>
+    </Link>
+  );
+};
+
 // Componente específico para la tabla de avales
 export const AvalTable = ({ avales }: { avales: Aval[] }) => {
   const columns = [
@@ -259,6 +300,7 @@ export const AvalTable = ({ avales }: { avales: Aval[] }) => {
       getValues={getValues}
       items={avales}
       itemsPerPage={10}
+      renderCard={(aval) => <AvalCard aval={aval} />}
     />
   );
 };
