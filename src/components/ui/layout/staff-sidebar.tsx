@@ -104,13 +104,13 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
       >
         {!collapsed && (
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            Menú
+            {t("staff.sidebar.menu")}
           </span>
         )}
         <button
           onClick={toggle}
           className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-          title={collapsed ? "Expandir menú" : "Colapsar menú"}
+          title={collapsed ? t("staff.sidebar.expand") : t("staff.sidebar.collapse")}
         >
           <PanelRight className="h-4 w-4" />
         </button>
@@ -175,7 +175,7 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
       </nav>
 
       {/* Network roles — expanded */}
-      {!collapsed && <NetworkRoles nroles={nroles} className="absolute bottom-5 left-3 right-3" />}
+      {!collapsed && <NetworkRoles nroles={nroles} language={language} className="absolute bottom-5 left-3 right-3" />}
 
       {/* Network roles — collapsed (compact) */}
       {collapsed && (
@@ -183,7 +183,7 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
           {networks.map((network) => {
             const count = nroles?.[network.id as "30" | "31"]?.length ?? 0;
             const roles = nroles?.[network.id as "30" | "31"] ?? [];
-            const tooltip = `${network.name}\n${roles.length ? roles.map((r) => r.replaceAll("_", " ")).join(", ") : "No permissions"}`;
+            const tooltip = `${network.name}\n${roles.length ? roles.map((r) => r.replaceAll("_", " ")).join(", ") : t("staff.roles.none-short")}`;
             return (
               <div
                 key={network.id}

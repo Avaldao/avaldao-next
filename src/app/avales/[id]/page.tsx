@@ -224,7 +224,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                     >
                       {shortenAddress(addr)}
                     </a>
-                    <CopyAddress address={addr} />
+                    <CopyAddress address={addr} language={language} />
                   </div>
                   {signature && (
                     <div className="flex items-center gap-1.5 text-xs text-slate-500">

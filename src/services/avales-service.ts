@@ -10,6 +10,7 @@ import { pinata } from "@/lib/pinata";
 import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
 import { contractsAddress } from "@/blockchain/contracts";
 import avalAbi from "@/blockchain/contracts/avaldao/aval.abi";
+import NotificationsService from "@/services/notifications-service";
 import { AvalTerminos, generateTerminos } from "@/app/entities/aval-terms.entity";
 
 export type AvalRoleEnum = "avaldao" | "solicitante" | "comerciante" | "avalado";
@@ -259,6 +260,10 @@ export default class AvalesService {
     // Recargado para devolver el aval con infoCid y términos ya persistidos.
     const stored = await AvalModel.findById(result._id);
     if (!stored) throw new Error("Aval not found");
+
+    // Avisa al Avaldao que hay un aval para evaluar (no lanza ante fallas de email).
+    await new NotificationsService().notifyNewAval(stored);
+
     return stored;
   }
 

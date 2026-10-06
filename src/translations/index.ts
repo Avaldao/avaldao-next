@@ -5,6 +5,7 @@ export interface Translations {
   };
 }
 
+import type { Language } from './locales';
 export type { Language } from './locales';
 
 export const translations: Translations = {
@@ -1312,6 +1313,139 @@ export const translations: Translations = {
   "tx.copy.error.title": { es: "Error en transacción", en: "Transaction error" },
   "tx.copy.error.description": { es: "Ocurrió un error durante la transacción. Intentá de nuevo.", en: "An error occurred during the transaction. Please try again." },
 
+  // Transaction tracker (errores del hook y fallbacks)
+  "tx.error.unknown": { es: "Error desconocido", en: "Unknown error" },
+  "tx.error.no-wallet": { es: "No hay ninguna wallet conectada", en: "No wallet connected" },
+  "tx.error.wrong-network": { es: "La wallet está en otra red y no se pudo cambiar", en: "Wallet is on a different network and could not be switched" },
+  "tx.error.no-provider": { es: "Error desconocido. No se pudo obtener el provider para verificar el motivo", en: "Unknown error. Unable to get provider to check reason" },
+  "tx.info.unknown-network": { es: "Red desconocida", en: "Unknown network" },
+
+  // Estados del aval
+  "aval.status.solicitado": { es: "Solicitado", en: "Requested" },
+  "aval.status.rechazado": { es: "Rechazado", en: "Rejected" },
+  "aval.status.aceptado": { es: "Aceptado", en: "Accepted" },
+  "aval.status.vigente": { es: "Vigente", en: "Active" },
+  "aval.status.finalizado": { es: "Finalizado", en: "Finalized" },
+
+  // Dashboard (usuario común y admin)
+  "dashboard.greeting.morning": { es: "Buenos días", en: "Good morning" },
+  "dashboard.greeting.afternoon": { es: "Buenas tardes", en: "Good afternoon" },
+  "dashboard.greeting.evening": { es: "Buenas noches", en: "Good evening" },
+  "dashboard.subtitle.user": { es: "Plataforma Avaldao · Tu panel personal", en: "Avaldao Platform · Your personal dashboard" },
+  "dashboard.subtitle.admin": { es: "Plataforma Avaldao · Panel de administración", en: "Avaldao Platform · Admin panel" },
+  "dashboard.my-avales": { es: "Mis Avales", en: "My Avales" },
+  "dashboard.avales-count.one": { es: "{{n}} aval", en: "{{n}} aval" },
+  "dashboard.avales-count.other": { es: "{{n}} avales", en: "{{n}} avales" },
+  "dashboard.empty.title": { es: "No participás en ningún aval todavía", en: "You are not part of any aval yet" },
+  "dashboard.empty.description": { es: "Cuando participes en un aval, aparecerá aquí", en: "When you take part in an aval, it will show up here" },
+  "dashboard.col.date": { es: "Fecha", en: "Date" },
+  "dashboard.col.project": { es: "Proyecto", en: "Project" },
+  "dashboard.col.network": { es: "Red", en: "Network" },
+  "dashboard.col.amount": { es: "Monto", en: "Amount" },
+  "dashboard.col.status": { es: "Estado", en: "Status" },
+  "dashboard.view-details": { es: "Ver detalles", en: "View details" },
+
+  // Tabla de avales
+  "avales-table.col.created-at": { es: "Fecha creación", en: "Created" },
+  "avales-table.col.project": { es: "Proyecto", en: "Project" },
+  "avales-table.col.network": { es: "Red", en: "Network" },
+  "avales-table.col.amount": { es: "Monto", en: "Amount" },
+  "avales-table.col.status": { es: "Estado", en: "Status" },
+  "avales-table.col.actions": { es: "Acciones", en: "Actions" },
+  "avales-table.empty": { es: "No hay avales para mostrar", en: "No avales to show" },
+  "avales-table.view-details": { es: "Ver detalles del aval", en: "View aval details" },
+  "avales-table.range": { es: "{{from}}-{{to}} de {{total}}", en: "{{from}}-{{to}} of {{total}}" },
+  "avales-table.pagination": { es: "Paginación de la tabla", en: "Table pagination" },
+  "avales-table.role.solicitante": { es: "Solicitante", en: "Applicant" },
+  "avales-table.role.comerciante": { es: "Comerciante", en: "Merchant" },
+  "avales-table.role.avalado": { es: "Avalado", en: "Guaranteed party" },
+
+  // Staff
+  "staff.users.title": { es: "Usuarios", en: "Users" },
+  "staff.users.description": { es: "Gestión de usuarios de la plataforma", en: "Platform user management" },
+  "staff.users.load-error": { es: "No podemos recuperar los usuarios en este momento. Intentá nuevamente más tarde.", en: "We can't retrieve users right now. Please try again later." },
+  "staff.users.status.active": { es: "Activos", en: "Active" },
+  "staff.users.status.pending": { es: "Pendientes", en: "Pending" },
+  "staff.users.status.rejected": { es: "Rechazados", en: "Rejected" },
+  "staff.users.status.suspended": { es: "Suspendidos", en: "Suspended" },
+  "staff.users.empty": { es: "No hay usuarios con estado {{status}}.", en: "There are no users with status {{status}}." },
+  "staff.users.col.name": { es: "Nombre", en: "Name" },
+  "staff.users.col.email": { es: "Email", en: "Email" },
+  "staff.users.col.address": { es: "Address", en: "Address" },
+  "staff.users.col.roles": { es: "Roles", en: "Roles" },
+  "staff.users.col.actions": { es: "Acciones", en: "Actions" },
+  "staff.users.view-details": { es: "Ver detalles del usuario", en: "View user details" },
+  "staff.users.range": { es: "{{from}}-{{to}} de {{total}}", en: "{{from}}-{{to}} of {{total}}" },
+  "staff.users.prev": { es: "Anterior", en: "Previous" },
+  "staff.users.next": { es: "Siguiente", en: "Next" },
+  "staff.users.page": { es: "Página {{page}} de {{total}}", en: "Page {{page}} of {{total}}" },
+  "staff.user.not-found": { es: "Usuario no encontrado", en: "User not found" },
+  "staff.user.avatar": { es: "Avatar", en: "Avatar" },
+  "staff.user.name": { es: "Nombre", en: "Name" },
+  "staff.user.website": { es: "Sitio web", en: "Website" },
+  "staff.user.no-roles": { es: "Sin roles en esta red", en: "No roles on this network" },
+  "staff.roles.manage": { es: "Gestionar roles", en: "Manage roles" },
+  "staff.roles.save": { es: "Guardar cambios ({{add}} a agregar, {{remove}} a quitar)", en: "Save changes ({{add}} to add, {{remove}} to remove)" },
+  "staff.roles.connect-wallet": { es: "Conectar wallet", en: "Connect wallet" },
+  "staff.roles.tx-hint": { es: "Confirmá la transacción en tu wallet para actualizar los roles del usuario.", en: "Confirm the transaction in your wallet to update the user's roles." },
+  "staff.roles.count": { es: "{{n}} roles", en: "{{n}} roles" },
+  "staff.roles.none": { es: "Sin permisos asignados", en: "No permissions assigned" },
+  "staff.roles.none-short": { es: "Sin permisos", en: "No permissions" },
+  "staff.sidebar.menu": { es: "Menú", en: "Menu" },
+  "staff.sidebar.expand": { es: "Expandir menú", en: "Expand menu" },
+  "staff.sidebar.collapse": { es: "Colapsar menú", en: "Collapse menu" },
+
+  // Activar cuenta
+  "activate.step1.title": { es: "Tu cuenta está casi lista", en: "Your account is almost ready" },
+  "activate.step1.description": { es: "Un paso antes de finalizar. Especificá cómo vas a iniciar sesión:", en: "One step before finishing. Choose how you will sign in:" },
+  "activate.step1.change-later": { es: "(podés cambiar esto después)", en: "(you can change this later)" },
+  "activate.step1.email.title": { es: "Autenticación con email y contraseña", en: "Email and password authentication" },
+  "activate.step1.email.description": { es: "Acceso tradicional y seguro. Ideal para usuarios que prefieren la gestión clásica de credenciales.", en: "Traditional, secure access. Ideal for users who prefer classic credential management." },
+  "activate.step1.web3.title": { es: "Autenticación web3. Iniciá sesión firmando un mensaje", en: "Web3 authentication. Sign in by signing a message" },
+  "activate.step1.web3.description": { es: "Acceso descentralizado, rápido y ultra seguro usando tu wallet cripto. Sin contraseñas que recordar.", en: "Fast, ultra-secure decentralized access using your crypto wallet. No passwords to remember." },
+  "activate.step1.recommended": { es: "RECOMENDADO", en: "RECOMMENDED" },
+  "activate.step1.confirm": { es: "Confirmar selección", en: "Confirm selection" },
+  "activate.step2.description": { es: "Elegí una contraseña segura para tu cuenta.", en: "Choose a strong password for your account." },
+  "activate.step2.change-later": { es: "(podés cambiarla después)", en: "(you can change it later)" },
+  "activate.step2.password": { es: "Contraseña", en: "Password" },
+  "activate.step2.password.placeholder": { es: "Mínimo 8 caracteres", en: "At least 8 characters" },
+  "activate.step2.confirm": { es: "Confirmar contraseña", en: "Confirm password" },
+  "activate.step2.confirm.placeholder": { es: "Repetí tu contraseña", en: "Repeat your password" },
+  "activate.step2.show": { es: "Mostrar contraseña", en: "Show password" },
+  "activate.step2.hide": { es: "Ocultar contraseña", en: "Hide password" },
+  "activate.step2.strength.1": { es: "Débil", en: "Weak" },
+  "activate.step2.strength.2": { es: "Aceptable", en: "Fair" },
+  "activate.step2.strength.3": { es: "Buena", en: "Good" },
+  "activate.step2.strength.4": { es: "Fuerte", en: "Strong" },
+  "activate.step2.match": { es: "Las contraseñas coinciden", en: "Passwords match" },
+  "activate.step2.mismatch": { es: "Las contraseñas no coinciden", en: "Passwords do not match" },
+  "activate.step2.hint": { es: "Usá una contraseña de al menos 8 caracteres. Para mayor seguridad, combiná mayúsculas y minúsculas, números y caracteres especiales (por ejemplo: !, @, #, $).", en: "Use a password of at least 8 characters. For extra security, combine upper and lower case letters, numbers and special characters (for example: !, @, #, $)." },
+  "activate.step2.continue": { es: "Continuar", en: "Continue" },
+  "activate.step3.title": { es: "Conectá tu wallet y firmá el mensaje", en: "Connect your wallet and sign the message" },
+  "activate.step3.description": { es: "No se realizarán transacciones ni se cobrará ninguna tarifa. Esto es solo para verificar que sos el propietario de la wallet.", en: "No transactions will be made and no fees will be charged. This is only to verify that you own the wallet." },
+  "activate.step3.connected": { es: "Wallet conectada", en: "Wallet connected" },
+  "activate.step3.disconnect": { es: "Desconectar wallet", en: "Disconnect wallet" },
+  "activate.step3.connect": { es: "Conectar wallet", en: "Connect wallet" },
+  "activate.step3.sign": { es: "Firmar mensaje", en: "Sign message" },
+  "activate.step3.submit": { es: "Enviar", en: "Submit" },
+  "activate.submitting.title": { es: "Activando tu cuenta", en: "Activating your account" },
+  "activate.submitting.description": { es: "Estamos activando tu cuenta. Esto puede tardar unos segundos, por favor no cierres esta ventana ni actualices la página.", en: "We are activating your account. This may take a few seconds, please do not close this window or refresh the page." },
+  "activate.success.title": { es: "¡Cuenta activada con éxito!", en: "Account activated successfully!" },
+  "activate.success.description": { es: "Tu cuenta fue activada correctamente. Ya podés iniciar sesión y empezar a usar la plataforma.", en: "Your account was activated successfully. You can now sign in and start using the platform." },
+  "activate.success.alt": { es: "Cuenta activada", en: "Account activated" },
+  "activate.success.login": { es: "Iniciar sesión", en: "Sign in" },
+  "activate.error.title": { es: "Error al activar la cuenta", en: "Error activating the account" },
+  "activate.error.description": { es: "Ocurrió un error durante el proceso de activación. Por favor, intentá de nuevo más tarde.", en: "An error occurred during the activation process. Please try again later." },
+  "activate.error.generic": { es: "Error al activar la cuenta. Por favor, intentá de nuevo.", en: "Error activating the account. Please try again." },
+  "activate.error.details": { es: "Detalles:", en: "Details:" },
+  "activate.error.alt": { es: "Error", en: "Error" },
+  "activate.error.retry": { es: "Reintentar", en: "Retry" },
+
+  // Común
+  "common.copy": { es: "Copiar", en: "Copy" },
+  "common.copied": { es: "¡Copiado!", en: "Copied!" },
+  "profile.updated": { es: "Perfil actualizado exitosamente", en: "Profile updated successfully" },
+
   // Aval form (new aval)
   "aval.form.project": { es: "Proyecto", en: "Project" },
   "aval.form.objective": { es: "Objetivo", en: "Objective" },
@@ -1410,4 +1544,18 @@ export const translations: Translations = {
     "es": "Firma este mensaje para verificar tu billetera en AvalDAO.\n\nEsta firma no genera costos ni transacciones.\n\nNonce: {{nonce}}\nExpira: {{expiry}}",
     "en": "Sign this message to verify your wallet on AvalDAO.\n\nThis signature does not create a transaction or incur gas fees.\n\nNonce: {{nonce}}\nExpires: {{expiry}}"
   }
+}
+
+
+/** Devuelve una función `t` para un idioma fijo. Pensada para server components y props `language`. */
+export function createT(language: Language) {
+  return (key: string, params?: Record<string, string>): string => {
+    let value = translations[key]?.[language] || key;
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        value = value.replace(new RegExp(`{{${k}}}`, 'g'), v);
+      });
+    }
+    return value;
+  };
 }

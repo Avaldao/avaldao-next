@@ -8,7 +8,11 @@ import { handleError } from "@/lib/auth/page-guards";
 import UsersService from "@/services/users-service";
 import { ShieldCheck, UserIcon } from "lucide-react";
 import Image from "next/image";
+import UserRolesEditor from "./user-roles-editor";
+import roles from "@/roles";
+import { getLanguage } from "@/lib/cookies";
 import { networks, NRoles } from "@/components/ui/layout/network-roles";
+import { createT } from "@/translations";
 
 interface UersDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -22,11 +26,19 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
   } catch (err) {
     handleError(err);
   }
+  let isAdmin = true;
+  try {
+    await requireRoles("ADMIN_ROLE");
+  } catch {
+    isAdmin = false;
+  }
+  const language = await getLanguage();
+  const t = createT(language);
   const user = await new UsersService().getUser(id, { resolveInfoCid: true });
 
   if (!user) {
     return (
-      <div> User not found</div>
+      <div>{t("staff.user.not-found")}</div>
     )
   }
 
@@ -36,16 +48,16 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
         title={user.name}
         description={user.email}
         icon={<UserIcon className="h-5 w-5" />}
-        breadcrumbs={[{ label: "Usuarios", href: "/staff/users" }, { label: user.name }]}
+        breadcrumbs={[{ label: t("staff.users.title"), href: "/staff/users" }, { label: user.name }]}
       />
       <div>
         {user.avatar && (
           <>
-            <Label htmlFor="avatar">Avatar</Label>
+            <Label htmlFor="avatar">{t("staff.user.avatar")}</Label>
             <div className="mb-3 flex justify-center md:justify-start">
               <Image
                 src={user.avatar}
-                alt="User avatar"
+                alt={t("staff.user.avatar")}
                 width={150}
                 height={150}
                 className={`w-40 h-40 rounded-full shadow-sm object-cover object-center border border-gray-200 md:ml-3`}
@@ -55,7 +67,7 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
         )}
 
         <div>
-          <Label htmlFor="name">Nombre</Label>
+          <Label htmlFor="name">{t("staff.user.name")}</Label>
           <Input
             id="name"
             readOnly
@@ -71,7 +83,7 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
           />
         </div>
         <div>
-          <Label htmlFor="website">Website</Label>
+          <Label htmlFor="website">{t("staff.user.website")}</Label>
           <Input
             id="website"
             readOnly
@@ -79,17 +91,17 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
           />
         </div>
         <div>
-          <Label htmlFor="address">Address</Label>
+          <Label htmlFor="address">{t("staff.users.col.address")}</Label>
           <Input
             id="address"
             readOnly
             value={shortenAddress(user.address)}
             className="pr-12"
-            trailing={<CopyAddress address={user.address} className="" />}
+            trailing={<CopyAddress address={user.address} className="" language={language} />}
           />
         </div>
         <div>
-          <Label htmlFor="name">Roles</Label>
+          <Label>{t("staff.users.col.roles")}</Label>
           <div className="mt-2 divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
             {networks.map((network) => {
               const networkRoles = (user.nroles as NRoles)?.[network.id as "30" | "31"] ?? [];
@@ -111,13 +123,22 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
                         </span>
                       ))
                     ) : (
-                      <span className="text-sm italic text-gray-400">Sin roles en esta red</span>
+                      <span className="text-sm italic text-gray-400">{t("staff.user.no-roles")}</span>
                     )}
                   </div>
                 </div>
               );
             })}
           </div>
+          {isAdmin && user.address && (
+            <UserRolesEditor
+              userAddress={user.address}
+              language={language}
+              networks={networks.map(n => ({ id: Number(n.id) as 30 | 31, name: n.name }))}
+              roleOptions={Object.fromEntries([30, 31].map(c => [c, roles[c].map(({ value, label, hash, app }) => ({ value, label, hash, app }))]))}
+              currentRoles={{ 30: user.nroles?.[30] ?? [], 31: user.nroles?.[31] ?? [] }}
+            />
+          )}
         </div>
       </div>
     </div>

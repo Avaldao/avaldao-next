@@ -70,7 +70,7 @@ export default function UnlockCuotaButton({ avalAddress, solicitanteAddress, cha
       const connectedChainId = Number((await ethersProvider.getNetwork()).chainId);
       if (connectedChainId !== chainId) {
         const switched = await switchNet();
-        if (!switched) throw new Error("Wrong network");
+        if (!switched) throw new Error(t("tx.error.wrong-network"));
         ethersProvider = new BrowserProvider(walletProvider as Eip1193Provider);
       }
       const signer = await ethersProvider.getSigner();
@@ -88,6 +88,7 @@ export default function UnlockCuotaButton({ avalAddress, solicitanteAddress, cha
           explorerUrl={contractsAddress[chainId]?.explorerUrl}
           txState={txState}
           hint={t("aval.details.unlock-cuota.hint")}
+          language={language}
           onClose={() => {
             clearTxState();
             setShowTxTracker(false);

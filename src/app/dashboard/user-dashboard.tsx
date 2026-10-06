@@ -1,16 +1,17 @@
 "use client";
 
 import { LayoutDashboard } from "lucide-react";
+import { createT, type Language } from "@/translations";
 
-function getGreeting() {
+function getGreeting(t: ReturnType<typeof createT>) {
   const hour = new Date().getHours();
-  if (hour < 12) return "Buenos días";
-  if (hour < 19) return "Buenas tardes";
-  return "Buenas noches";
+  if (hour < 12) return t("dashboard.greeting.morning");
+  if (hour < 19) return t("dashboard.greeting.afternoon");
+  return t("dashboard.greeting.evening");
 }
 
-function formatDate() {
-  return new Date().toLocaleDateString("es-AR", {
+function formatDate(language: Language) {
+  return new Date().toLocaleDateString(language === "en" ? "en-US" : "es-AR", {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -18,7 +19,8 @@ function formatDate() {
   });
 }
 
-export default function UserDashboard({ userName }: { userName: string }) {
+export default function UserDashboard({ userName, language }: { userName: string; language: Language }) {
+  const t = createT(language);
   const firstName = userName.split(" ")[0];
 
   return (
@@ -29,13 +31,13 @@ export default function UserDashboard({ userName }: { userName: string }) {
         </div>
         <div>
           <p className="text-xs font-medium uppercase tracking-wider sm:tracking-widest text-slate-400">
-            {formatDate()}
+            {formatDate(language)}
           </p>
           <h1 className="mt-0.5 text-xl sm:text-2xl font-bold text-slate-800">
-            {getGreeting()}{firstName ? `, ${firstName}` : ""}
+            {getGreeting(t)}{firstName ? `, ${firstName}` : ""}
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Plataforma Avaldao · Panel de administración
+            {t("dashboard.subtitle.admin")}
           </p>
         </div>
       </div>

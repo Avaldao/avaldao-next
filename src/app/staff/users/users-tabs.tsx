@@ -9,21 +9,23 @@ import CopyAddress from "@/components/copy-address";
 import { shortenAddress } from "@/utils";
 import type { UserStatus } from "@/lib/db/models/user-model";
 import type { PaginatedResult, UserInfo } from "@/types";
-import IPFSUserAvatar from "./ipfs-user-avatar";
+import { createT, type Language } from "@/translations";
 
 interface UsersTabsProps {
   usersByStatus: Record<UserStatus, PaginatedResult<UserInfo>>;
   selectedStatus: UserStatus;
+  language: Language;
 }
 
-const tabs: Array<{ status: UserStatus; label: string }> = [
-  { status: "active", label: "Active" },
-  { status: "pending", label: "Pending" },
-  { status: "rejected", label: "Rejected" },
-  { status: "suspended", label: "Suspended" },
+const tabs: Array<{ status: UserStatus; labelKey: string }> = [
+  { status: "active", labelKey: "staff.users.status.active" },
+  { status: "pending", labelKey: "staff.users.status.pending" },
+  { status: "rejected", labelKey: "staff.users.status.rejected" },
+  { status: "suspended", labelKey: "staff.users.status.suspended" },
 ];
 
-export default function UsersTabs({ usersByStatus, selectedStatus }: UsersTabsProps) {
+export default function UsersTabs({ usersByStatus, selectedStatus, language }: UsersTabsProps) {
+  const t = createT(language);
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -57,7 +59,7 @@ export default function UsersTabs({ usersByStatus, selectedStatus }: UsersTabsPr
               
               "
           >
-            <span>{tab.label}</span>
+            <span>{t(tab.labelKey)}</span>
             <span className="ml-2 rounded-full bg-slate-200 px-2 py-0.5 text-xs text-slate-700 data-selected:bg-slate-900 data-selected:text-white">
               {usersByStatus[tab.status]?.totalItems ?? 0}
             </span>
@@ -70,7 +72,8 @@ export default function UsersTabs({ usersByStatus, selectedStatus }: UsersTabsPr
           <TabPanel key={tab.status} className="focus:outline-none md:min-h-[700px]">
             <UsersTable
               paginatedUsers={usersByStatus[tab.status]}
-              emptyLabel={tab.label}
+              emptyLabel={t(tab.labelKey)}
+              language={language}
               onPageChange={(page) => updateSearchParams({
                 status: tab.status,
                 [`${tab.status}Page`]: String(page),
@@ -86,18 +89,21 @@ export default function UsersTabs({ usersByStatus, selectedStatus }: UsersTabsPr
 function UsersTable({
   paginatedUsers,
   emptyLabel,
+  language,
   onPageChange,
 }: {
   paginatedUsers: PaginatedResult<UserInfo>;
   emptyLabel: string;
+  language: Language;
   onPageChange: (page: number) => void;
 }) {
+  const t = createT(language);
   const { items: users, page, pageSize, totalItems, totalPages } = paginatedUsers;
 
   if (users.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">
-        No hay usuarios con estado {emptyLabel.toLowerCase()}.
+        {t("staff.users.empty", { status: emptyLabel.toLowerCase() })}
       </div>
     );
   }
@@ -136,12 +142,12 @@ function UsersTable({
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-50 text-left text-sm font-medium text-slate-500">
             <tr>
-              <th className="px-4 py-3">Nombre</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Address</th>
-              <th className="px-4 py-3">Roles</th>
+              <th className="px-4 py-3">{t("staff.users.col.name")}</th>
+              <th className="px-4 py-3">{t("staff.users.col.email")}</th>
+              <th className="px-4 py-3">{t("staff.users.col.address")}</th>
+              <th className="px-4 py-3">{t("staff.users.col.roles")}</th>
               <th className="px-4 py-3">
-                <span className="opacity-0">Actions</span>
+                <span className="sr-only">{t("staff.users.col.actions")}</span>
               </th>
             </tr>
           </thead>
@@ -158,7 +164,7 @@ function UsersTable({
                   <div className="flex items-center">
                     <span className="select-none">{shortenAddress(user.address)}</span>
                     <div className="invisible opacity-0 transition-all duration-200 ease-in-out group-hover:visible group-hover:opacity-100">
-                      <CopyAddress address={user.address} />
+                      <CopyAddress address={user.address} language={language} />
                     </div>
                   </div>
                 </td>
@@ -176,7 +182,7 @@ function UsersTable({
                     <Link
                       href={`/staff/users/${user.id}`}
                       className="inline-flex items-center justify-center rounded-lg bg-secondary p-2 text-white transition-colors duration-200 hover:bg-secondary-accent"
-                      title="Ver detalles del usuario"
+                      title={t("staff.users.view-details")}
                     >
                       <ChevronRight className="w-4 h-4" />
                     </Link>
@@ -190,7 +196,7 @@ function UsersTable({
 
       <div className="flex flex-col gap-3 border-t border-slate-200 px-4 py-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-center sm:text-left">
-          {startItem}-{endItem} de {totalItems}
+          {t("staff.users.range", { from: String(startItem), to: String(endItem), total: String(totalItems) })}
         </div>
         <div className="flex items-center justify-between gap-2">
           <button
@@ -200,10 +206,10 @@ function UsersTable({
             className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ChevronLeft className="h-4 w-4" />
-            Anterior
+            {t("staff.users.prev")}
           </button>
           <span className="min-w-20 text-center">
-            Página {page} de {totalPages}
+            {t("staff.users.page", { page: String(page), total: String(totalPages) })}
           </span>
           <button
             type="button"
@@ -211,7 +217,7 @@ function UsersTable({
             disabled={page === totalPages}
             className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Siguiente
+            {t("staff.users.next")}
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>

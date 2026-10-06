@@ -128,7 +128,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
     setActiveUnlockAval(aval);
     setShowTxTracker(true);
     await run(async () => {
-      if (!walletProvider) throw new Error("No wallet connected");
+      if (!walletProvider) throw new Error(t("tx.error.no-wallet"));
       let ethersProvider = new BrowserProvider(walletProvider as Eip1193Provider);
       const connectedChainId = Number((await ethersProvider.getNetwork()).chainId);
       if (connectedChainId !== chainId) {
@@ -372,6 +372,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
               explorerUrl={networkInfo.explorerUrl}
               txState={txState}
               hint={t("dashboard.platform.unlock-manual-hint")}
+              language={language}
               transactionCost={transactionCost ?? undefined}
               onClose={handleTxClose}
             />
