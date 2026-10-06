@@ -1,6 +1,6 @@
 import Page from "@/components/layout/page";
 import ProfileFormWrapper from "./profile-form-wrapper";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import { getCurrentUser } from "@/lib/auth/authorization";
 import UsersService from "@/services/users-service";
@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 
 
 export default async function ProfilePage() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
   let profile;
 

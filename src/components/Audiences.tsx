@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, HandCoins, HeartHandshake, Store, UserRound } from "lucide-react";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
+import { localizeHref } from "@/translations/locales";
 import { StaggerContainer, StaggerItem, FadeIn } from "@/components/ui/AnimatedSection";
 
 const audiences = [
@@ -12,14 +13,14 @@ const audiences = [
 ] as const;
 
 export default async function Audiences() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (
     <section id="aval" className="relative scroll-mt-20 overflow-hidden bg-white py-12 sm:py-16 md:py-20 lg:py-24">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeIn className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex rounded-full border border-violet-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-violet-700 shadow-sm sm:px-4 sm:text-sm sm:tracking-[0.24em]">
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-700 sm:text-sm sm:tracking-[0.24em]">
             {t("audiences.eyebrow")}
           </span>
           <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-slate-950 sm:mt-6 sm:text-4xl md:text-5xl">
@@ -46,7 +47,7 @@ export default async function Audiences() {
                 <p className="mt-1 text-sm leading-6 text-slate-600">{t(`audiences.${key}.do`)}</p>
 
                 <Link
-                  href={href}
+                  href={localizeHref(href, language)}
                   className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-semibold text-violet-700 hover:text-violet-900"
                 >
                   {t(`audiences.${key}.cta`)}

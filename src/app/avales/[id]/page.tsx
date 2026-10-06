@@ -10,7 +10,7 @@ import { shortenAddress } from "@/utils";
 
 import AvalActionsWrapper from "../aval-actions-wrapper";
 import { Aval } from "@/types";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import { contractsAddress } from "@/blockchain/contracts";
 import CopyAddress from "@/components/copy-address";
@@ -58,7 +58,7 @@ const CuotasSkeleton = () => (
 
 export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) {
   const { id } = await params;
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
   const forceSync = true;
 

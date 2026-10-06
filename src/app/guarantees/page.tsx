@@ -9,7 +9,7 @@ import PageHeader from "@/components/ui/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { ConnectWalletBannerWrapper } from "@/components/connect-wallet-banner";
 import { getCurrentUser, UnauthenticatedError } from "@/lib/auth/authorization";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import AvalesService from "@/services/avales-service";
 import { FileCheck, PlusCircle } from "lucide-react";
@@ -19,7 +19,7 @@ import { redirect } from "next/navigation";
 export const dynamic = 'force-dynamic';
 
 export default async function GuaranteesPage() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   let avales;

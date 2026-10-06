@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import { FadeIn } from "@/components/ui/AnimatedSection";
 
 export default async function FinalCTA() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (

@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import UserDashboardWrapper from "./user-dashboard-wrapper";
 import AvaldaoPlatformCard from "./avaldao-platform-card";
 import CommonUserDashboard from "./common-user-dashboard";
@@ -8,7 +8,7 @@ import CommonUserDashboard from "./common-user-dashboard";
 export default async function DashboardPage() {
   const [session, language] = await Promise.all([
     getServerSession(authOptions),
-    getLanguageCookie(),
+    getLanguage(),
   ]);
 
   const nroles = session?.user?.nroles ?? {};

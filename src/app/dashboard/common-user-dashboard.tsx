@@ -7,7 +7,7 @@ import { AvalStatusChip } from "@/components/avaldao/avales/aval-status-chip";
 import { contractsAddress } from "@/blockchain/contracts";
 import { ConnectWalletBannerWrapper } from "@/components/connect-wallet-banner";
 import LanguageWrapper from "@/components/LanguageWrapper";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { format } from "date-fns";
 import { LayoutDashboard, ChevronRight, FileCheck } from "lucide-react";
 import Link from "next/link";
@@ -106,7 +106,7 @@ function MisAvalesTable({ avales }: { avales: Aval[] }) {
 
 export default async function CommonUserDashboard() {
   const session = await getServerSession(authOptions);
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const firstName = session?.user?.name?.split(" ")[0] ?? "";
   const hasAddress = !!session?.user?.address;
 
