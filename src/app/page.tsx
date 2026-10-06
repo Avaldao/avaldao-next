@@ -8,6 +8,8 @@ import Aliados from '@/components/Aliados'
 import HowItWorks from '@/components/HowItWorks'
 import FAQ from '@/components/FAQ'
 import ProjectTimeline from '@/components/ProjectTimeline'
+import Audiences from '@/components/Audiences'
+import FinalCTA from '@/components/FinalCTA'
 import { getLanguageCookie } from '@/lib/cookies'
 import { getAbsoluteUrl, siteConfig } from '@/lib/seo'
 
@@ -83,12 +85,14 @@ export default async function Home() {
       <div className="h-16"></div>
       <main id="main-content">
         <Hero language={language} />
+        <Aliados />
         <Features />
         <HowItWorks />
+        <DashboardSection />
+        <Audiences />
         <ProjectTimeline />
         <FAQ />
-        <DashboardSection/>
-        <Aliados />
+        <FinalCTA />
       </main>
       <Footer />
     </div >

@@ -23,6 +23,14 @@ const items = [
     questionKey: "faq.item5.question",
     answerKey: "faq.item5.answer",
   },
+  {
+    questionKey: "faq.item6.question",
+    answerKey: "faq.item6.answer",
+  },
+  {
+    questionKey: "faq.item7.question",
+    answerKey: "faq.item7.answer",
+  },
 ];
 
 export default async function FAQ() {
