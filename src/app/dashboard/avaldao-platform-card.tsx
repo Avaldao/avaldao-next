@@ -207,7 +207,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
   return (
     <div className="space-y-4">
       {/* Network switch */}
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-center gap-x-3 gap-y-2 flex-wrap">
         <span className="text-sm text-slate-500">{t("dashboard.platform.network")}:</span>
         <div className="flex rounded-lg border border-slate-200 overflow-hidden">
           <button
@@ -265,7 +265,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
       {data && (
         <>
           {/* Contract address */}
-          <div className="flex items-center gap-2 text-sm text-slate-500">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
             <span>{t("dashboard.platform.contract")}:</span>
             <a
               href={`${networkInfo.explorerUrl}/address/${networkInfo.avaldao}`}
@@ -279,9 +279,9 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             <Card>
-              <CardContent className="pt-5 pb-4">
+              <CardContent className="px-4 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4">
                 <p className="text-xs text-slate-500 mb-1">{t("dashboard.platform.fund-balance")}</p>
                 <p className="text-xl font-bold text-green-600">
                   $ {(data.fundBalanceDOC / 100).toLocaleString("es-AR", { minimumFractionDigits: 2 })}
@@ -290,7 +290,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-5 pb-4">
+              <CardContent className="px-4 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4">
                 <p className="text-xs text-slate-500 mb-1">{t("dashboard.platform.vigentes")}</p>
                 <p className="text-xl font-bold text-violet-600">
                   {activeAvales.filter((a) => a.onchainStatus === ONCHAIN_VIGENTE).length}
@@ -299,7 +299,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-5 pb-4">
+              <CardContent className="px-4 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4">
                 <p className="text-xs text-slate-500 mb-1">{t("dashboard.platform.finalizados")}</p>
                 <p className="text-xl font-bold text-slate-600">
                   {activeAvales.filter((a) => a.onchainStatus === ONCHAIN_FINALIZADO).length}
@@ -308,7 +308,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-5 pb-4">
+              <CardContent className="px-4 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4">
                 <p className="text-xs text-slate-500 mb-1">{t("dashboard.platform.unlockable")}</p>
                 <p
                   className={`text-xl font-bold ${data.totalUnlockableCuotas > 0 ? "text-orange-500" : "text-slate-600"
@@ -364,7 +364,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
 
           {/* Avales on-chain */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="px-4 pt-4 pb-3 sm:px-6 sm:pt-6">
               <CardTitle className="flex items-center gap-2 text-base">
                 {t("dashboard.platform.avales-onchain")}
                 <Badge variant="outline" className="text-xs font-normal">
@@ -372,9 +372,9 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6">
               {/* Status filter */}
-              <div className="flex gap-1 flex-wrap mb-4">
+              <div className="flex gap-1.5 flex-wrap mb-4">
                 {([
                   { label: t("dashboard.platform.filter-all"), value: null },
                   { label: t("dashboard.platform.status-aceptado"), value: ONCHAIN_ACEPTADO },
@@ -402,7 +402,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
                 <p className="text-sm text-slate-400">{t("dashboard.platform.no-vigentes")}</p>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm max-sm:whitespace-nowrap">
                     <thead>
                       <tr className="text-left text-slate-500 border-b">
                         <th className="pb-2 pr-6 font-medium">ID</th>
@@ -521,10 +521,10 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
 
           {/* Recent activity */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="px-4 pt-4 pb-3 sm:px-6 sm:pt-6">
               <CardTitle className="text-base">{t("dashboard.platform.recent-activity")}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6">
               {transfersLoading && (
                 <div className="space-y-2">
                   {[...Array(5)].map((_, i) => (
@@ -544,7 +544,7 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
               )}
               {!transfersLoading && !transfersError && transfers.length > 0 && (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm max-sm:whitespace-nowrap">
                     <thead>
                       <tr className="text-left text-slate-500 border-b">
                         <th className="pb-2 pr-4 font-medium">{t("dashboard.platform.col-direction")}</th>
