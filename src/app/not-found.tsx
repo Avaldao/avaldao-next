@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
+import { localizeHref } from "@/translations/locales";
 import Link from "next/link";
 import { ArrowLeft, SearchX } from "lucide-react";
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NotFound() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (
@@ -44,7 +45,7 @@ export default async function NotFound() {
 
             <div className="mt-8 flex justify-center">
               <Link
-                href="/"
+                href={localizeHref("/", language)}
                 className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-600 shadow-sm transition-all hover:border-violet-200 hover:text-violet-700"
               >
                 <ArrowLeft className="h-4 w-4" />

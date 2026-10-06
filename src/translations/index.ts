@@ -5,9 +5,33 @@ export interface Translations {
   };
 }
 
-export type Language = 'es' | 'en';
+export type { Language } from './locales';
 
 export const translations: Translations = {
+  'meta.home.title': {
+    es: 'AvalDAO - SGR Descentralizada',
+    en: 'AvalDAO - Decentralized Guarantee Society'
+  },
+  'meta.home.description': {
+    es: 'Accedé a garantías onchain para crédito comercial con AvalDAO, una SGR descentralizada para personas y microempresas.',
+    en: 'Access onchain guarantees for commercial credit with AvalDAO, a decentralized mutual guarantee society for individuals and micro-businesses.'
+  },
+  'meta.home.og-description': {
+    es: 'SGR descentralizada con garantías onchain para ampliar el acceso al financiamiento.',
+    en: 'Decentralized guarantee society with onchain guarantees to expand access to financing.'
+  },
+  'meta.invest.title': {
+    es: 'Invertir',
+    en: 'Invest'
+  },
+  'meta.invest.description': {
+    es: 'La funcionalidad de inversión en AvalDAO está en desarrollo. Estamos actualizando los smart contracts para soportarla.',
+    en: 'The investment feature in AvalDAO is in development. We are updating the smart contracts to support it.'
+  },
+  'a11y.skip-to-content': {
+    es: 'Saltar al contenido principal',
+    en: 'Skip to main content'
+  },
   'nav.home': {
     es: 'Inicio',
     en: 'Home'
@@ -39,6 +63,14 @@ export const translations: Translations = {
   "nav.request-aval": {
     es: 'Solicitar Aval',
     en: 'Request Aval'
+  },
+  "nav.menu.open": {
+    es: 'Abrir menú',
+    en: 'Open menu'
+  },
+  "nav.menu.close": {
+    es: 'Cerrar menú',
+    en: 'Close menu'
   },
   "nav.login": {
     es: 'Iniciar sesión',

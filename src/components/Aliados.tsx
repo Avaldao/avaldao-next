@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { getLanguageCookie } from "@/lib/cookies"
+import { getLanguage } from "@/lib/cookies"
 import { translations } from "@/translations"
 
 const aliados = [
@@ -11,7 +11,7 @@ const aliados = [
 
 /** Franja compacta de aliados, pensada para ir debajo del hero como prueba social. */
 export default async function Aliados() {
-  const language = await getLanguageCookie()
+  const language = await getLanguage()
   const t = (key: string) => translations[key]?.[language] ?? key
 
   return (

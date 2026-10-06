@@ -1,11 +1,11 @@
 import { CircleAlert, FileCheck2, Lightbulb, LockKeyhole, ScanSearch } from "lucide-react"
-import { getLanguageCookie } from "@/lib/cookies"
+import { getLanguage } from "@/lib/cookies"
 import { translations } from "@/translations";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/AnimatedSection"
 
 export default async function Features() {
 
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   const pillars = [
@@ -32,7 +32,7 @@ export default async function Features() {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeIn className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex rounded-full border border-violet-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-violet-700 shadow-sm sm:px-4 sm:text-sm sm:tracking-[0.24em]">
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-700 sm:text-sm sm:tracking-[0.24em]">
             {t("about.eyebrow")}
           </span>
           <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-slate-950 sm:mt-6 sm:text-4xl md:text-5xl">

@@ -1,4 +1,4 @@
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import Image from "next/image";
 import LanguageWrapper from "../LanguageWrapper";
@@ -6,7 +6,7 @@ import { LanguageToggle } from "@/translations/LanguageToggle";
 
 export default async function SideImageLayout({children}: {children: React.ReactNode}) {
 
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
 

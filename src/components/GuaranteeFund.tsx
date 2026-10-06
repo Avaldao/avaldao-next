@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import GuaranteeFundValue from "./GuaranteeFundValue";
 import { Badge } from "./ui/badge";
 import ContractsFactory from "@/blockchain/contracts";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 
 
@@ -20,7 +20,7 @@ export default async function GuaranteeFund({chainId: chainIdp, cardClassNames}:
   } = ContractsFactory.getNetworkInfo(chainId!)!;
 
   const docAddress = tokens?.doc!;
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (

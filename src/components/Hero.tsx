@@ -25,7 +25,7 @@ export default function Hero({ language }: HeroProps) {
 
       <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.4fr_1fr] lg:gap-16 lg:px-8 lg:py-28">
         <FadeIn className="flex flex-col items-start">
-          <span className="inline-flex rounded-full border border-violet-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-violet-700 shadow-sm sm:px-4 sm:text-sm">
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-700 sm:text-sm">
             {t("hero.eyebrow")}
           </span>
 

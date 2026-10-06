@@ -10,37 +10,46 @@ import FAQ from '@/components/FAQ'
 import ProjectTimeline from '@/components/ProjectTimeline'
 import Audiences from '@/components/Audiences'
 import FinalCTA from '@/components/FinalCTA'
-import { getLanguageCookie } from '@/lib/cookies'
-import { getAbsoluteUrl, siteConfig } from '@/lib/seo'
+import { getAbsoluteUrl, getLanguageAlternates, openGraphLocales, siteConfig } from '@/lib/seo'
+import { translations } from '@/translations'
+import { Language, languages } from '@/translations/locales'
 
-export const metadata: Metadata = {
-  title: {
-    absolute: `${siteConfig.name} - SGR Descentralizada`,
-  },
-  description:
-    'Accedé a garantías onchain para crédito comercial con AvalDAO, una SGR descentralizada para personas y microempresas.',
-  alternates: {
-    canonical: '/',
-  },
-  openGraph: {
-    title: `${siteConfig.name} - SGR Descentralizada`,
-    description:
-      'SGR descentralizada con garantías onchain para ampliar el acceso al financiamiento.',
-    url: siteConfig.siteUrl,
-    images: [
-      {
-        url: siteConfig.ogImage,
-        width: 1200,
-        height: 630,
-        alt: `${siteConfig.name} - SGR Descentralizada`,
-      },
-    ],
-  },
+type PageProps = { params: Promise<{ lang: string }> }
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const language = (await params).lang as Language
+  const t = (key: string) => translations[key]?.[language] ?? key
+  const title = t('meta.home.title')
+
+  return {
+    title: {
+      absolute: title,
+    },
+    description: t('meta.home.description'),
+    alternates: getLanguageAlternates('/', language),
+    openGraph: {
+      type: 'website',
+      siteName: siteConfig.name,
+      locale: openGraphLocales[language],
+      alternateLocale: languages.filter((l) => l !== language).map((l) => openGraphLocales[l]),
+      title,
+      description: t('meta.home.og-description'),
+      url: getAbsoluteUrl(`/${language}`),
+      images: [
+        {
+          url: siteConfig.ogImage,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+  }
 }
 
 
-export default async function Home() {
-  const language = await getLanguageCookie();
+export default async function Home({ params }: PageProps) {
+  const language = (await params).lang as Language
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -77,7 +86,7 @@ export default async function Home() {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-100 focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-white"
       >
-        Saltar al contenido principal
+        {translations['a11y.skip-to-content'][language]}
       </a>
       {/* Preload imagen hero above-the-fold */}
       <link rel="preload" as="image" href="/images/slide-bg1.jpg" />

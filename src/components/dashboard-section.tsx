@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import DashboardAnimation from "./dashboard-animation";
 import GuaranteeFund from "./GuaranteeFund";
 import { Language, translations } from "@/translations";
@@ -76,7 +76,7 @@ async function PlatformMetrics({ language }: { language: Language }) {
 }
 
 export default async function DashboardSection() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (
@@ -88,7 +88,7 @@ export default async function DashboardSection() {
 
       <div className="container mx-auto px-4 z-2 relative max-w-7xl">
         <div className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white sm:px-4 sm:text-sm sm:tracking-[0.24em]">
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white sm:text-sm sm:tracking-[0.24em]">
             {t("dashboard.eyebrow")}
           </span>
           <h2 className="mt-4 text-3xl font-bold font-heading sm:mt-6 sm:text-4xl">{t("dashboard.title")}</h2>

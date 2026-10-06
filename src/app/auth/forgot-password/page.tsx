@@ -1,5 +1,5 @@
 import SideImageLayout from "@/components/layout/side-image-layout";
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import ForgotPasswordForm from "./forgot-password-form";
 import type { Metadata } from "next";
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ForgotPasswordPage() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (

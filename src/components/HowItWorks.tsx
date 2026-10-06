@@ -1,4 +1,4 @@
-import { getLanguageCookie } from "@/lib/cookies";
+import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/AnimatedSection"
 
@@ -38,7 +38,7 @@ const cuotaMilestones = [
 ];
 
 export default async function HowItWorks() {
-  const language = await getLanguageCookie();
+  const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   return (
@@ -46,7 +46,7 @@ export default async function HowItWorks() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(168,85,247,0.35),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(91,33,182,0.28),transparent_28%)]" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeIn className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex rounded-full border border-violet-400/40 bg-violet-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-violet-200 sm:px-4 sm:text-sm sm:tracking-[0.24em]">
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-200 sm:text-sm sm:tracking-[0.24em]">
             {t("how.eyebrow")}
           </span>
           <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight text-white sm:mt-6 sm:text-4xl md:text-5xl">

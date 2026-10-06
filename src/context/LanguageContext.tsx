@@ -1,7 +1,7 @@
 "use client"
 import { Language, translations } from '@/translations';
-import { usePathname, useRouter } from 'next/navigation';
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 
 interface LanguageContextType {
@@ -28,27 +28,32 @@ interface LanguageProviderProps {
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children, initialLanguage }) => {
   const router = useRouter();
-  const pathname = usePathname();
 
-  const [language, setLanguage] = useState<Language>(initialLanguage);
+  const [language, setLanguageState] = useState<Language>(initialLanguage);
+  const [prevInitialLanguage, setPrevInitialLanguage] = useState<Language>(initialLanguage);
 
-  useEffect(() => {
-    updateLanguage(language)
-  }, [language]);
+  // El idioma lo define el servidor (URL o cookie); se sincroniza cuando cambia, ej. tras navegar o refrescar.
+  if (initialLanguage !== prevInitialLanguage) {
+    setPrevInitialLanguage(initialLanguage);
+    setLanguageState(initialLanguage);
+  }
 
-  async function updateLanguage(language: string) {
+  // Cambia la preferencia guardada en cookie. Para las páginas públicas con idioma en la URL,
+  // LanguageToggle navega a la URL del otro idioma en lugar de usar esto.
+  async function setLanguage(newLanguage: Language) {
+    setLanguageState(newLanguage);
+
     const response = await fetch('/api/language', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ language: language }),
+      body: JSON.stringify({ language: newLanguage }),
     });
 
     if (response.ok) {
       router.refresh();
     }
-
   }
 
   const t = (key: string, params?: Record<string, string>): string => {
