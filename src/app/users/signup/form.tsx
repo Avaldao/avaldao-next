@@ -646,7 +646,7 @@ function SignupFormInner({ language }: { language: Language }) {
         </section>
 
         {/* ── Aceptación legal ───────────────────────────── */}
-        <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 space-y-4">
+        <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5 space-y-4">
           <SectionTitle>{t("signup.form.legal")}</SectionTitle>
           <div className="h-1"></div>
           <CheckboxRow
@@ -703,7 +703,7 @@ function SignupFormInner({ language }: { language: Language }) {
           )}
           <Button type="submit"
           loading={loading}
-          className="w-full sm:w-auto px-10 min-w-100 min-h-12 rounded-2xl  bg-linear-to-r from-violet-600 to-fuchsia-600  hover:from-violet-700 hover:to-fuchsia-700  ">
+          className="w-full sm:w-auto px-10 sm:min-w-100 min-h-12 rounded-2xl  bg-linear-to-r from-violet-600 to-fuchsia-600  hover:from-violet-700 hover:to-fuchsia-700  ">
             {t("signup.form.submit")}
             {loading && <Spinner variant="sm" />}
           </Button>

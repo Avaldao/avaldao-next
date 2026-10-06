@@ -76,7 +76,7 @@ export default function PlatformRoleSelector({
         <ComboboxOptions
           static
           modal={false}
-          className="empty:invisible mt-3 grid w-full grid-cols-1 gap-4 rounded-2xl border border-slate-200/80 bg-linear-to-br from-slate-50 via-white to-slate-100 p-4 shadow-inner sm:grid-cols-4 sm:p-5"
+          className="empty:invisible mt-3 grid w-full grid-cols-1 gap-3 sm:gap-4 rounded-2xl border border-slate-200/80 bg-linear-to-br from-slate-50 via-white to-slate-100 p-3 shadow-inner sm:grid-cols-2 sm:p-5 2xl:grid-cols-4"
         >
           {platformRoles.map((role) => (
             <ComboboxOption
@@ -86,7 +86,7 @@ export default function PlatformRoleSelector({
             >
               {({ selected }) => (
                 <div
-                  className={`relative flex h-full flex-col items-start gap-3 rounded-2xl border p-5 transition-all duration-200 ease-out ${
+                  className={`relative flex h-full flex-row items-center gap-3 p-4 sm:flex-col sm:items-start sm:p-5 rounded-2xl border transition-all duration-200 ease-out ${
                     selected
                       ? "border-secondary/40 bg-white shadow-[0_14px_32px_-16px_rgba(120,104,229,0.55)]"
                       : "border-slate-200 bg-white/85 hover:-translate-y-0.5 hover:border-secondary/25 hover:shadow-[0_12px_24px_-16px_rgba(15,23,42,0.4)]"
@@ -99,7 +99,7 @@ export default function PlatformRoleSelector({
                   )}
 
                   <div
-                    className={`inline-flex h-12 w-12 items-center justify-center rounded-xl border text-secondary transition-colors [&>svg]:h-6 [&>svg]:w-6 ${
+                    className={`inline-flex h-10 w-10 shrink-0 sm:h-12 sm:w-12 items-center justify-center rounded-xl border text-secondary transition-colors [&>svg]:h-5 [&>svg]:w-5 sm:[&>svg]:h-6 sm:[&>svg]:w-6 ${
                       selected
                         ? "border-secondary/30 bg-secondary/10"
                         : "border-slate-200 bg-slate-50 group-hover:border-secondary/20 group-hover:bg-secondary/5"
@@ -108,9 +108,11 @@ export default function PlatformRoleSelector({
                     {role.icon}
                   </div>
 
-                  <div className="text-base font-semibold text-slate-800">{t(role.nameKey)}</div>
+                  <div className="min-w-0 pr-8 sm:contents">
+                    <div className="text-base font-semibold text-slate-800">{t(role.nameKey)}</div>
 
-                  <div className="text-sm leading-relaxed text-slate-500">{t(role.descKey)}</div>
+                    <div className="text-sm leading-snug sm:leading-relaxed text-slate-500">{t(role.descKey)}</div>
+                  </div>
                 </div>
               )}
             </ComboboxOption>
