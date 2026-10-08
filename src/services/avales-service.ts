@@ -238,12 +238,13 @@ export default class AvalesService {
    */
   async repinAval(avalId: string): Promise<{ cid: string; changed: boolean }> {
     const user = await getCurrentUser();
-    if (!user.roles.includes("AVALDAO_ROLE")) {
-      throw new Error("Unauthorized: missing AVALDAO_ROLE");
-    }
 
     const aval = await AvalModel.findById(avalId).lean();
     if (!aval) throw new Error("Aval not found");
+
+    if (!this._hasAvaldaoRole(user, aval.chainId)) {
+      throw new Error("Unauthorized: missing AVALDAO_ROLE");
+    }
 
     const hasSignatures = [
       aval.avaldaoSignature,
