@@ -42,6 +42,22 @@ export interface Aval {
 }
 
 
+/** Reclamo onchain combinado con sus mensajes offchain, serializado para el cliente. */
+export interface ReclamoView {
+  numero: number;
+  /** 0: Vigente, 1: Cerrado. */
+  status: number;
+  /** Segundos. */
+  timestampCreacion: number;
+  mensajes: {
+    id: string;
+    autorAddress: string;
+    autorRol: "avaldao" | "solicitante" | "comerciante" | "avalado";
+    texto: string;
+    fecha: string;
+  }[];
+}
+
 export interface UserInfo {
   id: string;
   address: string;

@@ -833,6 +833,82 @@ export const translations: Translations = {
     es: 'Sin reclamos. En caso de que se encuentren, los visualizarás aquí.',
     en: 'No claims. If any are found, you will see them here.'
   },
+  "aval.details.claim-open-notice": {
+    es: 'Hay un reclamo vigente sobre la(s) cuota(s) {cuotas}, por {amount}. El solicitante puede ejecutar la garantía.',
+    en: 'There is an active claim on installment(s) {cuotas}, for {amount}. The applicant can execute the guarantee.'
+  },
+  "aval.details.open-claim.title": {
+    es: 'Cuota vencida',
+    en: 'Overdue installment'
+  },
+  "aval.details.open-claim.description": {
+    es: 'La(s) cuota(s) {cuotas} ya vencieron. Si el avalado no las pagó, podés abrir un reclamo para solicitar la ejecución de la garantía por {amount}.',
+    en: 'Installment(s) {cuotas} are past due. If the endorsed party has not paid them, you can open a claim to request execution of the guarantee for {amount}.'
+  },
+  "aval.details.open-claim.reason.label": {
+    es: 'Motivo del reclamo',
+    en: 'Reason for the claim'
+  },
+  "aval.details.open-claim.reason.placeholder": {
+    es: 'Contá qué pasó: qué cuota no se pagó, si hubo contacto con el avalado, etc.',
+    en: 'Describe what happened: which installment was not paid, whether you contacted the endorsed party, etc.'
+  },
+  "aval.details.open-claim.reason.required": {
+    es: 'Ingresá el motivo del reclamo.',
+    en: 'Enter the reason for the claim.'
+  },
+  "aval.details.open-claim.reason.save-error": {
+    es: 'El reclamo se abrió, pero no se pudo guardar el motivo. Podés enviarlo como mensaje en el reclamo.',
+    en: 'The claim was opened, but the reason could not be saved. You can send it as a message on the claim.'
+  },
+  "aval.details.claim-opened-at": {
+    es: 'Abierto el',
+    en: 'Opened on'
+  },
+  "aval.details.claim-messages.empty": {
+    es: 'Sin mensajes.',
+    en: 'No messages.'
+  },
+  "aval.details.claim-messages.reason": {
+    es: 'Motivo',
+    en: 'Reason'
+  },
+  "aval.details.claim-messages.placeholder": {
+    es: 'Escribí un mensaje para los participantes del aval…',
+    en: 'Write a message for the aval participants…'
+  },
+  "aval.details.claim-messages.send": {
+    es: 'Enviar mensaje',
+    en: 'Send message'
+  },
+  "aval.details.claim-messages.send-error": {
+    es: 'No se pudo enviar el mensaje.',
+    en: 'The message could not be sent.'
+  },
+  "aval.details.open-claim.button": {
+    es: 'Abrir reclamo',
+    en: 'Open claim'
+  },
+  "aval.details.open-claim.hint": {
+    es: 'Al confirmar esta transacción se registra un reclamo en el contrato del aval. Mientras esté vigente, el solicitante podrá ejecutar la garantía y transferirte el monto de las cuotas vencidas. Solo puede haber un reclamo vigente a la vez.',
+    en: 'By confirming this transaction a claim is registered on the aval contract. While it is active, the applicant can execute the guarantee and transfer you the amount of the overdue installments. Only one claim can be active at a time.'
+  },
+  "aval.details.execute-guarantee.title": {
+    es: 'Reclamo vigente del comerciante',
+    en: 'Active claim from the merchant'
+  },
+  "aval.details.execute-guarantee.description": {
+    es: 'Ejecutar la garantía transfiere {amount} del aval al comerciante por la(s) cuota(s) vencida(s) {cuotas} y cierra el reclamo.',
+    en: 'Executing the guarantee transfers {amount} from the aval to the merchant for overdue installment(s) {cuotas} and closes the claim.'
+  },
+  "aval.details.execute-guarantee.button": {
+    es: 'Ejecutar garantía',
+    en: 'Execute guarantee'
+  },
+  "aval.details.execute-guarantee.hint": {
+    es: 'Esta acción es irreversible: se transfieren {amount} al comerciante y la(s) cuota(s) {cuotas} quedan como Garantía Ejecutada. Asegurate de que el avalado efectivamente no pagó.',
+    en: 'This action is irreversible: {amount} will be transferred to the merchant and installment(s) {cuotas} will be marked as Guarantee Executed. Make sure the endorsed party has indeed not paid.'
+  },
 
   "aval.details.financial-info": {
     es: 'Información Financiera',

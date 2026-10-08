@@ -55,27 +55,35 @@ export default class AvalesService {
     return db;
   }
 
-  /** Mismo criterio que `requireRoles`: los roles de mainnet en `nroles[30]`. */
-  private _isAdmin(user: Awaited<ReturnType<typeof getCurrentUser>>) {
-    const roles = user.nroles?.[30] ?? [];
-    return roles.includes("AVALDAO_ROLE") || roles.includes("ADMIN_ROLE");
+  /** Los roles son por red (`nroles[chainId]`): un aval se autoriza con los
+   *  roles de su propia red, no con los de mainnet. */
+  private _hasAvaldaoRole(user: Awaited<ReturnType<typeof getCurrentUser>>, chainId: number) {
+    return !!user.nroles?.[chainId]?.includes("AVALDAO_ROLE");
+  }
+
+  /** Redes en las que el usuario es Avaldao o admin: ve todos los avales de esas redes. */
+  private _adminChainIds(user: Awaited<ReturnType<typeof getCurrentUser>>): number[] {
+    return Object.entries(user.nroles ?? {})
+      .filter(([, roles]) => roles?.includes("AVALDAO_ROLE") || roles?.includes("ADMIN_ROLE"))
+      .map(([chainId]) => Number(chainId));
   }
 
   async getAvales() {
     const user = await getCurrentUser();
 
-    const isAdmin = this._isAdmin(user);
+    const adminChainIds = this._adminChainIds(user);
 
-    const filter = isAdmin
-      ? {}
-      : user.address ? {
-        $or: [
+    const filter = {
+      $or: [
+        { chainId: { $in: adminChainIds } },
+        ...(user.address ? [
           { avaldaoAddress: user.address },
           { solicitanteAddress: user.address },
           { comercianteAddress: user.address },
           { avaladoAddress: user.address },
-        ],
-      } : { _id: null }; //algun filtro que no devuelva nada
+        ] : []),
+      ],
+    };
 
     const avales = await AvalModel.find(filter)
       .collation(CASE_INSENSITIVE)
@@ -93,11 +101,11 @@ export default class AvalesService {
   async getAvalesByAddress(address: string) {
     const user = await getCurrentUser();
 
-    const isAdmin = this._isAdmin(user);
+    const adminChainIds = this._adminChainIds(user);
 
     const isOwner = user.address?.toLowerCase() === address.toLowerCase();
 
-    if (!isAdmin && !isOwner) {
+    if (adminChainIds.length === 0 && !isOwner) {
       throw new Error("Unauthorized");
     }
 
@@ -108,6 +116,8 @@ export default class AvalesService {
         { comercianteAddress: address },
         { avaladoAddress: address },
       ],
+      // Un admin que no es el dueño solo ve los avales de las redes donde es admin.
+      ...(isOwner ? {} : { chainId: { $in: adminChainIds } }),
     })
       .collation(CASE_INSENSITIVE)
       .sort({ createdAt: -1 })
@@ -428,12 +438,12 @@ export default class AvalesService {
 
   async rejectAval(avalId: string, reason: string): Promise<void> {
     const user = await getCurrentUser();
-    if (!user.roles.includes("AVALDAO_ROLE")) {
-      throw new Error("Unauthorized: missing AVALDAO_ROLE");
-    }
 
     const aval = await AvalModel.findById(avalId);
     if (!aval) throw new Error("Aval not found");
+    if (!this._hasAvaldaoRole(user, aval.chainId)) {
+      throw new Error(`Unauthorized: missing AVALDAO_ROLE on chain ${aval.chainId}`);
+    }
     if (aval.status !== 0) throw new Error("Solo se pueden rechazar avales en estado Solicitado");
 
     await this._updateAval(avalId, { status: 1, rejectReason: reason });

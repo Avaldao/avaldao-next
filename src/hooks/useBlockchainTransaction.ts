@@ -51,7 +51,8 @@ export default function useBlockchainTransaction(provider: Provider | null) {
   }
 
 
-  async function run(sendTransaction: () => Promise<ContractTransactionResponse>) {
+  /** Devuelve true si la transacción se confirmó. */
+  async function run(sendTransaction: () => Promise<ContractTransactionResponse>): Promise<boolean> {
 
     let txResponse: ContractTransactionResponse;
     let receipt: ContractTransactionReceipt | null = null;
@@ -62,7 +63,7 @@ export default function useBlockchainTransaction(provider: Provider | null) {
       setTxState({ step: 1, status: "sent", txHash: txResponse.hash });
     } catch (err) {
       _handleSendingError(err);
-      return;
+      return false;
     }
 
     await new Promise((r) => setTimeout(r, 800));
@@ -75,12 +76,13 @@ export default function useBlockchainTransaction(provider: Provider | null) {
 
       if (!receipt || receipt.status === 0) {
         setTxState({ step: 2, status: "reverted", txHash: hash, receipt: receipt ?? undefined });
-      } else {
-        setTxState({ step: 2, status: "confirmed", txHash: hash, receipt });
+        return false;
       }
+      setTxState({ step: 2, status: "confirmed", txHash: hash, receipt });
+      return true;
     } catch (err) {
       await _handleConfirmationError(err, txResponse, receipt);
-      return;
+      return false;
     }
   }
 

@@ -6,7 +6,8 @@ import { translations, Language } from "@/translations";
 import { contractsAddress } from "@/blockchain/contracts";
 import { Contract, JsonRpcProvider } from "ethers";
 import avalAbi from "@/blockchain/contracts/avaldao/aval.abi";
-import UnlockCuotaButton from "./unlock-cuota-button";
+import AvalTxAction from "./aval-tx-action";
+import { Unlock } from "lucide-react";
 import InstallmentList from "@/components/avales/installment-list";
 
 interface OnchainCuota {
@@ -140,11 +141,18 @@ export default async function CuotasCard({ aval, avalAddress, language }: Props)
           )}
           {canUnlock && (
             <div className="mt-4">
-              <UnlockCuotaButton
+              <AvalTxAction
                 avalAddress={avalAddress!}
-                solicitanteAddress={aval.solicitanteAddress}
+                actorAddress={aval.solicitanteAddress}
                 chainId={aval.chainId}
                 language={language}
+                method="unlockFundManual"
+                title={t("aval.details.unlock-cuota.title")}
+                description={t("aval.details.unlock-cuota.description")}
+                buttonLabel={t("aval.details.unlock-cuota.button")}
+                icon={<Unlock className="w-4 h-4 mr-2" />}
+                hint={t("aval.details.unlock-cuota.hint")}
+                wrongNetworkMessage={t("tx.error.wrong-network")}
               />
             </div>
           )}
