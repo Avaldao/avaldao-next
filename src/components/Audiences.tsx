@@ -7,7 +7,7 @@ import { StaggerContainer, StaggerItem, FadeIn } from "@/components/ui/AnimatedS
 
 const audiences = [
   { key: "merchant", icon: Store, href: "/auth/signup" },
-  { key: "applicant", icon: HeartHandshake, href: "/avales/new" },
+  { key: "applicant", icon: HeartHandshake, href: "/solicitar" },
   { key: "guaranteed", icon: UserRound, href: "/auth/signup" },
   { key: "contributor", icon: HandCoins, href: "/invertir" },
 ] as const;

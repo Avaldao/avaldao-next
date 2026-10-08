@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ExternalLink, ShieldCheck } from "lucide-react";
 import ContractsFactory from "@/blockchain/contracts";
 import { Language, translations } from "@/translations";
+import { localizeHref } from "@/translations/locales";
 import { FadeIn } from "@/components/ui/AnimatedSection";
 import GuaranteeFundValue from "./GuaranteeFundValue";
 
@@ -39,7 +40,7 @@ export default function Hero({ language }: HeroProps) {
 
           <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <Link
-              href="/avales/new"
+              href={localizeHref("/solicitar", language)}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 px-6 py-3 font-heading text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-violet-600/40 transition-all duration-300 hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-xl hover:shadow-violet-600/60 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 sm:px-8 sm:py-3.5 sm:text-base"
             >
               {t("hero.cta.request")}

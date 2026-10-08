@@ -29,6 +29,14 @@ export const translations: Translations = {
     es: 'La funcionalidad de inversión en AvalDAO está en desarrollo. Estamos actualizando los smart contracts para soportarla.',
     en: 'The investment feature in AvalDAO is in development. We are updating the smart contracts to support it.'
   },
+  'meta.request.title': {
+    es: 'Cómo solicitar un aval',
+    en: 'How to request a guarantee'
+  },
+  'meta.request.description': {
+    es: 'Los pasos para solicitar un aval en AvalDAO: registrarte, validar tu perfil, crear la solicitud, la revisión de la plataforma y la firma del aval.',
+    en: 'The steps to request a guarantee on AvalDAO: sign up, verify your profile, create the request, platform review, and signing the guarantee.'
+  },
   'a11y.skip-to-content': {
     es: 'Saltar al contenido principal',
     en: 'Skip to main content'
@@ -564,6 +572,100 @@ export const translations: Translations = {
   "final-cta.request": {
     es: 'Solicitar un aval',
     en: 'Request a guarantee'
+  },
+
+  // ── Página pública: pasos para solicitar un aval ──
+  "request-steps.eyebrow": {
+    es: 'Solicitar un aval',
+    en: 'Request a guarantee'
+  },
+  "request-steps.title": {
+    es: 'Cómo solicitar tu aval, paso a paso',
+    en: 'How to request your guarantee, step by step'
+  },
+  "request-steps.description": {
+    es: 'El proceso tiene cinco etapas. Algunas dependen de vos y otras de la plataforma; te avisamos cuando avanza cada una.',
+    en: 'The process has five stages. Some depend on you and others on the platform; we let you know as each one moves forward.'
+  },
+  "request-steps.role.you": {
+    es: 'Vos',
+    en: 'You'
+  },
+  "request-steps.role.platform": {
+    es: 'Plataforma',
+    en: 'Platform'
+  },
+  "request-steps.role.participants": {
+    es: 'Participantes',
+    en: 'Participants'
+  },
+  "request-steps.step1.title": {
+    es: 'Registrate',
+    en: 'Sign up'
+  },
+  "request-steps.step1.description": {
+    es: 'Creá tu cuenta en AvalDAO y asociá una wallet. Sin wallet no vas a poder participar de un aval.',
+    en: 'Create your AvalDAO account and link a wallet. Without a wallet you will not be able to take part in a guarantee.'
+  },
+  "request-steps.step2.title": {
+    es: 'Validamos tu perfil',
+    en: 'We verify your profile'
+  },
+  "request-steps.step2.description": {
+    es: 'El equipo de AvalDAO revisa tu identidad. Te avisamos por email cuando tu perfil esté verificado.',
+    en: 'The AvalDAO team reviews your identity. We will email you once your profile is verified.'
+  },
+  "request-steps.step3.title": {
+    es: 'Creá tu solicitud',
+    en: 'Create your request'
+  },
+  "request-steps.step3.description": {
+    es: 'Completá el formulario del aval: proyecto, monto, cuotas y las wallets del comercio y de la persona avalada.',
+    en: 'Fill in the guarantee form: project, amount, installments, and the wallets of the merchant and the guaranteed person.'
+  },
+  "request-steps.step4.title": {
+    es: 'Revisamos tu solicitud',
+    en: 'We review your request'
+  },
+  "request-steps.step4.description": {
+    es: 'AvalDAO analiza la solicitud y, si la aprueba, la registra en blockchain.',
+    en: 'AvalDAO reviews the request and, if approved, records it on the blockchain.'
+  },
+  "request-steps.step5.title": {
+    es: 'Se firma el aval',
+    en: 'The guarantee is signed'
+  },
+  "request-steps.step5.description": {
+    es: 'Todos los participantes firman el aval con su wallet. Con todas las firmas, el aval queda vigente y respaldado por el fondo de garantía.',
+    en: 'All participants sign the guarantee with their wallets. Once every signature is in, the guarantee becomes active and backed by the guarantee fund.'
+  },
+  "request-steps.wallet.title": {
+    es: 'Para firmar necesitás una wallet',
+    en: 'You need a wallet to sign'
+  },
+  "request-steps.wallet.description": {
+    es: 'La firma se hace con una cuenta de wallet. Crearla no tiene costo y lleva unos minutos. Recomendamos usar MetaMask.',
+    en: 'Signing is done with a wallet account. Creating one costs nothing and takes a few minutes. We recommend using MetaMask.'
+  },
+  "request-steps.wallet.free": {
+    es: 'Gratis',
+    en: 'Free'
+  },
+  "request-steps.wallet.cta": {
+    es: 'Descargar MetaMask',
+    en: 'Get MetaMask'
+  },
+  "request-steps.cta.signup": {
+    es: 'Crear cuenta',
+    en: 'Create account'
+  },
+  "request-steps.cta.request": {
+    es: 'Ya tengo cuenta, solicitar aval',
+    en: 'I have an account, request a guarantee'
+  },
+  "request-steps.back": {
+    es: 'Volver al inicio',
+    en: 'Back to home'
   },
 
   "signup.title": {

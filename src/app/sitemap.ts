@@ -4,6 +4,7 @@ import { languages, localizeHref } from "@/translations/locales";
 
 const pages: { path: string; changeFrequency: "weekly" | "monthly"; priority: number }[] = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
+  { path: "/solicitar", changeFrequency: "monthly", priority: 0.8 },
   { path: "/invertir", changeFrequency: "monthly", priority: 0.6 },
 ];
 

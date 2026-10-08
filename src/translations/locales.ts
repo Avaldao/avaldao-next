@@ -23,7 +23,7 @@ export const LANGUAGE_HEADER = 'x-language';
 
 // Páginas públicas e indexables. Se sirven con el idioma como prefijo de la URL (/es, /en/invertir)
 // para que cada versión tenga su propia URL indexable, con hreflang y canonical.
-export const localizedPaths = ['/', '/invertir'] as const;
+export const localizedPaths = ['/', '/invertir', '/solicitar'] as const;
 
 export function isLanguage(value: unknown): value is Language {
   return typeof value === 'string' && (languages as readonly string[]).includes(value);
