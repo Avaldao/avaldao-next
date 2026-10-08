@@ -1374,6 +1374,12 @@ export const translations: Translations = {
   "tx.info.account": { es: "Cuenta", en: "Account" },
   "tx.info.balance": { es: "Balance", en: "Balance" },
   "tx.info.tx-cost": { es: "Costo transacción", en: "Transaction cost" },
+  "tx.info.estimated-cost": { es: "Costo estimado", en: "Estimated cost" },
+  "tx.testnet.title": { es: "Red de pruebas (Testnet)", en: "Test network (Testnet)" },
+  "tx.testnet.description": {
+    es: "Esta operación se realiza sobre Rootstock Testnet. No tiene validez y es solo para fines de prueba.",
+    en: "This operation runs on Rootstock Testnet. It has no validity and is for testing purposes only.",
+  },
   "tx.info.contract": { es: "Contrato", en: "Contract" },
   "tx.info.tx-hash": { es: "Hash Tx", en: "Tx hash" },
   "tx.info.block": { es: "Bloque", en: "Block" },

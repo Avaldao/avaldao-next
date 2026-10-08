@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import TransactionTracker from "@/components/blockchain/transaction-tracker/transaction-tracker";
 import useBlockchainTransaction from "@/hooks/useBlockchainTransaction";
 import { contractsAddress } from "@/blockchain/contracts";
-import { setUserRoles } from "@/blockchain/roles-admin";
+import { populateSetUserRoles, setUserRoles } from "@/blockchain/roles-admin";
 import { ROOTSTOCK_NETWORKS } from "@/config";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { Language, createT } from "@/translations";
@@ -54,7 +54,7 @@ function Editor({ userAddress, roleOptions, currentRoles, networks, language }: 
   const [showTxTracker, setShowTxTracker] = useState(false);
 
   const provider = useMemo(() => (walletProvider ? new BrowserProvider(walletProvider) : null), [walletProvider]);
-  const { run, txState, clearTxState } = useBlockchainTransaction(provider);
+  const { run, estimateCost, estimatedCost, txState, clearTxState } = useBlockchainTransaction(provider);
 
   const options = roleOptions[chainId] ?? [];
   const current = currentRoles[chainId] ?? [];
@@ -101,7 +101,9 @@ function Editor({ userAddress, roleOptions, currentRoles, networks, language }: 
         ethersProvider = new BrowserProvider(walletProvider);
       }
       const signer = await ethersProvider.getSigner();
-      return setUserRoles(signer, contractsAddress[chainId].permissions, userAddress, toAdd, toRemove);
+      const adminAddress = contractsAddress[chainId].permissions;
+      estimateCost(signer, populateSetUserRoles(signer, adminAddress, userAddress, toAdd, toRemove));
+      return setUserRoles(signer, adminAddress, userAddress, toAdd, toRemove);
     });
   }
 
@@ -119,6 +121,8 @@ function Editor({ userAddress, roleOptions, currentRoles, networks, language }: 
           explorerUrl={contractsAddress[chainId]?.explorerUrl}
           txState={txState}
           hint={t("staff.roles.tx-hint")}
+          estimatedCost={estimatedCost}
+          testnet={chainId === 31}
           language={language}
           onClose={handleClose}
         />

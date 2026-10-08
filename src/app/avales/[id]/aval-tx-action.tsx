@@ -54,7 +54,7 @@ export function useAvalTx({ avalAddress, actorAddress, chainId, language, hint, 
     return new BrowserProvider(walletProvider);
   }, [walletProvider]);
 
-  const { run, txState, clearTxState } = useBlockchainTransaction(provider);
+  const { run, estimateCost, estimatedCost, txState, clearTxState } = useBlockchainTransaction(provider);
 
   const isActor = !!address && address.toLowerCase() === actorAddress.toLowerCase();
 
@@ -97,6 +97,7 @@ export function useAvalTx({ avalAddress, actorAddress, chainId, language, hint, 
       }
       const signer = await ethersProvider.getSigner();
       const avalContract = new Contract(avalAddress, avalAbi, signer);
+      estimateCost(signer, avalContract[method].populateTransaction());
       return avalContract[method]({ gasLimit: GAS_LIMITS[method] });
     });
   }
@@ -107,6 +108,8 @@ export function useAvalTx({ avalAddress, actorAddress, chainId, language, hint, 
       explorerUrl={contractsAddress[chainId]?.explorerUrl}
       txState={txState}
       hint={hint}
+      estimatedCost={estimatedCost}
+      testnet={chainId === 31}
       language={language}
       onClose={() => {
         const confirmed = txState.status === "confirmed";

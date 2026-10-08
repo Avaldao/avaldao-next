@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
-import { BrowserProvider, Contract, Eip1193Provider, formatEther, formatUnits } from "ethers";
+import { BrowserProvider, Contract, Eip1193Provider, formatUnits } from "ethers";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 
@@ -58,7 +58,6 @@ export default function AvaldaoPlatformCard({ language, nroles, chainIds, initia
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showTxTracker, setShowTxTracker] = useState(false);
-  const [transactionCost, setTransactionCost] = useState<string | null>(null);
   const [activeUnlockAval, setActiveUnlockAval] = useState<AvalOnchainData | null>(null);
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
   const [sortConfig, setSortConfig] = useState<{ field: "status" | "endDate"; dir: "asc" | "desc" }>({ field: "status", dir: "asc" });
@@ -67,7 +66,7 @@ export default function AvaldaoPlatformCard({ language, nroles, chainIds, initia
   const [transfersError, setTransfersError] = useState<string | null>(null);
 
   const provider = useMemo(() => walletProvider ? new BrowserProvider(walletProvider) : null, [walletProvider]);
-  const { run, txState, clearTxState } = useBlockchainTransaction(provider);
+  const { run, estimateCost, estimatedCost, txState, clearTxState } = useBlockchainTransaction(provider);
 
   const networkInfo = contractsAddress[chainId];
   const isAvaldaoRole = nroles[chainId]?.includes("AVALDAO_ROLE") ?? false;
@@ -142,17 +141,7 @@ export default function AvaldaoPlatformCard({ language, nroles, chainIds, initia
       }
       const signer = await ethersProvider.getSigner();
       const avalContract = new Contract(aval.address, avalAbi, signer);
-
-      const [estimatedGas, feeData] = await Promise.all([
-        avalContract.unlockFundManual.estimateGas(),
-        ethersProvider.getFeeData(),
-      ]);
-      const gasPrice = feeData.gasPrice ?? feeData.maxFeePerGas ?? BigInt(0);
-      const costWei = estimatedGas * gasPrice;
-      const costNum = parseFloat(formatEther(costWei));
-      const symbol = chainId === 31 ? "tRBTC" : "RBTC";
-      setTransactionCost(`~${costNum.toFixed(8).replace(/0+$/, "").replace(/\.$/, "")} ${symbol}`);
-
+      estimateCost(signer, avalContract.unlockFundManual.populateTransaction());
       return avalContract.unlockFundManual();
     });
   }
@@ -161,7 +150,6 @@ export default function AvaldaoPlatformCard({ language, nroles, chainIds, initia
     clearTxState();
     setShowTxTracker(false);
     setActiveUnlockAval(null);
-    setTransactionCost(null);
     await fetch(`/api/platform-status?chainId=${chainId}`, { method: "PATCH" });
     fetchStatus(chainId);
   }
@@ -375,7 +363,8 @@ export default function AvaldaoPlatformCard({ language, nroles, chainIds, initia
               txState={txState}
               hint={t("dashboard.platform.unlock-manual-hint")}
               language={language}
-              transactionCost={transactionCost ?? undefined}
+              estimatedCost={estimatedCost}
+              testnet={chainId === 31}
               onClose={handleTxClose}
             />
           )}

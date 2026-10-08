@@ -1,19 +1,45 @@
 import { TxState } from "@/components/blockchain/transaction-tracker/utils";
-import { AbiCoder, ContractTransactionReceipt, ContractTransactionResponse, EthersError, isError, Provider } from "ethers";
-import { useState } from "react";
+import { AbiCoder, ContractTransactionReceipt, ContractTransactionResponse, EthersError, Provider, Signer, TransactionRequest } from "ethers";
+import { useRef, useState } from "react";
 
 export default function useBlockchainTransaction(provider: Provider | null) {
   const [txState, setTxState] = useState<TxState>({
     step: 1,
     status: "waiting_approval",
   });
+  /** Costo estimado (gas × precio del gas) en wei de la transacción en curso. */
+  const [estimatedCost, setEstimatedCost] = useState<bigint | undefined>();
+  // Identifica la ejecución de `run` en curso, para descartar estimaciones que llegan tarde.
+  const runId = useRef(0);
 
   function clearTxState() {
+    runId.current++;
+    setEstimatedCost(undefined);
     setTxState({
       step: 1,
       status: "waiting_approval",
     });
   };
+
+  /**
+   * Estima el costo de `tx` para mostrarlo en el tracker mientras el usuario aprueba.
+   * No hace falta esperarla: corre en paralelo al envío. Si falla no bloquea nada,
+   * ya que algunos métodos se envían con un gasLimit fijo porque el nodo no los estima bien.
+   */
+  async function estimateCost(signer: Signer, tx: TransactionRequest | Promise<TransactionRequest>) {
+    const id = runId.current;
+    try {
+      const request = await tx;
+      const [gas, feeData] = await Promise.all([
+        signer.estimateGas({ ...request, gasLimit: undefined }),
+        signer.provider!.getFeeData(),
+      ]);
+      const gasPrice = feeData.gasPrice ?? feeData.maxFeePerGas;
+      if (gasPrice != null && id === runId.current) setEstimatedCost(gas * gasPrice);
+    } catch (err) {
+      console.warn("No se pudo estimar el costo de la transacción", err);
+    }
+  }
 
   function _handleSendingError(err: unknown) {
     console.error(err);
@@ -57,6 +83,8 @@ export default function useBlockchainTransaction(provider: Provider | null) {
     let txResponse: ContractTransactionResponse;
     let receipt: ContractTransactionReceipt | null = null;
 
+    runId.current++;
+    setEstimatedCost(undefined);
 
     try {
       txResponse = await sendTransaction();
@@ -88,7 +116,9 @@ export default function useBlockchainTransaction(provider: Provider | null) {
 
   return {
     txState,
+    estimatedCost,
     run,
+    estimateCost,
     clearTxState
   };
 }

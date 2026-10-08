@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { shortAddress } from "@/components/blockchain/transaction-tracker/utils";
 import { getAddress } from "ethers/address";
+import TestnetNotice from "@/components/blockchain/testnet-notice";
 
 export type SignStatus = "idle" | "waiting" | "success" | "error";
 
@@ -27,6 +28,8 @@ interface SignModalProps {
   infoCid?: string;
   /** Aviso a mostrar sobre los términos (por ejemplo, que no están incluidos en el CID). */
   termsWarning?: string;
+  /** La firma corresponde a algo en una red de pruebas: se muestra un aviso. */
+  testnet?: boolean;
 }
 
 function SpinnerRing({ status }: { status: SignStatus }) {
@@ -73,7 +76,7 @@ function SpinnerRing({ status }: { status: SignStatus }) {
   );
 }
 
-export default function SignModal({ address, message, status, errorMessage, onSign, onClose, t, canClose: propCanClose, badgeKey = "signup.sign.badge", idleTitleKey = "signup.sign.idle.title", idleDescKey = "signup.sign.idle.description", terms, infoCid, termsWarning }: SignModalProps) {
+export default function SignModal({ address, message, status, errorMessage, onSign, onClose, t, canClose: propCanClose, badgeKey = "signup.sign.badge", idleTitleKey = "signup.sign.idle.title", idleDescKey = "signup.sign.idle.description", terms, infoCid, termsWarning, testnet }: SignModalProps) {
   const [mounted, setMounted] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -126,6 +129,8 @@ export default function SignModal({ address, message, status, errorMessage, onSi
             </p>
           </div>
         </div>
+
+        {testnet && <TestnetNotice t={t} />}
 
         {/* Info rows */}
         <div className="mx-6 mb-4 rounded-xl bg-zinc-50 dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700 ring-1 ring-zinc-100 dark:ring-zinc-700">

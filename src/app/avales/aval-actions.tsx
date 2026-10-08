@@ -91,7 +91,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
     }
   }, [aval, language, t]);
 
-  const { run, txState, clearTxState } = useBlockchainTransaction(provider);
+  const { run, estimateCost, estimatedCost, txState, clearTxState } = useBlockchainTransaction(provider);
 
   if (!session?.user) return null;
 
@@ -220,7 +220,8 @@ export default function AvalActions({ aval }: { aval: Aval }) {
     await run(async () => {
       const { avaldao, signer } = await getContracts(aval.chainId);
       // avaldao está conectado al rpcProvider (solo lectura); la escritura va con el signer de la wallet.
-      const tx = await (avaldao.connect(signer) as Contract).saveAval(
+      const saveAval = (avaldao.connect(signer) as Contract).saveAval;
+      const args = [
         aval._id,
         aval.infoCid,
         [
@@ -231,9 +232,9 @@ export default function AvalActions({ aval }: { aval: Aval }) {
         ],
         aval.montoFiat,
         getTranchesTs(aval).map((ts: number) => `0x${ts.toString(16)}`),
-        { gasLimit: BigInt(5_000_000) }
-      );
-      return tx;
+      ];
+      estimateCost(signer, saveAval.populateTransaction(...args));
+      return saveAval(...args, { gasLimit: BigInt(5_000_000) });
     });
   }
 
@@ -323,11 +324,12 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   async function startAval() {
     setShowTxTracker(true);
     await run(async () => {
-      const { avalContract } = await getContracts(aval.chainId);
+      const { avalContract, signer } = await getContracts(aval.chainId);
       if (!avalContract) throw new Error(t("aval.actions.contract-not-found"));
       const signatures = getSignatures(aval);
       if (!signatures) throw new Error(t("aval.actions.incomplete-signatures"));
       const [r, v, s] = signatures;
+      estimateCost(signer, avalContract.sign.populateTransaction(r, v, s));
       return avalContract.sign(r, v, s, { gasLimit: BigInt(5_000_000) });
     });
   }
@@ -344,6 +346,8 @@ export default function AvalActions({ aval }: { aval: Aval }) {
           }}
           explorerUrl={contractsAddress[aval.chainId]?.explorerUrl}
           txState={txState}
+          estimatedCost={estimatedCost}
+          testnet={aval.chainId === 31}
           onClose={() => {
             // La página sincroniza con la blockchain al renderizar: refrescar trae el nuevo estado del aval.
             const confirmed = txState.status === "confirmed";
@@ -693,6 +697,7 @@ export default function AvalActions({ aval }: { aval: Aval }) {
           terms={signTerms?.texto}
           termsWarning={signTerms?.warning}
           infoCid={aval.infoCid}
+          testnet={aval.chainId === 31}
         />
       )}
     </>

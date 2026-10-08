@@ -17,6 +17,7 @@ import {
   shortAddress,
   explorerTxUrl
 } from "./utils";
+import TestnetNotice from "@/components/blockchain/testnet-notice";
 import { useLanguage, LanguageContext, LanguageProvider } from "@/context/LanguageContext";
 import type { Language } from "@/translations";
 
@@ -26,7 +27,10 @@ interface TransactionTrackerProps {
   contract: ContractInfo;
   explorerUrl?: string;
   hint?: string;
-  transactionCost?: string;
+  /** Costo estimado en wei. Al confirmarse se reemplaza por el costo real del receipt. */
+  estimatedCost?: bigint;
+  /** La transacción se envía a una red de pruebas: se muestra un aviso. */
+  testnet?: boolean;
   onClose?: () => void;
   /** Idioma a usar si no hay un LanguageProvider arriba. */
   language?: Language;
@@ -38,7 +42,8 @@ function TransactionTrackerInner({
   contract,
   explorerUrl = "https://etherscan.io",
   hint,
-  transactionCost,
+  estimatedCost,
+  testnet,
   onClose,
 }: TransactionTrackerProps) {
   const { address } = useAppKitAccount();
@@ -73,6 +78,39 @@ function TransactionTrackerInner({
   }, [walletProvider, address, balanceKey, caipNetwork?.nativeCurrency.symbol, isConfirmed]);
 
   const balance = balanceState?.key === balanceKey ? balanceState.value : null;
+
+  // Precio de RBTC en USD, para mostrar el costo de la transacción en dólares.
+  const [rbtcUsd, setRbtcUsd] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/rbtc-price")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && typeof data?.usd === "number") setRbtcUsd(data.usd);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  const formatNative = (wei: bigint) => {
+    const amount = Number(formatEther(wei)).toLocaleString(undefined, { maximumFractionDigits: 8 });
+    return `${amount} ${caipNetwork?.nativeCurrency.symbol ?? ""}`.trim();
+  };
+  const formatUsd = (wei: bigint) => {
+    if (rbtcUsd == null) return null;
+    const usd = Number(formatEther(wei)) * rbtcUsd;
+    if (usd > 0 && usd < 0.01) return "< US$ 0.01";
+    return `US$ ${usd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+  const actualFee = txState.step === 2 ? txState.receipt?.fee : undefined;
+  const costWei = actualFee ?? estimatedCost;
+  const cost = costWei == null ? null : {
+    label: t(actualFee != null ? "tx.info.tx-cost" : "tx.info.estimated-cost"),
+    prefix: actualFee != null ? "" : "~",
+    value: formatNative(costWei),
+    usd: formatUsd(costWei),
+  };
   const copy = getStatusCopy(t)[currentStatus];
   const isWaiting = currentStatus === "waiting_approval" || currentStatus === "waiting_confirmation";
   const hasError = currentStatus == "rejected" || currentStatus === "expired" || currentStatus === "reverted" || currentStatus === "error";
@@ -109,6 +147,8 @@ function TransactionTrackerInner({
           </div>
         </div>
 
+        {testnet && <TestnetNotice t={t} />}
+
         {/* Info rows */}
         <div className="mx-6 mb-4 rounded-xl bg-zinc-50 dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700 ring-1 ring-zinc-100 dark:ring-zinc-700">
 
@@ -143,10 +183,15 @@ function TransactionTrackerInner({
           </div>
 
           {/* Transaction cost */}
-          {transactionCost && (
+          {cost && (
             <div className="flex items-center justify-between px-4 py-3">
-              <span className="text-xs text-zinc-400 dark:text-zinc-500">{t("tx.info.tx-cost")}</span>
-              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-200">{transactionCost}</span>
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">{cost.label}</span>
+              <div className="text-right">
+                <p className="text-xs font-medium text-zinc-700 dark:text-zinc-200">{cost.prefix}{cost.value}</p>
+                {cost.usd && (
+                  <p className="text-[11px] text-zinc-400 dark:text-zinc-500">{cost.prefix}{cost.usd}</p>
+                )}
+              </div>
             </div>
           )}
 
