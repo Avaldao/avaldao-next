@@ -280,7 +280,11 @@ export default class AvalesService {
     if (!isValidDesbloqueo(avalData.desbloqueoSeconds, avalData.duracionCuotaSeconds)) {
       throw new Error("El período de desbloqueo debe ser mayor a 0 y menor a la duración de la cuota.");
     }
-    avalData.montoFiat = Math.round(avalData.montoFiat * 100); //lo guarda con 2 decimales
+    const montoFiat = Number(avalData.montoFiat);
+    if (!Number.isFinite(montoFiat) || montoFiat <= 0) {
+      throw new Error("El monto debe ser mayor a 0.");
+    }
+    avalData.montoFiat = Math.round(montoFiat * 100); //lo guarda con 2 decimales
 
     const aval = new AvalModel({
       ...avalData

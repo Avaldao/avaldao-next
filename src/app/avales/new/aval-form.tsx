@@ -391,7 +391,15 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
             type="number"
             name="montoFiat"
             value={form.montoFiat}
-            onChange={handleChange}
+            min={0.01}
+            step="any"
+            onKeyDown={(e) => {
+              if (["-", "+", "e", "E"].includes(e.key)) e.preventDefault();
+            }}
+            onChange={(e) => {
+              if (Number(e.target.value) < 0) return;
+              handleChange(e);
+            }}
             required
           />
         </div>
