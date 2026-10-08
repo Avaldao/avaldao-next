@@ -8,7 +8,7 @@ import Spinner from "@/components/ui/spinner";
 import { useLanguage } from "@/context/LanguageContext";
 import { ProfileUser } from "@/services/users-service";
 
-import { Camera, Save } from "lucide-react";
+import { BadgeCheck, Camera, Save } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -32,6 +32,8 @@ export default function ProfileForm({ user }: ProfileFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState(user?.name ?? "");
+  // Con la identidad verificada el nombre no se edita (UsersService.updateProfile lo rechaza).
+  const nameLocked = user?.status === "active";
   const [email, setEmail] = useState(user?.email ?? "");
   const [website, setWebsite] = useState(user?.website ?? "");
 
@@ -109,6 +111,9 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           await update();
           console.log("Updated was called")
         }
+      } else {
+        const data = await response.json().catch(() => ({}));
+        toast.error(data.message === "NAME_LOCKED" ? t("profile.name-locked") : t("profile.update-error"));
       }
 
 
@@ -159,7 +164,15 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           value={name}
           onChange={e => setName(e.target.value)}
           placeholder="Juan Pérez"
+          readOnly={nameLocked}
+          className={nameLocked ? "bg-slate-50 text-slate-500" : undefined}
         />
+        {nameLocked && (
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
+            <BadgeCheck className="h-3.5 w-3.5 text-green-600" />
+            {t("profile.name-locked")}
+          </p>
+        )}
       </div>
 
       <div>

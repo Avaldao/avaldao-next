@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import AvalesService from "@/services/avales-service";
+import AvalesService, { AvalRoleEnum } from "@/services/avales-service";
 import UsersService from "@/services/users-service";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import { contractsAddress } from "@/blockchain/contracts";
 import CopyAddress from "@/components/copy-address";
+import VerifiedName from "@/components/users/verified-name";
 import { Contract, getAddress, JsonRpcProvider } from "ethers";
 import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
 import IPFSUserAvatar from "@/app/staff/users/ipfs-user-avatar";
@@ -131,32 +132,47 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
     const diasDecimals = showTime ? 4 : 2;
 
     // Mismo orden y etiquetas que en el formulario de creación.
-    const participants = [
+    const participants: {
+      role: AvalRoleEnum;
+      labelKey: string;
+      address: string;
+      user: typeof solicitante;
+      signature?: string;
+    }[] = [
       {
+        role: "solicitante",
         labelKey: "aval.form.applicant",
         address: aval.solicitanteAddress,
         user: solicitante,
         signature: aval.solicitanteSignature,
       },
       {
+        role: "avaldao",
         labelKey: "aval.form.avaldao",
         address: aval.avaldaoAddress,
         user: avaldaoUser,
         signature: aval.avaldaoSignature,
       },
       {
+        role: "comerciante",
         labelKey: "aval.form.merchant",
         address: aval.comercianteAddress,
         user: comerciante,
         signature: aval.comercianteSignature,
       },
       {
+        role: "avalado",
         labelKey: "aval.form.endorsed",
         address: aval.avaladoAddress,
         user: avalado,
         signature: aval.avaladoSignature,
       },
     ];
+
+    // Un aval solo puede aceptarse si todas sus addresses pertenecen a usuarios con
+    // identidad verificada (status "active"). Si la consulta falló no se sabe si el
+    // usuario está verificado: se bloquea igual.
+    const unverifiedRoles = participants.filter(({ user }) => user?.status !== "active").map(({ role }) => role);
 
     return (
       <div className="max-w-6xl space-y-3 sm:space-y-6">
@@ -192,7 +208,7 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
         />
 
         {/* Acciones según estado y rol */}
-        <AvalActionsWrapper aval={aval} language={language} />
+        <AvalActionsWrapper aval={aval} language={language} unverifiedRoles={unverifiedRoles} />
 
         {/* Las secciones siguen el mismo orden y estilo que el formulario de creación. */}
         <div className="space-y-4">
@@ -243,9 +259,11 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                     )}
                     <div className="min-w-0 flex-1">
                       {user?.name ? (
-                        <p className="text-sm font-medium text-primary truncate">{user.name}</p>
+                        <p className="text-sm font-medium text-primary">
+                          <VerifiedName name={user.name} status={user.status} language={language} />
+                        </p>
                       ) : (
-                        <p className="text-sm text-amber-600 truncate">{t("aval.form.user-not-found")}</p>
+                        <p className="text-sm text-amber-600 truncate">{t("aval.details.user-not-registered")}</p>
                       )}
                       <div className="flex items-center gap-1">
                         <Wallet className="w-3.5 h-3.5 text-slate-500 shrink-0" />

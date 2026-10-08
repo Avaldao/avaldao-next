@@ -11,7 +11,22 @@ export type Role =
   | "AVALADO_ROLE"
   | "INVERSOR_ROLE";
 
+/**
+ * `active` significa identidad verificada por un admin: el nombre que muestra la
+ * plataforma corresponde a esa persona o empresa. `pending` es una cuenta cuyo
+ * nombre es solo declarado.
+ */
 export type UserStatus = "pending" | "active" | "rejected" | "suspended";
+
+/** Última decisión de un admin sobre el estado del usuario. */
+export interface UserVerification {
+  status: UserStatus;
+  byUserId: string;
+  byAddress?: string;
+  at: Date;
+  method: "manual";
+  note?: string;
+}
 
 export interface IUser extends Document {
   address?: string;
@@ -28,6 +43,7 @@ export interface IUser extends Document {
   acceptTyC?: boolean;
   acceptPrivacy?: boolean;
   status?: UserStatus;
+  verification?: UserVerification;
   url?: string;
   infoCid?: string;
   avatar?: string;
@@ -116,6 +132,14 @@ export const userSchema = new Schema<IUser>(
       type: String,
       enum: ["pending", "active", "rejected", "suspended"],
       default: "pending",
+    },
+    verification: {
+      status: { type: String, enum: ["pending", "active", "rejected", "suspended"] },
+      byUserId: String,
+      byAddress: String,
+      at: Date,
+      method: { type: String, enum: ["manual"] },
+      note: { type: String, trim: true },
     },
     url: {
       type: String,

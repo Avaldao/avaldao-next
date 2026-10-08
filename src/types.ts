@@ -1,4 +1,4 @@
-import type { UserStatus } from "./lib/db/models/user-model";
+import type { UserStatus, UserVerification } from "./lib/db/models/user-model";
 import { Role } from "./roles";
 
 export interface PaginatedResult<T> {
@@ -66,6 +66,13 @@ export interface UserInfo {
   name: string;
   avatar: string;
   status?: UserStatus;
+  verification?: UserVerification;
+  accountType?: "personal" | "business";
+  firstName?: string;
+  lastName?: string;
+  companyName?: string;
+  cuit?: string;
+  country?: string;
   roles: Role[];
   nroles: {
     [chainId: number]: Role[];

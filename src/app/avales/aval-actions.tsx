@@ -53,7 +53,7 @@ const ROLE_LABEL_KEYS: Record<AvalRoleEnum, string> = {
   avalado: "aval.form.endorsed",
 };
 
-export default function AvalActions({ aval }: { aval: Aval }) {
+export default function AvalActions({ aval, unverifiedRoles }: { aval: Aval; unverifiedRoles: AvalRoleEnum[] }) {
   const { data: session } = useSession();
   const { t, language } = useLanguage();
   const router = useRouter();
@@ -214,6 +214,10 @@ export default function AvalActions({ aval }: { aval: Aval }) {
   async function acceptAval() {
     if (!aval.infoCid) {
       toast.error(t("aval.actions.missing-info-cid"));
+      return;
+    }
+    if (unverifiedRoles.length > 0) {
+      toast.error(t("aval.actions.unverified.title"));
       return;
     }
     setShowTxTracker(true);
@@ -433,12 +437,27 @@ export default function AvalActions({ aval }: { aval: Aval }) {
               <p>{t("aval.actions.pending-review.not-binding")}</p>
             </div>
 
+            {/* Sin cuenta no hay nombre verificable detrás de la address: no se acepta. */}
+            {unverifiedRoles.length > 0 && (
+              <div className="flex items-start gap-2.5 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+                <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium">{t("aval.actions.unverified.title")}</p>
+                  <p className="mt-0.5">
+                    {t("aval.actions.unverified.description", {
+                      roles: unverifiedRoles.map(roleLabel).join(", "),
+                    })}
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="pt-4 border-t border-violet-200/70">
               {!showRejectForm ? (
                 <div className="flex flex-wrap gap-3">
                   <Button
                     onClick={acceptAval}
-                    disabled={!aval.infoCid}
+                    disabled={!aval.infoCid || unverifiedRoles.length > 0}
                     className="bg-primary-soft hover:bg-primary shadow-sm shadow-violet-500/20"
                   >
                     <CheckCircle2 className="w-4 h-4" />

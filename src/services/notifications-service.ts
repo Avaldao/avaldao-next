@@ -17,6 +17,22 @@ interface NewAvalInfo {
 
 type ReadyToSignAvalInfo = Omit<NewAvalInfo, 'solicitanteAddress'>;
 
+interface IdentityReviewInfo {
+  _id: { toString(): string };
+  name: string;
+  email: string;
+  address?: string;
+  accountType?: 'personal' | 'business';
+  firstName?: string;
+  lastName?: string;
+  companyName?: string;
+  cuit?: string;
+  platformRoles?: string[];
+}
+
+/** Casilla del equipo que verifica identidades. */
+const IDENTITY_REVIEW_EMAIL = process.env.IDENTITY_REVIEW_EMAIL || 'avaldao.sgr@gmail.com';
+
 interface Recipient {
   email: string;
   language: Language;
@@ -123,6 +139,39 @@ export default class NotificationsService {
       });
     } catch (error) {
       console.error(`[notifications] Falló la notificación de firmas del aval ${aval._id}`, error);
+    }
+  }
+
+  /**
+   * Avisa al equipo de Avaldao que hay un usuario con identidad por verificar.
+   * Va siempre a la casilla del equipo, en español. Nunca lanza: una falla de
+   * email no debe impedir la activación de la cuenta.
+   */
+  async notifyIdentityReview(user: IdentityReviewInfo): Promise<void> {
+    try {
+      const business = user.accountType === 'business';
+      const name = business ? user.companyName : [user.firstName, user.lastName].filter(Boolean).join(' ');
+      const link = `${process.env.NEXT_PUBLIC_SITE_URL}/staff/users/${user._id}`;
+      const values: Record<string, string> = {
+        ACCOUNT_TYPE: business ? 'Empresa' : 'Persona',
+        NAME: escapeHtml(name || user.name),
+        CUIT: escapeHtml(user.cuit || '—'),
+        EMAIL: escapeHtml(user.email),
+        ADDRESS: escapeHtml(user.address),
+        ROLES: escapeHtml(
+          (user.platformRoles ?? []).map((r) => r.replace(/_ROLE$/, '').toLowerCase()).join(', ') || '—'
+        ),
+        USER_LINK: link,
+      };
+
+      await sendMail({
+        to: IDENTITY_REVIEW_EMAIL,
+        subject: `Usuario para verificar: ${name || user.name}`,
+        text: `Usuario para verificar: ${name || user.name} (${user.email})\n${link}`,
+        html: this._renderTemplate('es', 'identity-review-email.html', values),
+      });
+    } catch (error) {
+      console.error(`[notifications] Falló el aviso de verificación del usuario ${user._id}`, error);
     }
   }
 

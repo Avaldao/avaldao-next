@@ -17,6 +17,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Language, translations } from "@/translations";
 import CuotasPreview from "./cuotas-preview";
 import NetworkListbox from "./network-listbox";
+import VerifiedName from "@/components/users/verified-name";
 import { DEFAULT_DESBLOQUEO_SECONDS, isValidDesbloqueo } from "@/app/entities/aval.entity";
 
 const DEFAULT_DESBLOQUEO_DIAS = DEFAULT_DESBLOQUEO_SECONDS / 86400;
@@ -547,7 +548,8 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
               : comerciante && !fieldErrors.comercianteAddress
                 ? (
                   <div className="mt-1 text-primary italic text-sm">
-                    {comerciante?.name} &lt;{comerciante.email}&gt;
+                    <VerifiedName name={comerciante.name} status={comerciante.status} language={language} />
+                    <span className="block truncate">&lt;{comerciante.email}&gt;</span>
                   </div>
                 )
                 : comercianteNotFound && !fieldErrors.comercianteAddress && (
@@ -581,7 +583,8 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
               : avalado && !fieldErrors.avaladoAddress
                 ? (
                   <div className="mt-1 text-primary italic text-sm">
-                    {avalado?.name} &lt;{avalado.email}&gt;
+                    <VerifiedName name={avalado.name} status={avalado.status} language={language} />
+                    <span className="block truncate">&lt;{avalado.email}&gt;</span>
                   </div>
                 )
                 : avaladoNotFound && !fieldErrors.avaladoAddress && (

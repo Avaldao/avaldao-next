@@ -9,6 +9,7 @@ import UsersService from "@/services/users-service";
 import { ShieldCheck, UserIcon } from "lucide-react";
 import Image from "next/image";
 import UserRolesEditor from "./user-roles-editor";
+import UserVerification from "./user-verification";
 import roles from "@/roles";
 import { getLanguage } from "@/lib/cookies";
 import { networks, NRoles } from "@/components/ui/layout/network-roles";
@@ -100,7 +101,43 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
             trailing={<CopyAddress address={user.address} className="" language={language} />}
           />
         </div>
-        <div>
+        {/* Datos que el usuario declaró al registrarse: es lo que el admin tiene que constatar. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+          {user.accountType === "business" ? (
+            <>
+              <div>
+                <Label htmlFor="companyName">{t("staff.user.company-name")}</Label>
+                <Input id="companyName" readOnly value={user.companyName ?? ""} />
+              </div>
+              <div>
+                <Label htmlFor="cuit">CUIT</Label>
+                <Input id="cuit" readOnly value={user.cuit ?? ""} />
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <Label htmlFor="firstName">{t("staff.user.first-name")}</Label>
+                <Input id="firstName" readOnly value={user.firstName ?? ""} />
+              </div>
+              <div>
+                <Label htmlFor="lastName">{t("staff.user.last-name")}</Label>
+                <Input id="lastName" readOnly value={user.lastName ?? ""} />
+              </div>
+            </>
+          )}
+        </div>
+
+        <UserVerification
+          userId={user.id}
+          status={user.status ?? "pending"}
+          verification={user.verification ? JSON.parse(JSON.stringify(user.verification)) : undefined}
+          hasAddress={!!user.address}
+          canEdit={isAdmin}
+          language={language}
+        />
+
+        <div className="mt-4">
           <Label>{t("staff.users.col.roles")}</Label>
           <div className="mt-2 divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
             {networks.map((network) => {

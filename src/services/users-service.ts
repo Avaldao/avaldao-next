@@ -5,7 +5,8 @@ import { PaginatedResult, UserInfo, UserUpsert } from '@/types';
 import { ObjectId } from 'mongodb';
 import { getCurrentUser, requireRoles } from '@/lib/auth/authorization';
 import OnChainAuthorizationService from './onchain-authorization-service';
-import UsersModel, { UserStatus } from '@/lib/db/models/user-model';
+import UsersModel, { IUser, UserStatus } from '@/lib/db/models/user-model';
+import NotificationsService from './notifications-service';
 import ChallengeModel from '@/lib/db/models/challenge-model';
 import { getAddress, verifyMessage } from 'ethers';
 import { sendMail } from '@/lib/email';
@@ -23,6 +24,7 @@ export interface ProfileUser {
   email: string;
   website?: string;
   avatar?: string;
+  status?: UserStatus;
 }
 
 interface GetAllUsersFilter {
@@ -50,6 +52,24 @@ interface UserData {
 }
 
 type ActivationEmailUser = Pick<UserInfo, "id" | "email">;
+
+/** Campos que nunca salen de la base en un lookup de otro usuario. */
+const PUBLIC_USER_PROJECTION = {
+  password: 0,
+  activationToken: 0,
+  activationTokenExpiry: 0,
+  passwordResetToken: 0,
+  passwordResetTokenExpiry: 0,
+} as const;
+
+/** Decisiones que un admin puede tomar sobre la identidad de un usuario. */
+export type VerificationAction = "verify" | "reject" | "suspend";
+
+const VERIFICATION_TARGET: Record<VerificationAction, { status: UserStatus; from: UserStatus[] }> = {
+  verify: { status: "active", from: ["pending", "rejected", "suspended"] },
+  reject: { status: "rejected", from: ["pending"] },
+  suspend: { status: "suspended", from: ["active"] },
+};
 
 interface ActivationAccountData {
   token: string;
@@ -205,6 +225,8 @@ export default class UsersService {
     user.activationTokenExpiry = undefined;
     await user.save();
 
+    await this._requestIdentityReviewIfNeeded(user);
+
     return {
       id: user._id.toString(),
       email: user.email,
@@ -349,8 +371,14 @@ export default class UsersService {
     // pero el hecho de que puedas asociarlo a un nombre y avatar hace que sea mas sensible. 
     // Por ahora lo dejo asi, pero es algo para tener en cuenta.
 
+    // Las addresses se guardan con checksum, pero pueden llegar en minúsculas.
+    // El resultado llega al navegador de cualquier usuario autenticado: no se
+    // devuelven hashes ni tokens.
     const db = await getDb();
-    const user = await db.collection<UserInfo>("users").findOne({ "address": address });
+    const user = await db.collection<UserInfo>("users").findOne(
+      { "address": address },
+      { collation: { locale: "en", strength: 2 }, projection: PUBLIC_USER_PROJECTION }
+    );
     if (user) {
       const authorizationService = new OnChainAuthorizationService();
       user.roles = await authorizationService.getRoles(user.address);
@@ -475,12 +503,27 @@ export default class UsersService {
       throw new Error("Esta billetera ya está asociada a otra cuenta");
     }
 
-    await UsersModel.findByIdAndUpdate(userId, {
+    const updated = await UsersModel.findByIdAndUpdate(userId, {
       address: recoveredAddress,
       updatedAt: new Date(),
-    });
+    }, { new: true });
+
+    // Re-vincular la misma wallet no es un pedido nuevo.
+    const alreadyLinked = existing?._id.toString() === userId;
+    if (updated && !alreadyLinked) await this._requestIdentityReviewIfNeeded(updated);
 
     return recoveredAddress;
+  }
+
+  /**
+   * Un usuario necesita verificación de identidad cuando ya activó la cuenta,
+   * tiene una wallet vinculada (la identidad se muestra a través de la address)
+   * y nadie decidió todavía sobre él. En ese caso se avisa al equipo de Avaldao.
+   */
+  private async _requestIdentityReviewIfNeeded(user: IUser) {
+    const status = user.status ?? "pending";
+    if (!user.emailVerified || !user.address || status !== "pending") return;
+    await new NotificationsService().notifyIdentityReview(user);
   }
 
 
@@ -497,13 +540,61 @@ export default class UsersService {
       email: user.email,
       website: user.website,
       avatar: user.avatar,
+      status: user.status,
     };
+  }
+
+  /**
+   * Un admin verifica (o rechaza/suspende) la identidad de un usuario. La
+   * verificación es manual: el admin constató fuera de la plataforma que el
+   * nombre de la cuenta corresponde a quien controla la address.
+   */
+  async setVerification(userId: string, action: VerificationAction, note?: string) {
+    const session = await requireRoles("ADMIN_ROLE");
+    const target = VERIFICATION_TARGET[action];
+    if (!target) throw new Error("Invalid verification action");
+
+    const user = await UsersModel.findById(userId);
+    if (!user) throw new Error("User not found");
+    const current: UserStatus = user.status ?? "pending";
+    if (!target.from.includes(current)) {
+      throw new Error(`Cannot ${action} a user in status ${current}`);
+    }
+    // Sin address no hay nada que vincular: la identidad verificada se muestra
+    // en los avales a través de la address.
+    if (action === "verify" && !user.address) {
+      throw new Error("The user has no linked wallet");
+    }
+    if (session.user.id === userId) {
+      throw new Error("Admins cannot change their own verification status");
+    }
+
+    user.status = target.status;
+    user.verification = {
+      status: target.status,
+      byUserId: session.user.id,
+      byAddress: session.user.address,
+      at: new Date(),
+      method: "manual",
+      note: note?.trim() || undefined,
+    };
+    await user.save();
+
+    return { id: user._id.toString(), status: user.status };
   }
 
 
 
 
   async updateProfile(data: UserUpsert) {
+
+    // Con la identidad verificada el nombre queda fijo: cambiarlo dejaría a la
+    // vista un nombre que nadie constató. Para corregirlo hay que pedírselo a Avaldao.
+    const current = await UsersModel.findById(data.id, { name: 1, status: 1 });
+    if (!current) throw new Error("User not found");
+    if (current.status === "active" && data.name !== current.name) {
+      throw new Error("NAME_LOCKED");
+    }
 
     let pinataResponse;
     //Procesar data.avatar, ahi podriamos ver desde el front si se modifico o no
