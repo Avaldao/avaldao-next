@@ -25,7 +25,7 @@ import {
 
 import { useLanguage } from "@/context/LanguageContext";
 import { Language, translations } from "@/translations";
-import NetworkRoles, { networks } from "@/components/ui/layout/network-roles";
+import NetworkRoles, { enabledNetworks } from "@/components/ui/layout/network-roles";
 
 interface SidebarItem {
   key: string;
@@ -63,11 +63,13 @@ interface StaffSidebarProps {
     "30": string[];
     "31": string[];
   };
+  /** Redes habilitadas (AVAL_CHAIN_IDS). */
+  chainIds: number[];
   badges?: Record<string, number>;
   language: Language;
 }
 
-export default function StaffSidebar({ userName, nroles, badges, language }: StaffSidebarProps) {
+export default function StaffSidebar({ userName, nroles, chainIds, badges, language }: StaffSidebarProps) {
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   const pathname = usePathname();
@@ -145,8 +147,7 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
             (item) =>
               !item.roles ||
               item.roles.some((r) =>
-                nroles["30"]?.includes(r) ||
-                nroles[process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID as "30" | "31"]?.includes(r)
+                chainIds.some((chainId) => nroles[String(chainId) as "30" | "31"]?.includes(r))
               )
           )
           .map((item) => {
@@ -175,12 +176,12 @@ export default function StaffSidebar({ userName, nroles, badges, language }: Sta
       </nav>
 
       {/* Network roles — expanded */}
-      {!collapsed && <NetworkRoles nroles={nroles} language={language} className="absolute bottom-5 left-3 right-3" />}
+      {!collapsed && <NetworkRoles nroles={nroles} chainIds={chainIds} language={language} className="absolute bottom-5 left-3 right-3" />}
 
       {/* Network roles — collapsed (compact) */}
       {collapsed && (
         <div className="absolute bottom-5 left-0 right-0 flex flex-col items-center gap-1.5">
-          {networks.map((network) => {
+          {enabledNetworks(chainIds).map((network) => {
             const count = nroles?.[network.id as "30" | "31"]?.length ?? 0;
             const roles = nroles?.[network.id as "30" | "31"] ?? [];
             const tooltip = `${network.name}\n${roles.length ? roles.map((r) => r.replaceAll("_", " ")).join(", ") : t("staff.roles.none-short")}`;

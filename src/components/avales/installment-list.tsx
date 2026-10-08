@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { CSSProperties, ReactNode } from "react";
 import { format } from "date-fns";
 
 export interface InstallmentItem {
@@ -15,6 +15,8 @@ export interface InstallmentItem {
 interface InstallmentListProps {
   items: InstallmentItem[];
   t: (key: string) => string;
+  /** Muestra la hora junto a la fecha; útil cuando las cuotas duran menos de un día. */
+  showTime?: boolean;
 }
 
 // Proporción mínima/máxima de la ventana de reclamo en la barra, para que las etiquetas no se pisen.
@@ -27,11 +29,11 @@ const ALIGN = {
   end: "items-end text-right",
 } as const;
 
-const fmt = (seconds: number) => format(new Date(seconds * 1000), "dd/MM/yyyy");
-
 // Lista de cuotas con una línea de tiempo por cuota (fondos reservados → vencimiento → desbloqueo).
 // Muestra 3 filas completas a la vez (144px por fila en mobile, 112px desde sm) y hace scroll con snap, así no se corta ninguna.
-export default function InstallmentList({ items, t }: InstallmentListProps) {
+export default function InstallmentList({ items, t, showTime = false }: InstallmentListProps) {
+  const fmt = (seconds: number) => format(new Date(seconds * 1000), showTime ? "dd/MM/yyyy HH:mm" : "dd/MM/yyyy");
+
   return (
     <ul className="divide-y divide-slate-100 text-sm max-h-108 sm:max-h-84 overflow-y-auto overscroll-contain snap-y snap-mandatory [scrollbar-gutter:stable] [scrollbar-width:thin]">
       {items.map((item) => {
@@ -50,7 +52,7 @@ export default function InstallmentList({ items, t }: InstallmentListProps) {
               <span className="font-mono text-slate-800 shrink-0">{item.amount}</span>
             </div>
 
-            <div className="relative mt-3">
+            <div className="@container relative mt-3">
               <div className="grid grid-cols-2">
                 <div className="h-1.5" />
                 <span className="pb-1 text-center text-[10px] font-semibold uppercase tracking-wider text-amber-600">
@@ -70,10 +72,19 @@ export default function InstallmentList({ items, t }: InstallmentListProps) {
                 />
                 <span className="absolute right-0 h-3.5 w-3.5 rounded-full border-[3px] border-white bg-emerald-400" />
               </div>
-              <div className="mt-1.5 grid grid-cols-3">
+              {/* Con espacio suficiente (≥ 42rem) el vencimiento se ubica debajo de su punto; si no, se agrupa junto al desbloqueo. */}
+              <div className="relative mt-1.5 flex justify-between gap-4">
                 <Milestone align="start" label={t("how.cuota.reserved")} detail={fmt(item.startSeconds)} />
-                <Milestone align="center" label={t("aval.details.maturity-date")} detail={fmt(item.maturitySeconds)} />
-                <Milestone align="end" label={t("aval.details.unlock-date")} detail={fmt(item.unlockSeconds)} />
+                <div className="flex gap-4 sm:gap-6">
+                  <Milestone
+                    align="end"
+                    label={t("aval.details.maturity-date")}
+                    detail={fmt(item.maturitySeconds)}
+                    className="@2xl:absolute @2xl:-translate-x-1/2 @2xl:items-center @2xl:text-center @2xl:whitespace-nowrap"
+                    style={{ left: `${(1 - claimFraction) * 100}%` }}
+                  />
+                  <Milestone align="end" label={t("aval.details.unlock-date")} detail={fmt(item.unlockSeconds)} />
+                </div>
               </div>
             </div>
           </li>
@@ -83,9 +94,17 @@ export default function InstallmentList({ items, t }: InstallmentListProps) {
   );
 }
 
-function Milestone({ align, label, detail }: { align: keyof typeof ALIGN; label: string; detail: string }) {
+interface MilestoneProps {
+  align: keyof typeof ALIGN;
+  label: string;
+  detail: string;
+  className?: string;
+  style?: CSSProperties;
+}
+
+function Milestone({ align, label, detail, className = "", style }: MilestoneProps) {
   return (
-    <div className={`flex flex-col ${ALIGN[align]}`}>
+    <div className={`flex flex-col ${ALIGN[align]} ${className}`} style={style}>
       <p className="text-xs font-medium leading-4 text-slate-700 sm:text-sm sm:leading-5">{label}</p>
       <p className="font-mono text-xs text-slate-500">{detail}</p>
     </div>

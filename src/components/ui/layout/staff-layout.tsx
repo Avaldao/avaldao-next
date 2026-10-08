@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import StaffSidebar from "@/components/ui/layout/staff-sidebar";
 import { getLanguage } from "@/lib/cookies";
+import { getAvalChainIds } from "@/blockchain/contracts";
 
 
 export default async function StaffLayout({ children }: { children: ReactNode }) {
@@ -20,7 +21,7 @@ export default async function StaffLayout({ children }: { children: ReactNode })
       </div>
       <Header />
       <div className="flex min-h-[calc(100vh-56px)] sm:min-h-[calc(100vh-75px)] bg-white">
-        <StaffSidebar userName={userName} nroles={nroles} language={language} />
+        <StaffSidebar userName={userName} nroles={nroles} chainIds={getAvalChainIds()} language={language} />
         <main className="flex-1 overflow-auto scroll-smooth bg-white p-4 text-slate-700">{children}</main>
       </div>
       <Footer />

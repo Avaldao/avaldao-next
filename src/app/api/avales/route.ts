@@ -1,5 +1,5 @@
 import { handleError, OkResponse } from "@/app/api/response-handler";
-import { defaultAvaldaoAddress } from "@/blockchain/contracts";
+import { defaultAvaldaoAddress, getAvalChainIds } from "@/blockchain/contracts";
 import { MissingRoleError, NotAuthenticatedError, NotAuthorizedError } from "@/errors";
 import { authOptions } from "@/lib/auth";
 import AvalesService from "@/services/avales-service";
@@ -18,6 +18,10 @@ export async function POST(request: Request) {
     //if (!session.user.roles.includes("SOLICITANTE_ROLE")) throw new MissingRoleError("SOLICITANTE_ROLE");
 
     const avalData: AvalRequest = await request.json();
+
+    if (!getAvalChainIds().includes(Number(avalData.chainId))) {
+      throw new Error(`Unsupported chainId: ${avalData.chainId}`);
+    }
 
     const avaldaoUserAddress = getAddress(defaultAvaldaoAddress[Number(avalData.chainId)].toLowerCase())
 

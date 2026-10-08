@@ -2,8 +2,15 @@ import { CONTRACTS_VERSION } from "@/config";
 import { Aval } from "@/types";
 
 // Ventana de desbloqueo por defecto (10 días, contada desde el vencimiento de cada cuota).
-// El formulario no la envía, así que el aval la toma del default de aval-model.ts: mantener ambos valores en sync.
+// Mantener en sync con el default de aval-model.ts.
 export const DEFAULT_DESBLOQUEO_SECONDS = 864000;
+
+// La ventana de desbloqueo tiene que ser menor a la duración de la cuota: si no, la cuota N sigue
+// Pendiente cuando vence la N+1, y ejecutarGarantia() (que ejecuta todas las pendientes vencidas)
+// cobraría también la cuota N aunque haya sido pagada.
+export function isValidDesbloqueo(desbloqueoSeconds: number, duracionCuotaSeconds: number) {
+  return Number.isFinite(desbloqueoSeconds) && desbloqueoSeconds > 0 && desbloqueoSeconds < duracionCuotaSeconds;
+}
 
 export interface Tranche {
   index: number;

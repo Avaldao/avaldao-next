@@ -117,6 +117,7 @@ export default async function CuotasCard({ aval, avalAddress, language }: Props)
             <p className="text-sm font-semibold text-slate-700 mb-2">{t("aval.details.schedule")}</p>
             <InstallmentList
               t={t}
+              showTime={aval.duracionCuotaSeconds < 86400}
               items={
                 onchainCuotas
                   ? onchainCuotas.map((cuota) => ({

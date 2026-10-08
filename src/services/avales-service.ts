@@ -12,6 +12,7 @@ import { contractsAddress } from "@/blockchain/contracts";
 import avalAbi from "@/blockchain/contracts/avaldao/aval.abi";
 import NotificationsService from "@/services/notifications-service";
 import { AvalTerminos, generateTerminos } from "@/app/entities/aval-terms.entity";
+import { DEFAULT_DESBLOQUEO_SECONDS, isValidDesbloqueo } from "@/app/entities/aval.entity";
 
 export type AvalRoleEnum = "avaldao" | "solicitante" | "comerciante" | "avalado";
 
@@ -244,7 +245,19 @@ export default class AvalesService {
 
   async saveAval(avalData: AvalRequest): Promise<Aval> {
     avalData.fechaInicio = new Date(avalData.fechaInicio);
+    const duracionCuotaDias = Number(avalData.duracionCuotaDias);
+    if (!Number.isFinite(duracionCuotaDias) || duracionCuotaDias <= 0) {
+      throw new Error("La duración de la cuota debe ser mayor a 0.");
+    }
+    avalData.duracionCuotaDias = duracionCuotaDias;
     avalData.duracionCuotaSeconds = avalData.duracionCuotaDias * 24 * 60 * 60;
+    // Siempre se calcula acá: no se acepta un desbloqueoSeconds enviado por el cliente.
+    avalData.desbloqueoSeconds = avalData.desbloqueoDias == null
+      ? DEFAULT_DESBLOQUEO_SECONDS
+      : Math.round(Number(avalData.desbloqueoDias) * 24 * 60 * 60);
+    if (!isValidDesbloqueo(avalData.desbloqueoSeconds, avalData.duracionCuotaSeconds)) {
+      throw new Error("El período de desbloqueo debe ser mayor a 0 y menor a la duración de la cuota.");
+    }
     avalData.montoFiat = avalData.montoFiat * 100; //lo guarda con 2 decimales
 
     const aval = new AvalModel({

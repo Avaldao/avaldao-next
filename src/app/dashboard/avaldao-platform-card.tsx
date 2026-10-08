@@ -41,14 +41,19 @@ interface PlatformStatusResponse extends IAvaldaoPlatformStatus {
 interface Props {
   language: Language;
   nroles: { [chainId: number]: Role[] };
+  /** Redes habilitadas (AVAL_CHAIN_IDS). El selector solo se muestra si hay más de una. */
+  chainIds: number[];
+  initialChainId: number;
 }
 
-export default function AvaldaoPlatformCard({ language, nroles }: Props) {
+const NETWORK_LABELS: Record<number, string> = { 30: "Mainnet", 31: "Testnet" };
+
+export default function AvaldaoPlatformCard({ language, nroles, chainIds, initialChainId }: Props) {
   const t = (key: string) => translations[key]?.[language] ?? key;
   const { walletProvider } = useAppKitProvider<Eip1193Provider>("eip155");
   const { address: currentAddress } = useAppKitAccount();
 
-  const [chainId, setChainId] = useState<30 | 31>(30);
+  const [chainId, setChainId] = useState<30 | 31>(initialChainId as 30 | 31);
   const [data, setData] = useState<PlatformStatusResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -224,26 +229,24 @@ export default function AvaldaoPlatformCard({ language, nroles }: Props) {
       {/* Network switch */}
       <div className="flex items-center gap-x-3 gap-y-2 flex-wrap">
         <span className="text-sm text-slate-500">{t("dashboard.platform.network")}:</span>
-        <div className="flex rounded-lg border border-slate-200 overflow-hidden">
-          <button
-            className={`px-4 py-1.5 text-sm font-medium transition-colors ${chainId === 30
-              ? "bg-violet-600 text-white"
-              : "bg-white text-slate-600 hover:bg-slate-50"
-              }`}
-            onClick={() => setChainId(30)}
-          >
-            Mainnet
-          </button>
-          <button
-            className={`px-4 py-1.5 text-sm font-medium transition-colors ${chainId === 31
-              ? "bg-violet-600 text-white"
-              : "bg-white text-slate-600 hover:bg-slate-50"
-              }`}
-            onClick={() => setChainId(31)}
-          >
-            Testnet
-          </button>
-        </div>
+        {chainIds.length > 1 ? (
+          <div className="flex rounded-lg border border-slate-200 overflow-hidden">
+            {chainIds.map((cid) => (
+              <button
+                key={cid}
+                className={`px-4 py-1.5 text-sm font-medium transition-colors ${chainId === cid
+                  ? "bg-violet-600 text-white"
+                  : "bg-white text-slate-600 hover:bg-slate-50"
+                  }`}
+                onClick={() => setChainId(cid as 30 | 31)}
+              >
+                {NETWORK_LABELS[cid] ?? cid}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <span className="text-sm font-medium text-slate-700">{networkInfo.networkName}</span>
+        )}
         <button
           onClick={() => fetchStatus(chainId, true)}
           disabled={loading}

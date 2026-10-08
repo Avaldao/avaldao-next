@@ -1,9 +1,10 @@
 import InstallmentList from "@/components/avales/installment-list";
-import { DEFAULT_DESBLOQUEO_SECONDS, generateTranches } from "@/app/entities/aval.entity";
+import { generateTranches } from "@/app/entities/aval.entity";
 
 interface CuotasPreviewProps {
   fechaInicio: Date | string | undefined;
   duracionCuotaDias: number | string;
+  desbloqueoDias: number;
   cuotasCantidad: number | string;
   montoFiat: number | string;
   t: (key: string) => string;
@@ -12,7 +13,7 @@ interface CuotasPreviewProps {
 const MAX_CUOTAS = 120;
 
 // Vista previa del plan de cuotas con la misma lógica que se usa al crear el aval (generateTranches).
-export default function CuotasPreview({ fechaInicio, duracionCuotaDias, cuotasCantidad, montoFiat, t }: CuotasPreviewProps) {
+export default function CuotasPreview({ fechaInicio, duracionCuotaDias, desbloqueoDias, cuotasCantidad, montoFiat, t }: CuotasPreviewProps) {
   const cantidad = Number(cuotasCantidad);
   const dias = Number(duracionCuotaDias);
   const monto = Number(montoFiat);
@@ -21,8 +22,9 @@ export default function CuotasPreview({ fechaInicio, duracionCuotaDias, cuotasCa
   if (!inicio || isNaN(inicio.getTime())) return null;
   if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > MAX_CUOTAS) return null;
   if (!(dias > 0) || !(monto >= 0)) return null;
+  if (!(desbloqueoDias > 0)) return null;
 
-  const tranches = generateTranches(inicio, dias * 86400, DEFAULT_DESBLOQUEO_SECONDS, cantidad);
+  const tranches = generateTranches(inicio, dias * 86400, Math.round(desbloqueoDias * 86400), cantidad);
   const montoCuota = (monto / cantidad).toFixed(2);
 
   const items = tranches.map((tr) => ({
@@ -38,10 +40,10 @@ export default function CuotasPreview({ fechaInicio, duracionCuotaDias, cuotasCa
     <fieldset className="rounded-xl border border-slate-200 px-3 sm:px-4 pb-4 pt-2">
       <legend className="px-2 text-sm font-semibold text-slate-800">{t("aval.form.schedule")}</legend>
 
-      <InstallmentList items={items} t={t} />
+      <InstallmentList items={items} t={t} showTime={dias < 1 || desbloqueoDias < 1} />
 
       <p className="mt-2 text-xs text-slate-500">
-        {t("aval.form.schedule.note").replace("{days}", String(DEFAULT_DESBLOQUEO_SECONDS / 86400))}
+        {t("aval.form.schedule.note").replace("{days}", String(Number(desbloqueoDias.toFixed(2))))}
       </p>
     </fieldset>
   );

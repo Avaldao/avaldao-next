@@ -42,6 +42,19 @@ export const defaultAvaldaoAddress: { [key: number]: string } = {
   31: process.env.TESTNET_USER_AVALDAO_ADDRESS!,
 }
 
+/**
+ * Redes en las que se permite crear avales, según AVAL_CHAIN_IDS (ej. "30,31").
+ * Si no está definida, solo se ofrece DEFAULT_CHAIN_ID. Solo se usa del lado
+ * del servidor: AVAL_CHAIN_IDS no se expone al cliente.
+ */
+export function getAvalChainIds(): number[] {
+  const raw = process.env.AVAL_CHAIN_IDS || process.env.DEFAULT_CHAIN_ID || "";
+  return raw
+    .split(",")
+    .map((s) => Number(s.trim()))
+    .filter((chainId) => chainId in networks);
+}
+
 
 
 export const contractsAddress: ContractsAddresses = {

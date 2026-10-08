@@ -7,6 +7,7 @@ import CommonUserDashboard from "./common-user-dashboard";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { translations } from "@/translations";
+import { getAvalChainIds } from "@/blockchain/contracts";
 
 export default async function DashboardPage() {
   const [session, language] = await Promise.all([
@@ -20,6 +21,9 @@ export default async function DashboardPage() {
     nroles[31]?.includes("ADMIN_ROLE") ||
     false;
 
+  const chainIds = getAvalChainIds();
+  const defaultChainId = Number(process.env.DEFAULT_CHAIN_ID);
+
   const newAvalLabel = translations["dashboard.new-aval"]?.[language] ?? "dashboard.new-aval";
 
   if (!isAdmin) {
@@ -29,7 +33,12 @@ export default async function DashboardPage() {
   return (
     <div className="max-w-6xl space-y-6">
       <UserDashboardWrapper userName={session?.user?.name ?? ""} language={language} />
-      <AvaldaoPlatformCard language={language} nroles={nroles} />
+      <AvaldaoPlatformCard
+        language={language}
+        nroles={nroles}
+        chainIds={chainIds}
+        initialChainId={chainIds.includes(defaultChainId) ? defaultChainId : chainIds[0]}
+      />
       <Link
         href="/avales/new"
         aria-label={newAvalLabel}

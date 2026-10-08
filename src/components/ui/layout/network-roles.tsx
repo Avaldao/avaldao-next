@@ -28,12 +28,25 @@ const roleColors: Record<string, string> = {
 
 export type NRoles = Partial<Record<"30" | "31", string[]>>;
 
+interface NetworkRolesProps {
+  nroles?: NRoles;
+  /** Redes habilitadas (AVAL_CHAIN_IDS). Si no se indica, se muestran todas. */
+  chainIds?: number[];
+  className?: string;
+  language?: Language;
+}
+
+/** Filtra las redes según las habilitadas en AVAL_CHAIN_IDS. */
+export function enabledNetworks(chainIds?: number[]) {
+  return chainIds ? networks.filter((n) => chainIds.includes(Number(n.id))) : networks;
+}
+
 /** Tarjetas con la red y los roles del usuario en cada una. */
-export default function NetworkRoles({ nroles, className = "", language = "es" }: { nroles?: NRoles; className?: string; language?: Language }) {
+export default function NetworkRoles({ nroles, chainIds, className = "", language = "es" }: NetworkRolesProps) {
   const t = createT(language);
   return (
     <div className={`flex flex-col gap-2 text-xs ${className}`}>
-      {networks.map((network) => {
+      {enabledNetworks(chainIds).map((network) => {
         const roles = nroles?.[network.id as "30" | "31"] ?? [];
         return (
           <div key={network.id} className={`rounded-lg border p-2 ${network.className}`}>

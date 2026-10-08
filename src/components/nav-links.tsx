@@ -24,7 +24,7 @@ interface NavItem {
   anchor?: boolean;
 }
 
-export default function NavLinks({ language }: { language: Language }) {
+export default function NavLinks({ language, chainIds }: { language: Language; chainIds: number[] }) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   // Guardamos en qué ruta se abrió: al navegar deja de coincidir y el menú se cierra solo.
@@ -138,7 +138,7 @@ export default function NavLinks({ language }: { language: Language }) {
 
               {status === "authenticated" && (
                 <>
-                  <NetworkRoles nroles={user?.nroles} language={language} className="border-t border-slate-100 py-3" />
+                  <NetworkRoles nroles={user?.nroles} chainIds={chainIds} language={language} className="border-t border-slate-100 py-3" />
                   <div className="flex flex-col divide-y divide-slate-100 border-t border-slate-100">
                     <Link href="/user/profile" onClick={() => setOpen(false)} className={accountLinkClass}>
                       <UserIcon className="mr-3 h-4 w-4" />{t("nav.profile")}

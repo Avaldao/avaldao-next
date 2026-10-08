@@ -1,23 +1,27 @@
 "use client";
 import { SessionProvider, useSession } from "next-auth/react";
-import AvalForm from "./aval-form";
-import { useLanguage } from "@/context/LanguageContext";
+import AvalForm, { AvalNetworkOption } from "./aval-form";
 import { Language } from "@/translations";
 
-export default function AvalFormWrapper({ avaldaoAddress, language }: { avaldaoAddress: string, language: Language }) {
+interface AvalFormWrapperProps {
+  networkOptions: AvalNetworkOption[];
+  initialChainId: number;
+  language: Language;
+}
+
+export default function AvalFormWrapper(props: AvalFormWrapperProps) {
   return (
     <div className="mb-15">
       <SessionProvider>
-        <W_ avaldaoAddress={avaldaoAddress} language={language} />
+        <W_ {...props} />
       </SessionProvider>
     </div>
   )
 }
 
-function W_({ avaldaoAddress, language }: { avaldaoAddress: string, language: Language }) {
+function W_(props: AvalFormWrapperProps) {
   const { status } = useSession();
 
   if (status == "authenticated")
-    return <AvalForm avaldaoAddress={avaldaoAddress} language={language} />;
+    return <AvalForm {...props} />;
 }
-

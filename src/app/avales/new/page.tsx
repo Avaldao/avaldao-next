@@ -1,16 +1,29 @@
 import { getAddress } from "ethers";
 import AvalFormWrapper from "./aval-form-wrapper";
-import { defaultAvaldaoAddress } from "@/blockchain/contracts";
+import { defaultAvaldaoAddress, getAvalChainIds, networks } from "@/blockchain/contracts";
 import { getLanguage } from "@/lib/cookies";
 import PageHeader from "@/components/ui/layout/page-header";
 import { translations } from "@/translations";
 import { FilePlus } from "lucide-react";
+import { AvalNetworkOption } from "./aval-form";
 
 export const dynamic = 'force-dynamic';
 
 export default async function AvalesPage() {
   const language = await getLanguage();
   const t = (key: string) => translations[key]?.[language] ?? key;
+
+  const networkOptions: AvalNetworkOption[] = getAvalChainIds().map((chainId) => ({
+    chainId,
+    name: networks[chainId].name,
+    avaldaoAddress: getAddress(defaultAvaldaoAddress[chainId].toLowerCase()),
+  }));
+
+  // Se preselecciona la red por defecto si está habilitada.
+  const defaultChainId = Number(process.env.DEFAULT_CHAIN_ID);
+  const initialChainId = networkOptions.some((n) => n.chainId === defaultChainId)
+    ? defaultChainId
+    : networkOptions[0]?.chainId;
 
   return (
     <div className="max-w-6xl">
@@ -22,7 +35,8 @@ export default async function AvalesPage() {
       />
       <AvalFormWrapper
         language={language}
-        avaldaoAddress={getAddress(defaultAvaldaoAddress[Number(process.env.DEFAULT_CHAIN_ID!)].toLowerCase())}
+        networkOptions={networkOptions}
+        initialChainId={initialChainId}
       />
     </div>
   );

@@ -85,6 +85,8 @@ export interface AvalRequest {
   avaladoAddress: string,
   status?: number
   duracionCuotaSeconds?: number;
+  desbloqueoDias?: number;
+  desbloqueoSeconds?: number;
 }
 
 

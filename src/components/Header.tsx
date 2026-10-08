@@ -9,6 +9,7 @@ import { getLanguage } from "@/lib/cookies";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { localizeHref } from "@/translations/locales";
+import { getAvalChainIds } from "@/blockchain/contracts";
 
 export default async function Header() {
   const language = await getLanguage();
@@ -42,7 +43,7 @@ export default async function Header() {
           {/* Navigation and Actions */}
           <LanguageWrapper language={language}>
             <div className="flex items-center gap-2 sm:gap-4 xl:gap-6">
-              <Nav language={language} />
+              <Nav language={language} chainIds={getAvalChainIds()} />
               <HeaderAuth />
               {/* En mobile el toggle vive dentro del menú hamburguesa. */}
               <div className="hidden lg:block">

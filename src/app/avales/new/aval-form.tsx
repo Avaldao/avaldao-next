@@ -15,6 +15,10 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
 import { Language, translations } from "@/translations";
 import CuotasPreview from "./cuotas-preview";
+import NetworkListbox from "./network-listbox";
+import { DEFAULT_DESBLOQUEO_SECONDS, isValidDesbloqueo } from "@/app/entities/aval.entity";
+
+const DEFAULT_DESBLOQUEO_DIAS = DEFAULT_DESBLOQUEO_SECONDS / 86400;
 
 
 interface FieldErrors {
@@ -26,6 +30,7 @@ interface FieldErrors {
   cuotasCantidad?: string;
   fechaInicio?: string;
   duracionCuotaDias?: string;
+  desbloqueoDias?: string;
   solicitanteAddress?: string;
   avaldaoAddress?: string;
   comercianteAddress?: string;
@@ -33,7 +38,7 @@ interface FieldErrors {
 }
 
 interface AvalFields {
-  chainId?: number;
+  chainId: number;
   proyecto: string,
   objetivo: string,
   adquisicion: string,
@@ -42,26 +47,40 @@ interface AvalFields {
   cuotasCantidad: number,
   fechaInicio: Date | string | undefined,
   duracionCuotaDias: number,
+  desbloqueoDias: number,
   solicitanteAddress: string | undefined,
   avaldaoAddress: string,
   comercianteAddress: string,
   avaladoAddress: string,
 }
 
-interface AvalFormProps {
+export interface AvalNetworkOption {
+  chainId: number;
+  name: string;
   avaldaoAddress: string;
+}
+
+interface AvalFormProps {
+  networkOptions: AvalNetworkOption[];
+  initialChainId: number;
   language: Language;
 }
 
 
-export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
+export default function AvalForm({ networkOptions, initialChainId, language }: AvalFormProps) {
   const { data: session } = useSession();
   const user = session?.user;
   const router = useRouter();
 
   const t = useMemo(() => (key: string) => translations[key]?.[language] ?? key, [language]);
 
+  // El Avaldao del aval depende de la red elegida.
+  const avaldaoAddressFor = (chainId: number) =>
+    networkOptions.find((n) => n.chainId === chainId)?.avaldaoAddress ?? "";
+  const avaldaoAddress = avaldaoAddressFor(initialChainId);
+
   const [form, setForm] = useState<AvalFields>({
+    chainId: initialChainId,
     proyecto: "",
     objetivo: "",
     adquisicion: "",
@@ -70,6 +89,7 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
     cuotasCantidad: 6,
     fechaInicio: new Date(),
     duracionCuotaDias: 30,
+    desbloqueoDias: DEFAULT_DESBLOQUEO_DIAS,
     solicitanteAddress: user?.address,
     avaldaoAddress: avaldaoAddress,
     comercianteAddress: "",
@@ -93,6 +113,11 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
   const [avaladoNotFound, setAvaladoNotFound] = useState(false);
 
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  // El período de desbloqueo solo se pide cuando el default no entra en la duración de la cuota.
+  const showDesbloqueo = Number(form.duracionCuotaDias) <= DEFAULT_DESBLOQUEO_DIAS;
+  const desbloqueoDias = showDesbloqueo ? Number(form.desbloqueoDias) : DEFAULT_DESBLOQUEO_DIAS;
+  const desbloqueoValido = isValidDesbloqueo(desbloqueoDias * 86400, Number(form.duracionCuotaDias) * 86400);
 
   const setFieldError = (field: string, value: string) => {
     setFieldErrors(prevs => ({
@@ -195,6 +220,9 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
       setFieldError("avaladoAddress", t("aval.form.validation.invalid-address"));
       fieldErrors_.push("avaladoAddress");
     }
+    if (!desbloqueoValido) {
+      fieldErrors_.push("desbloqueoDias");
+    }
 
     return fieldErrors_;
 
@@ -214,13 +242,8 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
     try {
       setLoading(true);
 
-      if (form.fechaInicio instanceof Date) {
-        form.fechaInicio = form.fechaInicio.toISOString();
-      }
-
-      form.chainId = Number(process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID!);
-
-      const data = JSON.stringify(form);
+      // JSON.stringify serializa fechaInicio (Date) como ISO string.
+      const data = JSON.stringify({ ...form, desbloqueoDias });
 
       const res = await fetch("/api/avales", {
         method: "POST",
@@ -231,6 +254,7 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
       if (res.ok) {
         toast.success(t("aval.form.success"));
         setForm({
+          chainId: initialChainId,
           proyecto: "",
           objetivo: "",
           adquisicion: "",
@@ -239,6 +263,7 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
           cuotasCantidad: 6,
           fechaInicio: new Date(),
           duracionCuotaDias: 30,
+          desbloqueoDias: DEFAULT_DESBLOQUEO_DIAS,
           solicitanteAddress: user?.address,
           avaldaoAddress: avaldaoAddress,
           comercianteAddress: "",
@@ -396,17 +421,55 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
             type="number"
             name="duracionCuotaDias"
             value={form.duracionCuotaDias}
-            onChange={handleChange}
+            min={0}
+            step="any"
+            onKeyDown={(e) => {
+              if (["-", "+", "e", "E"].includes(e.key)) e.preventDefault();
+            }}
+            onChange={(e) => {
+              const duracion = Number(e.target.value);
+              if (duracion < 0) return;
+              handleChange(e);
+              // Si el desbloqueo actual ya no entra en la cuota, se propone la mitad de la duración.
+              if (duracion > 0 && Number(form.desbloqueoDias) >= duracion) {
+                setForm((prev) => ({ ...prev, desbloqueoDias: duracion / 2 }));
+              }
+            }}
             required
           />
         </div>
       </div>
+
+      {showDesbloqueo && (
+        <div className="sm:w-1/2">
+          <Label required>{t("aval.form.unlock-days")}</Label>
+          <Input
+            compactError
+            type="number"
+            name="desbloqueoDias"
+            value={form.desbloqueoDias}
+            min={0}
+            step="any"
+            onKeyDown={(e) => {
+              if (["-", "+", "e", "E"].includes(e.key)) e.preventDefault();
+            }}
+            onChange={(e) => {
+              if (Number(e.target.value) < 0) return;
+              handleChange(e);
+            }}
+            error={desbloqueoValido ? undefined : t("aval.form.validation.unlock-days")}
+            required
+          />
+          <p className="mt-1 text-xs text-slate-500">{t("aval.form.unlock-days.hint")}</p>
+        </div>
+      )}
       </fieldset>
 
       {/* Plan de cuotas (vista previa) */}
       <CuotasPreview
         fechaInicio={form.fechaInicio}
         duracionCuotaDias={form.duracionCuotaDias}
+        desbloqueoDias={desbloqueoDias}
         cuotasCantidad={form.cuotasCantidad}
         montoFiat={form.montoFiat}
         t={t}
@@ -500,12 +563,27 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
       </div>
       </fieldset>
 
+      {/* Red */}
+      {networkOptions.length > 1 && (
+        <fieldset className="rounded-xl border border-slate-200 px-3 sm:px-4 pb-4 pt-2 space-y-3">
+          <legend className="px-2 text-sm font-semibold text-slate-800">{t("aval.form.network")}</legend>
+          <div className="sm:w-1/2">
+            <NetworkListbox
+              options={networkOptions}
+              value={form.chainId}
+              onChange={(chainId) => setForm((prev) => ({ ...prev, chainId, avaldaoAddress: avaldaoAddressFor(chainId) }))}
+            />
+          </div>
+        </fieldset>
+      )}
+
       {/* Buttons */}
 
       <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
         <button
           type="button"
           onClick={() => setForm({
+            chainId: initialChainId,
             proyecto: "",
             objetivo: "",
             adquisicion: "",
@@ -514,8 +592,9 @@ export default function AvalForm({ avaldaoAddress, language }: AvalFormProps) {
             cuotasCantidad: 6,
             fechaInicio: new Date(),
             duracionCuotaDias: 30,
+            desbloqueoDias: DEFAULT_DESBLOQUEO_DIAS,
             solicitanteAddress: "",
-            avaldaoAddress: "",
+            avaldaoAddress: avaldaoAddress,
             comercianteAddress: "",
             avaladoAddress: "",
           })}
