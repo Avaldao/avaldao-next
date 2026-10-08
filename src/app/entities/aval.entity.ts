@@ -34,14 +34,15 @@ export function generateTranches(avalFechaInicio: Date, duracionCuotaSeconds: nu
   const start = Math.floor(avalFechaInicio.getTime() / 1000);
   return Array.from({ length: cuotasCantidad }, (_, index) => index)
     .map(index => {
-      const startTs = (start + index * duracionCuotaSeconds);
-      const vtoTs = (start + (index + 1) * duracionCuotaSeconds);
+      // Redondeo defensivo: avales guardados antes de redondear duracionCuotaSeconds pueden tener decimales.
+      const startTs = Math.round(start + index * duracionCuotaSeconds);
+      const vtoTs = Math.round(start + (index + 1) * duracionCuotaSeconds);
 
       return {
         index: index + 1,
         startDateSeconds: startTs,
         maturityDateSeconds: vtoTs,
-        unlockDateSeconds: vtoTs + desbloqueoSeconds
+        unlockDateSeconds: Math.round(vtoTs + desbloqueoSeconds)
       }
     })
 }

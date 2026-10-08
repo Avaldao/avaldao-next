@@ -17,7 +17,7 @@ interface PageHeaderProps {
 
 export default function PageHeader({ title, description, icon, breadcrumbs, actions }: PageHeaderProps) {
   return (
-    <div className="border-b border-slate-100 pb-6 mb-6">
+    <div className="border-b border-slate-100 pb-3 mb-3 sm:pb-6 sm:mb-6">
       {breadcrumbs && breadcrumbs.length > 0 && (
         <nav className="flex items-center gap-1 text-xs text-slate-400 mb-3">
           <Link href="/dashboard" className="hover:text-slate-600 transition-colors flex items-center gap-1">

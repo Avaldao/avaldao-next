@@ -1,6 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarClock } from "lucide-react";
 import { format } from "date-fns";
+import { DetailSection } from "./detail-section";
 import { Aval, AvalState } from "@/types";
 import { generateTranchesFromAval, Tranche } from "@/app/entities/aval.entity";
 import { translations, Language } from "@/translations";
@@ -80,112 +79,78 @@ export default async function CuotasCard({ aval, avalAddress, language }: Props)
     cuota.status === 0 && cuota.timestampDesbloqueo < nowSecs;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CalendarClock className="w-5 h-5 text-orange-600" />
-          {t("aval.details.schedule")}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-x-6 gap-y-3 text-sm">
-          <div>
-            <p className="text-slate-500">{t("aval.details.start-date")}</p>
-            <p className="font-semibold">{format(aval.fechaInicio, "dd/MM/yyyy")}</p>
-          </div>
-          <div>
-            <p className="text-slate-500">{t("aval.details.amount")}</p>
-            <p className="font-semibold text-green-600">$ {(aval.montoFiat / 100).toFixed(2)} USD</p>
-          </div>
-          <div>
-            <p className="text-slate-500">{t("aval.details.tranches-amount")}</p>
-            <p className="font-semibold">{aval.cuotasCantidad}</p>
-          </div>
-          <div>
-            <p className="text-slate-500">{t("aval.details.duration")}</p>
-            <p className="font-semibold">{aval.duracionCuotaSeconds / 86400} {t("aval.details.days")}</p>
-          </div>
-          <div>
-            <p className="text-slate-500">{t("aval.details.unlock")}</p>
-            <p className="font-semibold">{aval.desbloqueoSeconds / 86400} {t("aval.details.days")}</p>
-          </div>
-        </div>
+    <DetailSection title={t("aval.form.schedule")}>
+      <InstallmentList
+        t={t}
+        showTime={aval.duracionCuotaSeconds < 86400 || aval.desbloqueoSeconds < 86400}
+        items={
+          onchainCuotas
+            ? onchainCuotas.map((cuota) => ({
+                key: cuota.numero,
+                label: `${t("aval.details.tranche")} ${cuota.numero}`,
+                amount: `$ ${(cuota.montoFiat / 100).toFixed(2)}`,
+                startSeconds: cuota.timestampVencimiento - aval.duracionCuotaSeconds,
+                maturitySeconds: cuota.timestampVencimiento,
+                unlockSeconds: cuota.timestampDesbloqueo,
+                status: <CuotaStatus cuota={cuota} ready={isReadyToUnlock(cuota)} t={t} />,
+              }))
+            : generateTranchesFromAval(aval).map((tranche: Tranche) => ({
+                key: tranche.index,
+                label: `${t("aval.details.tranche")} ${tranche.index}`,
+                amount: `$ ${(aval.montoFiat / 100 / aval.cuotasCantidad).toFixed(2)}`,
+                startSeconds: tranche.startDateSeconds,
+                maturitySeconds: tranche.maturityDateSeconds,
+                unlockSeconds: tranche.unlockDateSeconds,
+              }))
+        }
+      />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Cuotas */}
-          <div>
-            <p className="text-sm font-semibold text-slate-700 mb-2">{t("aval.details.schedule")}</p>
-            <InstallmentList
-              t={t}
-              showTime={aval.duracionCuotaSeconds < 86400}
-              items={
-                onchainCuotas
-                  ? onchainCuotas.map((cuota) => ({
-                      key: cuota.numero,
-                      label: `${t("aval.details.tranche")} ${cuota.numero}`,
-                      amount: `$ ${(cuota.montoFiat / 100).toFixed(2)}`,
-                      startSeconds: cuota.timestampVencimiento - aval.duracionCuotaSeconds,
-                      maturitySeconds: cuota.timestampVencimiento,
-                      unlockSeconds: cuota.timestampDesbloqueo,
-                      status: <CuotaStatus cuota={cuota} ready={isReadyToUnlock(cuota)} t={t} />,
-                    }))
-                  : generateTranchesFromAval(aval).map((tranche: Tranche) => ({
-                      key: tranche.index,
-                      label: `${t("aval.details.tranche")} ${tranche.index}`,
-                      amount: `$ ${(aval.montoFiat / 100 / aval.cuotasCantidad).toFixed(2)}`,
-                      startSeconds: tranche.startDateSeconds,
-                      maturitySeconds: tranche.maturityDateSeconds,
-                      unlockSeconds: tranche.unlockDateSeconds,
-                    }))
-              }
-            />
-          </div>
+      {/* Antes de estar onchain, la misma nota que en el formulario */}
+      {!onchainCuotas && (
+        <p className="text-xs text-slate-500">
+          {t("aval.form.schedule.note").replace("{days}", String(Number((aval.desbloqueoSeconds / 86400).toFixed(aval.duracionCuotaSeconds < 86400 ? 4 : 2))))}
+        </p>
+      )}
 
-          {/* Cuotas Desbloqueables */}
-          <div className="overflow-x-auto">
-            <p className="text-sm font-semibold text-slate-700 mb-2">{t("aval.details.unlockable-tranches")}</p>
-            {onchainCuotas ? (
-              <>
-                {onchainCuotas.filter(isReadyToUnlock).length === 0 ? (
-                  <p className="text-sm text-slate-400 italic">{t("aval.details.no-unlockable-tranches")}</p>
-                ) : (
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="text-left text-slate-500 border-b">
-                        <th className="pb-2 pr-6 font-medium">{t("aval.details.tranche-number")}</th>
-                        <th className="pb-2 pr-6 font-medium">{t("aval.details.unlock-date")}</th>
-                        <th className="pb-2 font-medium text-right">{t("aval.details.amount")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {onchainCuotas.filter(isReadyToUnlock).map((cuota) => (
-                        <tr key={cuota.numero} className="font-mono border-b border-slate-50 hover:bg-gray-50 transition-colors">
-                          <td className="py-2 pr-6">{t("aval.details.tranche")} {cuota.numero}</td>
-                          <td className="py-2 pr-6">{format(new Date(cuota.timestampDesbloqueo * 1000), "dd/MM/yyyy")}</td>
-                          <td className="py-2 text-right">$ {(cuota.montoFiat / 100).toFixed(2)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-                {canUnlock && (
-                  <div className="mt-4">
-                    <UnlockCuotaButton
-                      avalAddress={avalAddress!}
-                      solicitanteAddress={aval.solicitanteAddress}
-                      chainId={aval.chainId}
-                      language={language}
-                    />
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-sm text-slate-400 italic">{t("aval.details.no-onchain-data")}</p>
-            )}
-          </div>
+      {/* Cuotas desbloqueables — solo con datos del contrato */}
+      {onchainCuotas && (
+        <div className="overflow-x-auto pt-3 border-t border-slate-100">
+          <p className="text-sm font-medium text-primary mb-2">{t("aval.details.unlockable-tranches")}</p>
+          {onchainCuotas.filter(isReadyToUnlock).length === 0 ? (
+            <p className="text-sm text-slate-400 italic">{t("aval.details.no-unlockable-tranches")}</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-slate-500 border-b">
+                  <th className="pb-2 pr-6 font-medium">{t("aval.details.tranche-number")}</th>
+                  <th className="pb-2 pr-6 font-medium">{t("aval.details.unlock-date")}</th>
+                  <th className="pb-2 font-medium text-right">{t("aval.details.amount")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {onchainCuotas.filter(isReadyToUnlock).map((cuota) => (
+                  <tr key={cuota.numero} className="font-mono border-b border-slate-50 hover:bg-gray-50 transition-colors">
+                    <td className="py-2 pr-6">{t("aval.details.tranche")} {cuota.numero}</td>
+                    <td className="py-2 pr-6">{format(new Date(cuota.timestampDesbloqueo * 1000), "dd/MM/yyyy")}</td>
+                    <td className="py-2 text-right">$ {(cuota.montoFiat / 100).toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          {canUnlock && (
+            <div className="mt-4">
+              <UnlockCuotaButton
+                avalAddress={avalAddress!}
+                solicitanteAddress={aval.solicitanteAddress}
+                chainId={aval.chainId}
+                language={language}
+              />
+            </div>
+          )}
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </DetailSection>
   );
 }
 

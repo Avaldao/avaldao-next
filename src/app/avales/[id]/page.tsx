@@ -2,14 +2,15 @@ import { Suspense } from "react";
 import AvalesService from "@/services/avales-service";
 import UsersService from "@/services/users-service";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import PageHeader from "@/components/ui/layout/page-header";
-import { Users, Target, FileText, UserCheck, Store, Shield, CheckCircle2 } from "lucide-react";
+import { FileText, Shield, CheckCircle2, Clock, Wallet } from "lucide-react";
+import { format } from "date-fns";
 import { shortenAddress } from "@/utils";
 
 import AvalActionsWrapper from "../aval-actions-wrapper";
-import { Aval } from "@/types";
+import { Aval, AvalState } from "@/types";
 import { getLanguage } from "@/lib/cookies";
 import { translations } from "@/translations";
 import { contractsAddress } from "@/blockchain/contracts";
@@ -19,6 +20,7 @@ import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
 import IPFSUserAvatar from "@/app/staff/users/ipfs-user-avatar";
 import CuotasCard from "./cuotas-card";
 import ReclamosCard from "./reclamos-card";
+import { DetailField, DetailSection } from "./detail-section";
 
 interface AvalDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -41,20 +43,21 @@ const getAddressExplorerUrl = (chainId: Aval["chainId"], address: string) => {
   return `${baseUrl.replace(/\/$/, "")}/address/${address}`;
 };
 
-const CuotasSkeleton = () => (
-  <Card>
-    <CardHeader>
-      <div className="h-5 w-32 bg-slate-100 rounded animate-pulse" />
-    </CardHeader>
-    <CardContent>
-      <div className="space-y-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-8 bg-slate-50 rounded animate-pulse" />
-        ))}
-      </div>
-    </CardContent>
-  </Card>
+const CuotasSkeleton = ({ title }: { title: string }) => (
+  <DetailSection title={title}>
+    <div className="space-y-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="h-20 bg-slate-50 rounded animate-pulse" />
+      ))}
+    </div>
+  </DetailSection>
 );
+
+const formatMonto = (value: number, language: string) =>
+  value.toLocaleString(language === "es" ? "es-AR" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+// Días con hasta 2 decimales, o 4 si las cuotas duran menos de un día (ej. 0.0417 = 1 hora).
+const formatDias = (seconds: number, decimals: number) => String(Number((seconds / 86400).toFixed(decimals)));
 
 export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) {
   const { id } = await params;
@@ -124,39 +127,39 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
 
     const statusInfo = getStatusText(aval.status, t);
 
+    const showTime = aval.duracionCuotaSeconds < 86400;
+    const diasDecimals = showTime ? 4 : 2;
+
+    // Mismo orden y etiquetas que en el formulario de creación.
     const participants = [
       {
-        labelKey: "aval.details.applicant",
-        Icon: UserCheck,
+        labelKey: "aval.form.applicant",
         address: aval.solicitanteAddress,
         user: solicitante,
         signature: aval.solicitanteSignature,
       },
       {
-        labelKey: "aval.details.merchant",
-        Icon: Store,
+        labelKey: "aval.form.avaldao",
+        address: aval.avaldaoAddress,
+        user: avaldaoUser,
+        signature: aval.avaldaoSignature,
+      },
+      {
+        labelKey: "aval.form.merchant",
         address: aval.comercianteAddress,
         user: comerciante,
         signature: aval.comercianteSignature,
       },
       {
-        labelKey: "aval.details.avalado",
-        Icon: Shield,
+        labelKey: "aval.form.endorsed",
         address: aval.avaladoAddress,
         user: avalado,
         signature: aval.avaladoSignature,
       },
-      {
-        labelKey: "aval.details.avaldao",
-        Icon: Users,
-        address: aval.avaldaoAddress,
-        user: avaldaoUser,
-        signature: aval.avaldaoSignature,
-      },
     ];
 
     return (
-      <div className="max-w-6xl space-y-6">
+      <div className="max-w-6xl space-y-3 sm:space-y-6">
         <PageHeader
           title={aval.proyecto}
           icon={<Shield className="h-5 w-5" />}
@@ -164,20 +167,25 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
           actions={<Badge variant={statusInfo.variant}>{statusInfo.text}</Badge>}
           description={
             <span className="text-sm text-slate-500">
-              {t("aval.network")}: {contractsAddress[aval.chainId]?.networkName}
+              <span className="block sm:inline">
+                {t("aval.network")}: {contractsAddress[aval.chainId]?.networkName}
+              </span>
               {address && (
-                <>
-                  {" · "}
+                <span className="block sm:inline">
+                  <span className="hidden sm:inline">{" · "}</span>
                   {t("aval.address")}:{" "}
                   <a
                     href={explorer}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-mono text-violet-600 hover:underline"
+                    title={address}
                   >
-                    {address}
+                    {/* En mobile la address completa no entra: se acorta como en participantes. */}
+                    <span className="sm:hidden">{shortenAddress(address)}</span>
+                    <span className="hidden sm:inline break-all">{address}</span>
                   </a>
-                </>
+                </span>
               )}
             </span>
           }
@@ -186,19 +194,46 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
         {/* Acciones según estado y rol */}
         <AvalActionsWrapper aval={aval} language={language} />
 
-        {/* Participantes */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-600" />
-              {t("aval.details.participants")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              {participants.map(({ labelKey, Icon, address: addr, user, signature }, i) => (
-                <div key={`${addr}_${i}`} className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2.5">
+        {/* Las secciones siguen el mismo orden y estilo que el formulario de creación. */}
+        <div className="space-y-4">
+          {/* El proyecto */}
+          <DetailSection title={t("aval.form.project-info")}>
+            <DetailField label={t("aval.form.project")}>{aval.proyecto}</DetailField>
+            <DetailField label={t("aval.form.objective")}>
+              <p className="whitespace-pre-line">{aval.objetivo}</p>
+            </DetailField>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <DetailField label={t("aval.form.acquisition")}>{aval.adquisicion}</DetailField>
+              <DetailField label={t("aval.form.beneficiaries")}>{aval.beneficiarios}</DetailField>
+            </div>
+          </DetailSection>
+
+          {/* Condiciones del aval */}
+          <DetailSection title={t("aval.form.conditions")}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-3 gap-y-3 sm:gap-4">
+              <DetailField label={t("aval.form.amount")}>
+                <span className="font-semibold">$ {formatMonto(aval.montoFiat / 100, language)}</span>
+              </DetailField>
+              <DetailField label={t("aval.form.installments")}>{aval.cuotasCantidad}</DetailField>
+              <DetailField label={t("aval.form.start-date")}>
+                {format(aval.fechaInicio, showTime ? "dd/MM/yyyy HH:mm" : "dd/MM/yyyy")}
+              </DetailField>
+              <DetailField label={t("aval.form.duration-days")}>{formatDias(aval.duracionCuotaSeconds, diasDecimals)}</DetailField>
+              <DetailField label={t("aval.form.unlock-days")}>{formatDias(aval.desbloqueoSeconds, diasDecimals)}</DetailField>
+            </div>
+          </DetailSection>
+
+          {/* Plan de cuotas — streamed desde el contrato si vigente */}
+          <Suspense fallback={<CuotasSkeleton title={t("aval.form.schedule")} />}>
+            <CuotasCard aval={aval} avalAddress={address} language={language} />
+          </Suspense>
+
+          {/* Participantes */}
+          <DetailSection title={t("aval.form.participants")}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {participants.map(({ labelKey, address: addr, user, signature }, i) => (
+                <DetailField key={`${addr}_${i}`} label={t(labelKey)}>
+                  <div className="flex items-center gap-2.5 rounded-md border border-slate-200 px-3 py-2">
                     {user?.infoCid ? (
                       <IPFSUserAvatar username={user.name} infoCid={user.infoCid} />
                     ) : (
@@ -206,74 +241,45 @@ export default async function AvalDetailsPage({ params }: AvalDetailsPageProps) 
                         {user?.name?.charAt(0).toUpperCase() ?? addr.slice(2, 3).toUpperCase()}
                       </div>
                     )}
-                    <div className="min-w-0">
-                      <p className="font-semibold text-sm truncate">{user?.name ?? shortenAddress(addr)}</p>
-                      <p className="text-xs text-slate-500 flex items-center gap-1">
-                        <Icon className="w-3 h-3 shrink-0" />
-                        {t(labelKey)}
-                      </p>
+                    <div className="min-w-0 flex-1">
+                      {user?.name ? (
+                        <p className="text-sm font-medium text-primary truncate">{user.name}</p>
+                      ) : (
+                        <p className="text-sm text-amber-600 truncate">{t("aval.form.user-not-found")}</p>
+                      )}
+                      <div className="flex items-center gap-1">
+                        <Wallet className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                        <a
+                          href={getAddressExplorerUrl(aval.chainId, addr)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono text-xs text-violet-600 hover:underline"
+                          title={addr}
+                        >
+                          {shortenAddress(addr)}
+                        </a>
+                        <CopyAddress address={addr} language={language} />
+                      </div>
                     </div>
+                    {signature ? (
+                      <span
+                        className="inline-flex items-center gap-1 text-xs text-green-700 shrink-0"
+                        title={signature}
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                        {t("aval.details.signed")}
+                      </span>
+                    ) : aval.status === AvalState.ACEPTADO ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-slate-500 shrink-0">
+                        <Clock className="w-3.5 h-3.5" />
+                        {t("aval.details.signature-pending")}
+                      </span>
+                    ) : null}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <a
-                      href={getAddressExplorerUrl(aval.chainId, addr)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono text-xs text-blue-700 hover:underline"
-                      title={addr}
-                    >
-                      {shortenAddress(addr)}
-                    </a>
-                    <CopyAddress address={addr} language={language} />
-                  </div>
-                  {signature && (
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" />
-                      <span className="font-mono truncate" title={signature}>{shortenAddress(signature)}</span>
-                    </div>
-                  )}
-                </div>
+                </DetailField>
               ))}
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Contenido principal */}
-        <div className="space-y-6">
-          {/* Objetivo, Adquisición y Beneficiarios */}
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              <div>
-                <p className="flex items-center gap-1.5 text-xs font-medium text-slate-400 mb-1">
-                  <Target className="w-3.5 h-3.5" />
-                  {t("aval.details.objective")}
-                </p>
-                <p className="text-slate-700 whitespace-pre-line">{aval.objetivo}</p>
-              </div>
-              <hr className="border-slate-100" />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="flex items-center gap-1.5 text-xs font-medium text-slate-400 mb-1">
-                    <Target className="w-3.5 h-3.5" />
-                    {t("aval.details.acquisition")}
-                  </p>
-                  <p className="text-slate-700">{aval.adquisicion}</p>
-                </div>
-                <div>
-                  <p className="flex items-center gap-1.5 text-xs font-medium text-slate-400 mb-1">
-                    <Users className="w-3.5 h-3.5" />
-                    {t("aval.details.beneficiaries")}
-                  </p>
-                  <p className="text-slate-700">{aval.beneficiarios}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Cronograma y cuotas — streamed desde el contrato si vigente */}
-          <Suspense fallback={<CuotasSkeleton />}>
-            <CuotasCard aval={aval} avalAddress={address} language={language} />
-          </Suspense>
+          </DetailSection>
 
           {/* Reclamos — streamed desde el contrato si vigente y existen */}
           <Suspense fallback={null}>

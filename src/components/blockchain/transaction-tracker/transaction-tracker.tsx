@@ -1,8 +1,8 @@
 "use client";
 
-import { useContext, useState } from "react";
-import { useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
-import { getAddress } from "ethers";
+import { useContext, useEffect, useState } from "react";
+import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from "@reown/appkit/react";
+import { BrowserProvider, Eip1193Provider, formatEther, getAddress } from "ethers";
 import {
   CheckCircle2,
   AlertTriangle,
@@ -22,7 +22,6 @@ import type { Language } from "@/translations";
 
 
 interface TransactionTrackerProps {
-  balance: string | null;
   txState: TxState;
   contract: ContractInfo;
   explorerUrl?: string;
@@ -38,18 +37,42 @@ function TransactionTrackerInner({
   txState,
   contract,
   explorerUrl = "https://etherscan.io",
-  balance,
   hint,
   transactionCost,
   onClose,
 }: TransactionTrackerProps) {
   const { address } = useAppKitAccount();
   const { caipNetwork } = useAppKitNetwork();
+  const { walletProvider } = useAppKitProvider<Eip1193Provider>("eip155");
   const { t } = useLanguage();
   const [copiedReason, setCopiedReason] = useState(false);
   const networkName = caipNetwork?.name ?? t("tx.info.unknown-network");
 
   const currentStatus = txState.status as Step1Status | Step2Status;
+  const isConfirmed = currentStatus === "confirmed";
+
+  // Balance nativo de la cuenta conectada. Se asocia a cuenta + red para no mostrar
+  // un valor viejo al cambiar de red, y se vuelve a leer al confirmarse la transacción.
+  const balanceKey = address && caipNetwork ? `${address}:${caipNetwork.id}` : null;
+  const [balanceState, setBalanceState] = useState<{ key: string; value: string } | null>(null);
+
+  useEffect(() => {
+    if (!walletProvider || !address || !balanceKey) return;
+    let cancelled = false;
+    const symbol = caipNetwork?.nativeCurrency.symbol ?? "";
+    new BrowserProvider(walletProvider, "any")
+      .getBalance(address)
+      .then((wei) => {
+        const amount = Number(formatEther(wei)).toLocaleString(undefined, { maximumFractionDigits: 6 });
+        if (!cancelled) setBalanceState({ key: balanceKey, value: `${amount} ${symbol}`.trim() });
+      })
+      .catch(() => {
+        if (!cancelled) setBalanceState({ key: balanceKey, value: "—" });
+      });
+    return () => { cancelled = true; };
+  }, [walletProvider, address, balanceKey, caipNetwork?.nativeCurrency.symbol, isConfirmed]);
+
+  const balance = balanceState?.key === balanceKey ? balanceState.value : null;
   const copy = getStatusCopy(t)[currentStatus];
   const isWaiting = currentStatus === "waiting_approval" || currentStatus === "waiting_confirmation";
   const hasError = currentStatus == "rejected" || currentStatus === "expired" || currentStatus === "reverted" || currentStatus === "error";

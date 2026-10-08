@@ -83,7 +83,6 @@ export default function UnlockCuotaButton({ avalAddress, solicitanteAddress, cha
     <>
       {showTxTracker && (
         <TransactionTracker
-          balance={null}
           contract={{ name: "Aval", address: avalAddress }}
           explorerUrl={contractsAddress[chainId]?.explorerUrl}
           txState={txState}

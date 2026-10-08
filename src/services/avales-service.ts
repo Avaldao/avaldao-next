@@ -250,7 +250,8 @@ export default class AvalesService {
       throw new Error("La duración de la cuota debe ser mayor a 0.");
     }
     avalData.duracionCuotaDias = duracionCuotaDias;
-    avalData.duracionCuotaSeconds = avalData.duracionCuotaDias * 24 * 60 * 60;
+    // Onchain los timestamps son enteros (bytes4): días con decimales no pueden dejar fracciones de segundo.
+    avalData.duracionCuotaSeconds = Math.round(avalData.duracionCuotaDias * 24 * 60 * 60);
     // Siempre se calcula acá: no se acepta un desbloqueoSeconds enviado por el cliente.
     avalData.desbloqueoSeconds = avalData.desbloqueoDias == null
       ? DEFAULT_DESBLOQUEO_SECONDS
@@ -258,7 +259,7 @@ export default class AvalesService {
     if (!isValidDesbloqueo(avalData.desbloqueoSeconds, avalData.duracionCuotaSeconds)) {
       throw new Error("El período de desbloqueo debe ser mayor a 0 y menor a la duración de la cuota.");
     }
-    avalData.montoFiat = avalData.montoFiat * 100; //lo guarda con 2 decimales
+    avalData.montoFiat = Math.round(avalData.montoFiat * 100); //lo guarda con 2 decimales
 
     const aval = new AvalModel({
       ...avalData
@@ -295,14 +296,30 @@ export default class AvalesService {
       }
     }
 
-    const storedAddress = getAddress((await AvalModel.findById(avalId))[`${role}Address`].toLowerCase());
+    const aval = await AvalModel.findById(avalId);
+    if (!aval) throw new Error("Aval not found");
+
+    const storedAddress = getAddress(aval[`${role}Address`].toLowerCase());
     if (storedAddress.toLowerCase() != signer.toLowerCase()) {
       throw new Error(`Invalid request. Signer and role doesn't match. Stored ${role}: ${storedAddress} - signer: ${signer}`)
     }
 
+    // Avaldao firma último: solo se le avisa cuando esta firma completa las del
+    // resto de los participantes (y no en re-firmas posteriores).
+    const othersSigned = (a: typeof aval) =>
+      Boolean(a.solicitanteSignature && a.comercianteSignature && a.avaladoSignature);
+    const wasComplete = othersSigned(aval);
+
     await this._updateAval(avalId, {
       [`${role}Signature`]: signature,
     });
+
+    if (role !== "avaldao" && !wasComplete && !aval.avaldaoSignature) {
+      const updated = await AvalModel.findById(avalId);
+      if (updated && othersSigned(updated)) {
+        await new NotificationsService().notifyAvalReadyToSign(updated);
+      }
+    }
 
     return true;
   }

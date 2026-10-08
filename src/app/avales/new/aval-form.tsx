@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import InputDatePicker from "@/components/ui/input-date-picker";
 import toast from "react-hot-toast";
+import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
 import { Language, translations } from "@/translations";
@@ -117,7 +118,14 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
   // El período de desbloqueo solo se pide cuando el default no entra en la duración de la cuota.
   const showDesbloqueo = Number(form.duracionCuotaDias) <= DEFAULT_DESBLOQUEO_DIAS;
   const desbloqueoDias = showDesbloqueo ? Number(form.desbloqueoDias) : DEFAULT_DESBLOQUEO_DIAS;
-  const desbloqueoValido = isValidDesbloqueo(desbloqueoDias * 86400, Number(form.duracionCuotaDias) * 86400);
+  // Con cuotas de menos de un día importa la hora de inicio; el date picker solo elige el día.
+  const [horaInicio, setHoraInicio] = useState(() => format(new Date(), "HH:mm"));
+  const showHoraInicio = Number(form.duracionCuotaDias) < 1;
+  const fechaInicio = showHoraInicio && form.fechaInicio && horaInicio
+    ? withTime(new Date(form.fechaInicio), horaInicio)
+    : form.fechaInicio;
+
+  const desbloqueoValido =isValidDesbloqueo(desbloqueoDias * 86400, Number(form.duracionCuotaDias) * 86400);
 
   const setFieldError = (field: string, value: string) => {
     setFieldErrors(prevs => ({
@@ -243,7 +251,7 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
       setLoading(true);
 
       // JSON.stringify serializa fechaInicio (Date) como ISO string.
-      const data = JSON.stringify({ ...form, desbloqueoDias });
+      const data = JSON.stringify({ ...form, fechaInicio, desbloqueoDias });
 
       const res = await fetch("/api/avales", {
         method: "POST",
@@ -440,8 +448,23 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
         </div>
       </div>
 
+      {(showHoraInicio || showDesbloqueo) && (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {showHoraInicio && (
+        <div>
+          <Label required>{t("aval.form.start-time")}</Label>
+          <Input
+            compactError
+            type="time"
+            name="horaInicio"
+            value={horaInicio}
+            onChange={(e) => setHoraInicio(e.target.value)}
+            required
+          />
+        </div>
+      )}
       {showDesbloqueo && (
-        <div className="sm:w-1/2">
+        <div>
           <Label required>{t("aval.form.unlock-days")}</Label>
           <Input
             compactError
@@ -463,11 +486,13 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
           <p className="mt-1 text-xs text-slate-500">{t("aval.form.unlock-days.hint")}</p>
         </div>
       )}
+      </div>
+      )}
       </fieldset>
 
       {/* Plan de cuotas (vista previa) */}
       <CuotasPreview
-        fechaInicio={form.fechaInicio}
+        fechaInicio={fechaInicio}
         duracionCuotaDias={form.duracionCuotaDias}
         desbloqueoDias={desbloqueoDias}
         cuotasCantidad={form.cuotasCantidad}
@@ -617,6 +642,13 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
     </form>
 
   );
+}
+
+function withTime(date: Date, hhmm: string) {
+  const [h, m] = hhmm.split(":").map(Number);
+  const d = new Date(date);
+  d.setHours(h, m, 0, 0);
+  return d;
 }
 
 function shortAddress(address?: string) {

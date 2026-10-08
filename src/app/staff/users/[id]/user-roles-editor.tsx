@@ -115,7 +115,6 @@ function Editor({ userAddress, roleOptions, currentRoles, networks, language }: 
     <>
       {showTxTracker && (
         <TransactionTracker
-          balance={null}
           contract={{ name: "Admin", address: contractsAddress[chainId].permissions }}
           explorerUrl={contractsAddress[chainId]?.explorerUrl}
           txState={txState}

@@ -370,7 +370,6 @@ export default function AvaldaoPlatformCard({ language, nroles, chainIds, initia
 
           {showTxTracker && activeUnlockAval && (
             <TransactionTracker
-              balance={null}
               contract={{ name: "Aval", address: activeUnlockAval.address }}
               explorerUrl={networkInfo.explorerUrl}
               txState={txState}
