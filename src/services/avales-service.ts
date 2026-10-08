@@ -41,6 +41,10 @@ const IPFS_JSON_FIELDS = [
  *  ambigüedad al leer CIDs viejos. */
 const IPFS_JSON_FORMAT = "avaldao.aval-info.v1";
 
+/** Las addresses se guardan con y sin checksum; las comparamos sin distinguir
+ *  mayúsculas. */
+const CASE_INSENSITIVE = { locale: "en", strength: 2 } as const;
+
 export default class AvalesService {
   constructor() {
 
@@ -51,11 +55,16 @@ export default class AvalesService {
     return db;
   }
 
+  /** Mismo criterio que `requireRoles`: los roles de mainnet en `nroles[30]`. */
+  private _isAdmin(user: Awaited<ReturnType<typeof getCurrentUser>>) {
+    const roles = user.nroles?.[30] ?? [];
+    return roles.includes("AVALDAO_ROLE") || roles.includes("ADMIN_ROLE");
+  }
+
   async getAvales() {
     const user = await getCurrentUser();
 
-    const isAdmin = user.roles.includes("AVALDAO_ROLE") ||
-      user.roles.includes("ADMIN_ROLE");
+    const isAdmin = this._isAdmin(user);
 
     const filter = isAdmin
       ? {}
@@ -69,6 +78,7 @@ export default class AvalesService {
       } : { _id: null }; //algun filtro que no devuelva nada
 
     const avales = await AvalModel.find(filter)
+      .collation(CASE_INSENSITIVE)
       .sort({ createdAt: -1 })
       .lean();
 
@@ -83,10 +93,9 @@ export default class AvalesService {
   async getAvalesByAddress(address: string) {
     const user = await getCurrentUser();
 
-    const isAdmin = user.roles.includes("AVALDAO_ROLE") ||
-      user.roles.includes("ADMIN_ROLE");
+    const isAdmin = this._isAdmin(user);
 
-    const isOwner = user.address.toLowerCase() === address.toLowerCase();
+    const isOwner = user.address?.toLowerCase() === address.toLowerCase();
 
     if (!isAdmin && !isOwner) {
       throw new Error("Unauthorized");
@@ -100,6 +109,7 @@ export default class AvalesService {
         { avaladoAddress: address },
       ],
     })
+      .collation(CASE_INSENSITIVE)
       .sort({ createdAt: -1 })
       .lean();
 

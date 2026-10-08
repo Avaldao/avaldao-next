@@ -1368,7 +1368,7 @@ export const translations: Translations = {
   "avales-table.col.amount": { es: "Monto", en: "Amount" },
   "avales-table.col.status": { es: "Estado", en: "Status" },
   "avales-table.col.actions": { es: "Acciones", en: "Actions" },
-  "avales-table.empty": { es: "No hay avales para mostrar", en: "No avales to show" },
+  "avales-table.empty": { es: "No hay avales para mostrar", en: "No guarantees to show" },
   "avales-table.view-details": { es: "Ver detalles del aval", en: "View aval details" },
   "avales-table.range": { es: "{{from}}-{{to}} de {{total}}", en: "{{from}}-{{to}} of {{total}}" },
   "avales-table.pagination": { es: "Paginación de la tabla", en: "Table pagination" },
