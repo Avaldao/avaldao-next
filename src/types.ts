@@ -81,6 +81,7 @@ export interface UserInfo {
   website?: string;
   platformRoles: string[];
   password?: string;
+  emailVerified?: boolean;
 }
 
 export interface UserUpsert {

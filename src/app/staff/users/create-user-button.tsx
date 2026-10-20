@@ -181,7 +181,8 @@ export default function CreateUserButton({ language }: { language: Language }) {
           }
           buttons={
             <>
-              <Button variant="outline" onClick={close} disabled={saving}>
+              <Button variant="link" onClick={close} disabled={saving}
+                className="text-slate-600 no-underline hover:no-underline hover:text-slate-900">
                 {t("staff.users.create.cancel")}
               </Button>
               <Button onClick={submit} disabled={!valid || saving} loading={saving}>

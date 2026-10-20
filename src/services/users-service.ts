@@ -241,6 +241,21 @@ export default class UsersService {
     return { id: user._id.toString(), email };
   }
 
+  /** Reenvía el mail de activación (con un token nuevo) a una cuenta que todavía no se activó. */
+  async resendActivation(userId: string) {
+    await requireRoles("ADMIN_ROLE");
+
+    const user = await UsersModel.findById(userId);
+    if (!user) throw new Error("User not found");
+    if (user.emailVerified) throw new Error("The account is already activated");
+
+    await this.sendActivationEmail(
+      { id: user._id.toString(), email: user.email },
+      user.language === "en" ? "en" : "es",
+    );
+    return { id: user._id.toString() };
+  }
+
   async sendActivationEmail(user: ActivationEmailUser, language: "en" | "es" = "en") {
 
     const activationToken = crypto.randomUUID();
@@ -265,7 +280,7 @@ export default class UsersService {
     await UsersModel.updateOne(
       { _id: user.id },
       {
-        activationToken: activationToken,
+        activationToken: UsersService.hashToken(activationToken),
         activationTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24hs
       }
     )
@@ -298,7 +313,7 @@ export default class UsersService {
       //Podria agregar validaciones de password strength
     }
 
-    const user = await UsersModel.findOne({ activationToken: token, activationTokenExpiry: { $gt: new Date() } });
+    const user = await UsersModel.findOne({ activationToken: UsersService.hashToken(token), activationTokenExpiry: { $gt: new Date() } });
     if (!user) {
       throw new Error("Invalid or expired activation token");
     }
@@ -484,6 +499,14 @@ export default class UsersService {
     }
 
     return user;
+  }
+
+  /**
+   * El token de activación viaja solo por mail; en la base se guarda su SHA-256.
+   * Alcanza un hash rápido porque el token ya es aleatorio (no hay diccionario que atacar).
+   */
+  private static hashToken(token: string): string {
+    return crypto.createHash("sha256").update(token).digest("hex");
   }
 
   static async verifyUserPassword(stored: string, password: string): Promise<boolean> {

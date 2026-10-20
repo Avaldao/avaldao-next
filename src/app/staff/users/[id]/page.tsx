@@ -10,6 +10,7 @@ import { ShieldCheck, UserIcon } from "lucide-react";
 import Image from "next/image";
 import UserRolesEditor from "./user-roles-editor";
 import UserVerification from "./user-verification";
+import ResendActivation from "./resend-activation";
 import roles from "@/roles";
 import { getLanguage } from "@/lib/cookies";
 import { networks, NRoles } from "@/components/ui/layout/network-roles";
@@ -127,6 +128,10 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
             </>
           )}
         </div>
+
+        {isAdmin && !user.emailVerified && (
+          <ResendActivation userId={user.id} language={language} />
+        )}
 
         <UserVerification
           userId={user.id}
