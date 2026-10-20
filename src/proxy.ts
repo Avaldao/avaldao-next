@@ -48,7 +48,7 @@ export async function proxy(req: NextRequest) {
 
     if (!token) {
       const url = req.nextUrl.clone();
-      url.pathname = "/auth/login";
+      url.pathname = localizeHref("/auth/login", detectLanguage(req));
       return NextResponse.redirect(url);
     }
   }

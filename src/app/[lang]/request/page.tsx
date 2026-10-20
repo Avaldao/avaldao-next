@@ -117,7 +117,7 @@ export default async function SolicitarPage({ params }: PageProps) {
 
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="/auth/signup"
+              href={localizeHref("/auth/signup", language)}
               className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 px-8 py-3.5 font-heading text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-violet-600/40 transition-all duration-300 hover:from-violet-700 hover:to-fuchsia-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 sm:w-auto sm:text-base"
             >
               {t("request-steps.cta.signup")}

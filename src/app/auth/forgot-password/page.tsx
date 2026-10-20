@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ForgotPasswordForm from "./forgot-password-form";
 import type { Metadata } from "next";
+import { localizeHref } from "@/translations/locales";
 
 export const metadata: Metadata = {
   title: "Recuperar contraseña",
@@ -20,7 +21,7 @@ export default async function ForgotPasswordPage() {
       <div className="mx-auto max-w-lg pt-10 flex flex-col items-center min-h-[90vh]">
         <div className="w-full mb-6">
           <Link
-            href="/auth/login"
+            href={localizeHref("/auth/login", language)}
             className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />

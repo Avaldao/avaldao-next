@@ -161,14 +161,14 @@ export default function NavLinks({ language, chainIds }: { language: Language; c
                 {status === "unauthenticated" && (
                   <div className="grid flex-1 grid-cols-2 gap-2">
                     <Link
-                      href="/auth/login"
+                      href={localizeHref("/auth/login", language)}
                       onClick={() => setOpen(false)}
                       className="flex items-center justify-center rounded-full border border-violet-200 px-3 py-2 text-sm font-semibold text-violet-700 transition-colors hover:bg-violet-50"
                     >
                       {t("nav.login")}
                     </Link>
                     <Link
-                      href="/auth/signup"
+                      href={localizeHref("/auth/signup", language)}
                       onClick={() => setOpen(false)}
                       className="flex items-center justify-center rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 px-3 py-2 text-sm font-semibold text-white shadow-md"
                     >

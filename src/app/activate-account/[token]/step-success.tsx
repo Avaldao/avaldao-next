@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createT, type Language } from "@/translations";
+import { localizeHref } from "@/translations/locales";
 
 
 interface StepSuccessProps {
@@ -44,7 +45,7 @@ export default function StepSuccess({ stepIndicator, language }: StepSuccessProp
                      flex items-center justify-center gap-2 transition-all shadow-md shadow-violet-200
                      disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none"
 
-        onClick={() => router.push("/auth/login")}
+        onClick={() => router.push(localizeHref("/auth/login", language))}
       >
         {t("activate.success.login")} <ArrowRight className="w-4 h-4" />
 

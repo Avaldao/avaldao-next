@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import AskConnectionModal from "./ask-connection-modal";
 import AppkitContextProvider from "@/context/appkit-context";
 import { Power, PowerOff } from "lucide-react";
+import { localizeHref } from "@/translations/locales";
 
 // RFC 5322 email validation
 const RFC5322_EMAIL =
@@ -728,7 +729,7 @@ function SignupFormInner({ language }: { language: Language }) {
       </form>
       <p className="text-center text-sm text-slate-500 mt-4">
         {t("signup.have-account")}{" "}
-        <a href="/auth/login" className="font-semibold text-violet-600 hover:text-violet-700 transition-colors">
+        <a href={localizeHref("/auth/login", language)} className="font-semibold text-violet-600 hover:text-violet-700 transition-colors">
           {t("signup.login-link")}
         </a>
       </p>

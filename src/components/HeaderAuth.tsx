@@ -7,10 +7,11 @@ import { AnimatePresence } from "framer-motion";
 import { AccountDropdown } from "./account-dropdown";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAppKit } from "@reown/appkit/react";
+import { localizeHref } from "@/translations/locales";
 
 function HeaderAuthInner() {
   const { data: session, status } = useSession();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { open } = useAppKit();
 
   if (status === "loading") return null;
@@ -41,13 +42,13 @@ function HeaderAuthInner() {
   return (
     <div className="hidden items-center gap-2 lg:flex">
       <Link
-        href="/auth/login"
+        href={localizeHref("/auth/login", language)}
         className="whitespace-nowrap rounded-lg px-2 py-2 text-sm font-medium sm:px-3 text-slate-700 transition-all duration-200 hover:bg-violet-50 hover:text-violet-700 lg:px-4"
       >
         {t("nav.login")}
       </Link>
       <Link
-        href="/auth/signup"
+        href={localizeHref("/auth/signup", language)}
         className="whitespace-nowrap rounded-full bg-linear-to-r from-violet-600 to-fuchsia-600 px-3 py-2 sm:px-4 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:from-violet-700 hover:to-fuchsia-700 hover:shadow-lg hover:shadow-violet-500/40"
       >
         {t("nav.signup")}

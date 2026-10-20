@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import RecaptchaProvider from "@/components/recaptcha-provider";
+import { localizeHref } from "@/translations/locales";
 
 function ForgotPasswordFormInner({ language }: { language: Language }) {
   const t = (key: string) => translations[key]?.[language] ?? key;
@@ -78,7 +79,7 @@ function ForgotPasswordFormInner({ language }: { language: Language }) {
           </p>
         </div>
         <Link
-          href="/auth/login"
+          href={localizeHref("/auth/login", language)}
           className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -126,7 +127,7 @@ function ForgotPasswordFormInner({ language }: { language: Language }) {
 
       <div className="flex justify-center pb-4">
         <Link
-          href="/auth/login"
+          href={localizeHref("/auth/login", language)}
           className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
         >
           <ArrowLeft className="w-4 h-4" />

@@ -6,14 +6,17 @@ import { translations } from "@/translations";
 import { LanguageToggle } from "@/translations/LanguageToggle";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { localizeHref } from "@/translations/locales";
+import { Language, localizeHref } from "@/translations/locales";
 import LoginForm from "./login-form";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Iniciar sesión",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const language = (await params).lang as Language;
+  return {
+    title: translations["login.title"]?.[language] ?? "Iniciar sesión",
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function LoginPage() {
   const language = await getLanguage();

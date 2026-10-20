@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Spinner from "@/components/ui/spinner";
+import { localizeHref } from "@/translations/locales";
 
 
 function LoginFormInner({ language }: { language: Language }) {
@@ -158,7 +159,7 @@ function LoginFormInner({ language }: { language: Language }) {
       </div>
       <p className="text-center text-sm text-slate-500">
         {t("login.no-account")}{" "}
-        <a href="/auth/signup" className="font-semibold text-violet-600 hover:text-violet-700 transition-colors">
+        <a href={localizeHref("/auth/signup", language)} className="font-semibold text-violet-600 hover:text-violet-700 transition-colors">
           {t("login.signup-link")}
         </a>
       </p>

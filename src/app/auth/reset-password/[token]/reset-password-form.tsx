@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { localizeHref } from "@/translations/locales";
 
 interface ResetPasswordFormProps {
   language: Language;
@@ -70,7 +71,7 @@ export default function ResetPasswordForm({ language, token }: ResetPasswordForm
           </p>
         </div>
         <Link
-          href="/auth/login"
+          href={localizeHref("/auth/login", language)}
           className="flex items-center gap-2 min-h-12 px-8 py-3.5 rounded-2xl shadow-md text-sm font-semibold bg-primary text-white hover:opacity-90 transition-opacity"
         >
           {t("reset-password.back-to-login")}
@@ -156,7 +157,7 @@ export default function ResetPasswordForm({ language, token }: ResetPasswordForm
 
       <div className="flex justify-center pb-4">
         <Link
-          href="/auth/login"
+          href={localizeHref("/auth/login", language)}
           className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
         >
           <ArrowLeft className="w-4 h-4" />

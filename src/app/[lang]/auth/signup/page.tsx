@@ -6,13 +6,16 @@ import { translations } from "@/translations";
 import { LanguageToggle } from "@/translations/LanguageToggle";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { localizeHref } from "@/translations/locales";
+import { Language, localizeHref } from "@/translations/locales";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Crear cuenta",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const language = (await params).lang as Language;
+  return {
+    title: translations["signup.create-account"]?.[language] ?? "Crear cuenta",
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function SignupPage() {
   const language = await getLanguage();

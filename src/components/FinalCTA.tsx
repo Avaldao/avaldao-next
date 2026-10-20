@@ -16,7 +16,7 @@ export default async function FinalCTA() {
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-violet-50 sm:text-lg">{t("final-cta.description")}</p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link
-              href="/auth/signup"
+              href={localizeHref("/auth/signup", language)}
               className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 font-heading text-sm font-semibold uppercase tracking-wide text-violet-700 shadow-lg transition-all duration-300 hover:bg-violet-50 sm:text-base"
             >
               {t("final-cta.signup")}
