@@ -12,17 +12,18 @@ export type Permission =
   | "users:read"     // ver el listado y el detalle de usuarios
   | "users:review"   // verificar, rechazar o suspender la identidad de un usuario
   | "users:manage"   // crear usuarios y reenviar mails de activación
-  | "users:roles";   // asignar roles offchain a otros usuarios
+  | "users:roles"    // asignar roles offchain a otros usuarios
+  | "users:delete";  // eliminar usuarios
 
 export const STAFF_ROLES: StaffRole[] = ["USER_VIEWER", "USER_REVIEWER", "USER_ADMIN"];
 
 export const STAFF_ROLE_PERMISSIONS: Record<StaffRole, Permission[]> = {
   USER_VIEWER: ["users:read"],
   USER_REVIEWER: ["users:read", "users:review"],
-  USER_ADMIN: ["users:read", "users:review", "users:manage", "users:roles"],
+  USER_ADMIN: ["users:read", "users:review", "users:manage", "users:roles", "users:delete"],
 };
 
-const ALL_PERMISSIONS: Permission[] = ["users:read", "users:review", "users:manage", "users:roles"];
+const ALL_PERMISSIONS: Permission[] = ["users:read", "users:review", "users:manage", "users:roles", "users:delete"];
 
 /** Red cuyos roles onchain dan permisos de staff (Rootstock Mainnet). */
 export const STAFF_CHAIN_ID = 30;

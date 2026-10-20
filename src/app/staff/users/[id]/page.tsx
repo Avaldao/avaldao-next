@@ -10,6 +10,7 @@ import { ShieldCheck, UserIcon } from "lucide-react";
 import Image from "next/image";
 import UserRolesEditor from "./user-roles-editor";
 import UserStaffRoles from "./user-staff-roles";
+import DeleteUser from "./delete-user";
 import UserVerification from "./user-verification";
 import ResendActivation from "./resend-activation";
 import roles from "@/roles";
@@ -33,6 +34,7 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
   const permissions = session ? await getPermissions(session) : [];
   const canManage = permissions.includes("users:manage");
   const canReview = permissions.includes("users:review");
+  const canDelete = permissions.includes("users:delete") && session?.user.id !== id;
   const canAssignStaffRoles = permissions.includes("users:roles");
   // Los roles onchain se asignan con una transacción que firma quien tenga ADMIN_ROLE en esa red.
   let isOnchainAdmin = true;
@@ -196,6 +198,7 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
             />
           )}
         </div>
+        {canDelete && <DeleteUser userId={user.id} userName={user.name} language={language} />}
       </div>
     </div>
   )

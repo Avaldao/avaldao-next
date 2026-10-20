@@ -5,6 +5,7 @@ import { PaginatedResult, UserInfo, UserUpsert } from '@/types';
 import { ObjectId } from 'mongodb';
 import { getCurrentUser, requirePermission } from '@/lib/auth/authorization';
 import OnChainAuthorizationService from './onchain-authorization-service';
+import AvalModel from '@/lib/db/models/aval-model';
 import UsersModel, { IUser, UserStatus } from '@/lib/db/models/user-model';
 import NotificationsService from './notifications-service';
 import ChallengeModel from '@/lib/db/models/challenge-model';
@@ -706,6 +707,39 @@ export default class UsersService {
 
 
 
+
+  /**
+   * Elimina un usuario. Los avales referencian a las personas por address, así que si el
+   * usuario participa de alguno no se elimina (para no dejar avales con identidades huérfanas):
+   * en ese caso hay que suspenderlo.
+   */
+  async deleteUser(userId: string) {
+    const session = await requirePermission("users:delete");
+
+    if (session.user.id === userId) throw new Error("You cannot delete your own account");
+
+    const user = await UsersModel.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    if (user.address) {
+      const address = new RegExp(`^${user.address}$`, "i");
+      const avales = await AvalModel.countDocuments({
+        $or: [
+          { avaldaoAddress: address },
+          { solicitanteAddress: address },
+          { comercianteAddress: address },
+          { avaladoAddress: address },
+        ],
+      });
+      if (avales > 0) {
+        throw new Error(`The user participates in ${avales} guarantee(s) and cannot be deleted. Suspend the account instead.`);
+      }
+      await ChallengeModel.deleteMany({ address: user.address });
+    }
+
+    await UsersModel.deleteOne({ _id: user._id });
+    return { id: userId };
+  }
 
   /**
    * Reemplaza los roles offchain de un usuario. Solo con permiso `users:roles`, y nadie puede
