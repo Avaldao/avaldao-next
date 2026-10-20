@@ -1091,6 +1091,18 @@ export const translations: Translations = {
     es: 'Usar Otra Wallet',
     en: 'Use Another Wallet'
   },
+  "auth.modal.error.title": {
+    es: 'No pudimos generar el mensaje de firma',
+    en: "We couldn't generate the signing message"
+  },
+  "auth.modal.error.challenge": {
+    es: 'Ocurrió un problema de nuestro lado. Intentá de nuevo en unos instantes.',
+    en: 'Something went wrong on our side. Please try again in a moment.'
+  },
+  "auth.modal.error.rate-limit": {
+    es: 'Hiciste demasiados intentos. Esperá unos minutos y volvé a probar.',
+    en: 'Too many attempts. Please wait a few minutes and try again.'
+  },
   "auth.modal.signing.title": {
     es: 'Verificando Identidad',
     en: 'Verifying Identity'

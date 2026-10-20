@@ -10,7 +10,8 @@ import {
   X,
   ArrowRight,
   Shield,
-  Sparkles
+  Sparkles,
+  AlertTriangle
 } from 'lucide-react';
 import { getAddress } from 'ethers';
 import { Language, translations } from '@/translations';
@@ -25,6 +26,7 @@ interface AuthModalProps {
   onChangeWallet: () => void;
   onDisconnect: () => void;
   isSigning?: boolean;
+  errorKey?: string | null;
   language?: Language;
 }
 
@@ -38,6 +40,7 @@ export const AuthModal = ({
   onChangeWallet,
   onDisconnect,
   isSigning = false,
+  errorKey = null,
   language = 'es'
 }: AuthModalProps) => {
   const [mounted, setMounted] = useState(false);
@@ -193,6 +196,17 @@ export const AuthModal = ({
                   {t('auth.modal.connected.description')}
                 </p>
               </div>
+              {errorKey && (
+                <div role="alert" className="rounded-lg bg-amber-50 dark:bg-amber-950/40 ring-1 ring-amber-100 dark:ring-amber-900 px-4 py-3">
+                  <div className="flex items-start gap-2.5 text-left">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <div className="text-xs text-amber-700 dark:text-amber-400">
+                      <div className="font-semibold">{t('auth.modal.error.title')}</div>
+                      <div className="mt-0.5">{t(errorKey)}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="space-y-2">
                 <button
                   onClick={onSignMessage}

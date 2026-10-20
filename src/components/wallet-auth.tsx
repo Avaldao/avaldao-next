@@ -18,6 +18,12 @@ export const truncateAddress = (addr: string) => {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 };
 
+class ChallengeError extends Error {
+  constructor(public translationKey: string, message: string) {
+    super(message);
+  }
+}
+
 export type AuthStep = 'disconnected' | 'connected' | 'signing' | 'verified';
 
 interface WalletAuthProps {
@@ -35,6 +41,7 @@ const WalletAuth = ({ buttonContent, onSuccessLogin, onErrorLogin, forceButton =
   const { data: session, status } = useSession();
   const { t, language } = useLanguage();
   const [authStep, setAuthStep] = useState<AuthStep>('disconnected');
+  const [authError, setAuthError] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const { open } = useAppKit();
@@ -82,8 +89,14 @@ const WalletAuth = ({ buttonContent, onSuccessLogin, onErrorLogin, forceButton =
 
   const getMessage = async () => {
     const response = await fetch(`/api/challenges?address=${address}&lang=${language}`)
-    const data = await response.json();
-    return data.message;
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.message) {
+      throw new ChallengeError(
+        response.status === 429 ? 'auth.modal.error.rate-limit' : 'auth.modal.error.challenge',
+        data.error ?? `Challenge request failed (${response.status})`,
+      );
+    }
+    return data.message as string;
   }
 
   const defaultErrorHandler = (error: Error) => {
@@ -100,6 +113,7 @@ const WalletAuth = ({ buttonContent, onSuccessLogin, onErrorLogin, forceButton =
 
   const handleSignMessage = async () => {
     try {
+      setAuthError(null);
       setAuthStep('signing');
 
       const message = await getMessage();
@@ -140,6 +154,7 @@ const WalletAuth = ({ buttonContent, onSuccessLogin, onErrorLogin, forceButton =
 
     } catch (error) {
       console.error('Error signing message:', error);
+      if (error instanceof ChallengeError) setAuthError(error.translationKey);
       setAuthStep('connected'); // Volver al paso anterior en caso de error
     }
   };
@@ -253,6 +268,7 @@ const WalletAuth = ({ buttonContent, onSuccessLogin, onErrorLogin, forceButton =
         onChangeWallet={handleChangeWallet}
         onDisconnect={handleDisconnect}
         isSigning={authStep === 'signing'}
+        errorKey={authError}
         language={language}
       />
     </>
