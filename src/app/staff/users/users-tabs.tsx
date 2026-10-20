@@ -125,13 +125,7 @@ function UsersTable({
                 <p className="truncate text-sm text-slate-500">{user.email}</p>
                 <p className="font-mono text-xs text-slate-500">{shortenAddress(user.address)}</p>
                 <p className="text-xs text-slate-400">{formatDate(registrationDate(user), language)}</p>
-                {user.status === "pending" && user.platformRoles.length > 0 && (
-                  <div className="flex flex-wrap gap-y-1 pt-1">
-                    {user.platformRoles.map((role) => (
-                      <RoleCard role={role} key={`${user.id}-${role}`} />
-                    ))}
-                  </div>
-                )}
+                <RoleBadges user={user} language={language} className="flex flex-wrap gap-y-1 pt-1" />
               </div>
               <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
             </Link>
@@ -174,13 +168,7 @@ function UsersTable({
                 </td>
                 <td className="whitespace-nowrap px-4 py-3">{formatDate(registrationDate(user), language)}</td>
                 <td className="px-4 py-3">
-                  <div className="min-w-80">
-                    {user.status === "pending" && (
-                      user.platformRoles.map((role) => (
-                        <RoleCard role={role} key={`${user.id}-${role}`} />
-                      ))
-                    )}
-                  </div>
+                  <RoleBadges user={user} language={language} className="min-w-80" />
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-center items-center">
@@ -244,6 +232,31 @@ function registrationDate(user: UserInfo): Date | undefined {
 function formatDate(date: Date | undefined, language: Language) {
   if (!date) return "—";
   return date.toLocaleDateString(language === "en" ? "en-US" : "es-AR", { year: "numeric", month: "2-digit", day: "2-digit" });
+}
+
+/** Roles offchain (permisos de plataforma) primero y, en usuarios pendientes, los roles que declaró al registrarse. */
+function RoleBadges({ user, language, className }: { user: UserInfo; language: Language; className?: string }) {
+  const t = createT(language);
+  const staffRoles = user.staffRoles ?? [];
+  const declaredRoles = user.status === "pending" ? (user.platformRoles ?? []) : [];
+
+  if (staffRoles.length === 0 && declaredRoles.length === 0) return null;
+
+  return (
+    <div className={className}>
+      {staffRoles.map((role) => (
+        <div
+          key={`${user.id}-${role}`}
+          className="mr-1 inline-flex items-center rounded-full border border-violet-200 bg-violet-100 px-3 py-1 text-xs font-medium text-violet-700"
+        >
+          {t(`staff.platform-roles.${role}`)}
+        </div>
+      ))}
+      {declaredRoles.map((role) => (
+        <RoleCard role={role} key={`${user.id}-${role}`} />
+      ))}
+    </div>
+  );
 }
 
 function RoleCard({ role }: { role: string }) {
