@@ -84,6 +84,7 @@ export interface UserInfo {
   staffRoles?: StaffRole[];
   password?: string;
   emailVerified?: boolean;
+  createdAt?: Date;
 }
 
 export interface UserUpsert {

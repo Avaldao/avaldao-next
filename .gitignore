@@ -43,3 +43,5 @@ next-env.d.ts
 
 AG*.md
 presentations/*
+# backups de migraciones (contienen datos de usuarios)
+/.migration-backups/

@@ -1689,6 +1689,7 @@ export const translations: Translations = {
   "staff.users.col.name": { es: "Nombre", en: "Name" },
   "staff.users.col.email": { es: "Email", en: "Email" },
   "staff.users.col.address": { es: "Address", en: "Address" },
+  "staff.users.col.registered": { es: "Registro", en: "Registered" },
   "staff.users.col.roles": { es: "Roles", en: "Roles" },
   "staff.users.col.actions": { es: "Acciones", en: "Actions" },
   "staff.users.create.button": { es: "Nuevo usuario", en: "New user" },

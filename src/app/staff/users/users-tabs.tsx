@@ -124,6 +124,7 @@ function UsersTable({
                 <p className="truncate text-sm font-medium text-slate-900">{user.name}</p>
                 <p className="truncate text-sm text-slate-500">{user.email}</p>
                 <p className="font-mono text-xs text-slate-500">{shortenAddress(user.address)}</p>
+                <p className="text-xs text-slate-400">{formatDate(registrationDate(user), language)}</p>
                 {user.status === "pending" && user.platformRoles.length > 0 && (
                   <div className="flex flex-wrap gap-y-1 pt-1">
                     {user.platformRoles.map((role) => (
@@ -145,6 +146,7 @@ function UsersTable({
               <th className="px-4 py-3">{t("staff.users.col.name")}</th>
               <th className="px-4 py-3">{t("staff.users.col.email")}</th>
               <th className="px-4 py-3">{t("staff.users.col.address")}</th>
+              <th className="px-4 py-3">{t("staff.users.col.registered")}</th>
               <th className="px-4 py-3">{t("staff.users.col.roles")}</th>
               <th className="px-4 py-3">
                 <span className="sr-only">{t("staff.users.col.actions")}</span>
@@ -170,6 +172,7 @@ function UsersTable({
                     )}
                   </div>
                 </td>
+                <td className="whitespace-nowrap px-4 py-3">{formatDate(registrationDate(user), language)}</td>
                 <td className="px-4 py-3">
                   <div className="min-w-80">
                     {user.status === "pending" && (
@@ -226,6 +229,21 @@ function UsersTable({
       </div>
     </div>
   );
+}
+
+/**
+ * Fecha de registro. Los usuarios más viejos no tienen `createdAt`, pero el `_id` de Mongo
+ * lleva el timestamp de creación en sus primeros 4 bytes.
+ */
+function registrationDate(user: UserInfo): Date | undefined {
+  if (user.createdAt) return new Date(user.createdAt);
+  const seconds = parseInt(user.id?.slice(0, 8), 16);
+  return Number.isFinite(seconds) ? new Date(seconds * 1000) : undefined;
+}
+
+function formatDate(date: Date | undefined, language: Language) {
+  if (!date) return "—";
+  return date.toLocaleDateString(language === "en" ? "en-US" : "es-AR", { year: "numeric", month: "2-digit", day: "2-digit" });
 }
 
 function RoleCard({ role }: { role: string }) {

@@ -2,7 +2,7 @@ import 'server-only';
 
 import getDb from '@/lib/mongodb';
 import { PaginatedResult, UserInfo, UserUpsert } from '@/types';
-import { ObjectId } from 'mongodb';
+import { Filter, ObjectId } from 'mongodb';
 import { getCurrentUser, requirePermission } from '@/lib/auth/authorization';
 import OnChainAuthorizationService from './onchain-authorization-service';
 import AvalModel from '@/lib/db/models/aval-model';
@@ -401,7 +401,12 @@ export default class UsersService {
     await requirePermission("users:read");
 
     const db = await getDb();
-    const query = filter.status ? { status: filter.status } : {};
+    // Los usuarios anteriores a la verificación de identidad no tienen `status`: cuentan como pending.
+    const query: Filter<UserInfo> = !filter.status
+      ? {}
+      : filter.status === "pending"
+        ? { $or: [{ status: "pending" }, { status: { $exists: false } }] }
+        : { status: filter.status };
     const page = filter.page && filter.page > 0 ? Math.floor(filter.page) : 1;
     const pageSize = filter.pageSize && filter.pageSize > 0 ? Math.floor(filter.pageSize) : 10;
     const skip = (page - 1) * pageSize;
