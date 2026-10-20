@@ -5,6 +5,7 @@ import { handleError } from "@/lib/auth/page-guards";
 import type { UserStatus } from "@/lib/db/models/user-model";
 import type { PaginatedResult, UserInfo } from "@/types";
 import UsersTabs from "./users-tabs";
+import CreateUserButton from "./create-user-button";
 import { getLanguage } from "@/lib/cookies";
 import { createT } from "@/translations";
 
@@ -67,6 +68,7 @@ export default async function UsersPage({
         description={t("staff.users.description")}
         icon={<Users className="h-5 w-5" />}
         breadcrumbs={[{ label: t("staff.users.title") }]}
+        actions={<CreateUserButton language={language} />}
       />
 
       {usersByStatus && (

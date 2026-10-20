@@ -163,9 +163,11 @@ function UsersTable({
                 <td className="px-4 py-3 font-mono group">
                   <div className="flex items-center">
                     <span className="select-none">{shortenAddress(user.address)}</span>
-                    <div className="invisible opacity-0 transition-all duration-200 ease-in-out group-hover:visible group-hover:opacity-100">
-                      <CopyAddress address={user.address} language={language} />
-                    </div>
+                    {user.address && (
+                      <div className="invisible opacity-0 transition-all duration-200 ease-in-out group-hover:visible group-hover:opacity-100">
+                        <CopyAddress address={user.address} language={language} />
+                      </div>
+                    )}
                   </div>
                 </td>
                 <td className="px-4 py-3">

@@ -98,7 +98,7 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
             readOnly
             value={shortenAddress(user.address)}
             className="pr-12"
-            trailing={<CopyAddress address={user.address} className="" language={language} />}
+            trailing={user.address ? <CopyAddress address={user.address} className="" language={language} /> : undefined}
           />
         </div>
         {/* Datos que el usuario declaró al registrarse: es lo que el admin tiene que constatar. */}

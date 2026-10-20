@@ -1,5 +1,16 @@
 import UsersService from "@/services/users-service";
-import { OkResponse } from "../response-handler";
+import { OkResponse, handleError } from "../response-handler";
+
+/** Alta de usuario por un admin. La autorización (ADMIN_ROLE) la resuelve el servicio. */
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const result = await new UsersService().createByAdmin(body);
+    return OkResponse(result, 201);
+  } catch (err) {
+    return handleError(err);
+  }
+}
 
 export async function GET(request: Request) {
   try {

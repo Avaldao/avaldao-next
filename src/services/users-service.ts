@@ -51,7 +51,24 @@ interface UserData {
   language: string;
 }
 
-type ActivationEmailUser = Pick<UserInfo, "id" | "email">;
+export interface AdminCreateUserData {
+  accountType: "personal" | "business";
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  companyName?: string;
+  cuit?: string;
+  country?: string;
+  location?: string;
+  platformRoles: string[];
+  address?: string;
+  language?: string;
+}
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PLATFORM_ROLES = ["SOLICITANTE_ROLE", "AVALADO_ROLE", "COMERCIANTE_ROLE", "INVERSOR_ROLE"];
+
+type ActivationEmailUser =Pick<UserInfo, "id" | "email">;
 
 /** Campos que nunca salen de la base en un lookup de otro usuario. */
 const PUBLIC_USER_PROJECTION = {
@@ -149,6 +166,81 @@ export default class UsersService {
     };
   }
 
+  /**
+   * Alta de un usuario por parte de un admin. La cuenta nace `active` (identidad
+   * verificada por el admin), opcionalmente con address, y el usuario recibe el
+   * mail de activación para definir su método de acceso.
+   */
+  async createByAdmin(data: AdminCreateUserData) {
+    const session = await requireRoles("ADMIN_ROLE");
+
+    const email = data.email?.trim().toLowerCase();
+    if (!email || !EMAIL_REGEX.test(email)) throw new Error("Invalid email");
+
+    const isPersonal = data.accountType === "personal";
+    if (!isPersonal && data.accountType !== "business") throw new Error("Invalid account type");
+
+    const firstName = data.firstName?.trim();
+    const lastName = data.lastName?.trim();
+    const companyName = data.companyName?.trim();
+    if (isPersonal ? !(firstName && lastName) : !companyName) {
+      throw new Error("Name is required");
+    }
+
+    const platformRoles = [...new Set(data.platformRoles ?? [])];
+    if (platformRoles.length === 0 || !platformRoles.every(r => PLATFORM_ROLES.includes(r))) {
+      throw new Error("Invalid platform roles");
+    }
+
+    if (await UsersModel.findOne({ email })) throw new Error("Email already registered");
+
+    let address: string | undefined;
+    if (data.address?.trim()) {
+      try {
+        address = getAddress(data.address.trim());
+      } catch {
+        throw new Error("Invalid address");
+      }
+      if (await UsersModel.findOne({ address })) throw new Error(`Address already registered: ${address}`);
+    }
+
+    const language = data.language === "en" ? "en" : "es";
+    const user = await UsersModel.create({
+      accountType: data.accountType,
+      email,
+      address,
+      name: isPersonal ? `${firstName} ${lastName}` : companyName,
+      firstName: isPersonal ? firstName : undefined,
+      lastName: isPersonal ? lastName : undefined,
+      companyName: isPersonal ? undefined : companyName,
+      cuit: data.cuit?.trim() || undefined,
+      country: data.country?.trim() || undefined,
+      location: data.location?.trim() || undefined,
+      platformRoles,
+      // El admin da de alta a alguien que ya constató: nace con identidad verificada.
+      status: "active",
+      verification: {
+        status: "active",
+        byUserId: session.user.id,
+        byAddress: session.user.address,
+        at: new Date(),
+        method: "manual",
+        note: "Created by admin",
+      },
+      language,
+    });
+
+    try {
+      await this.sendActivationEmail({ id: user._id.toString(), email }, language);
+    } catch (err) {
+      // Sin mail de activación la cuenta no sirve y bloquearía el email para reintentar.
+      await UsersModel.deleteOne({ _id: user._id });
+      throw err;
+    }
+
+    return { id: user._id.toString(), email };
+  }
+
   async sendActivationEmail(user: ActivationEmailUser, language: "en" | "es" = "en") {
 
     const activationToken = crypto.randomUUID();
@@ -209,6 +301,10 @@ export default class UsersService {
     const user = await UsersModel.findOne({ activationToken: token, activationTokenExpiry: { $gt: new Date() } });
     if (!user) {
       throw new Error("Invalid or expired activation token");
+    }
+
+    if (recoveredAddress && user.address && user.address.toLowerCase() !== recoveredAddress.toLowerCase()) {
+      throw new Error("The connected wallet doesn't match the address assigned to this account");
     }
 
     user.emailVerified = true;
@@ -326,7 +422,8 @@ export default class UsersService {
       user.id = user._id.toString();
       console.log(`Fetching roles using chainid? ${process.env.DEFAULT_CHAIN_ID}`);
       const authorizationService = new OnChainAuthorizationService();
-      user.roles = await authorizationService.getRoles(user.address);
+      // Un usuario puede no tener address; en ese caso no hay roles onchain.
+      user.roles = user.address ? await authorizationService.getRoles(user.address) : [];
       user.nroles = {
         30: await this.getRolesSafe(30, user.address),
         31: await this.getRolesSafe(31, user.address),

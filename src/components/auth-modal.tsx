@@ -143,7 +143,8 @@ export const AuthModal = ({
 
                 {/* Nombre del paso */}
                 <span className={`
-                  mt-2 text-[11px] font-medium text-center 
+                  mt-2 text-[11px] font-medium
+                  ${index === 0 ? 'self-start text-left' : index === steps.length - 1 ? 'self-end text-right' : 'self-center text-center'}
                   ${step.status === 'current' ? 'text-violet-500' : 'text-zinc-400 dark:text-zinc-500'}
                 `}>
                   {step.name}
