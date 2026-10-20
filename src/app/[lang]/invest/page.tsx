@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: t("meta.invest.title"),
     description: t("meta.invest.description"),
-    alternates: getLanguageAlternates("/invertir", language),
+    alternates: getLanguageAlternates("/invest", language),
     openGraph: {
       type: "website",
       siteName: siteConfig.name,
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       alternateLocale: languages.filter((l) => l !== language).map((l) => openGraphLocales[l]),
       title: t("meta.invest.title"),
       description: t("meta.invest.description"),
-      url: getAbsoluteUrl(localizeHref("/invertir", language)),
+      url: getAbsoluteUrl(localizeHref("/invest", language)),
     },
   };
 }

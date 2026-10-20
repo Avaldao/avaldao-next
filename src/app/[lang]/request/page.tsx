@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: t("meta.request.title"),
     description: t("meta.request.description"),
-    alternates: getLanguageAlternates("/solicitar", language),
+    alternates: getLanguageAlternates("/request", language),
     openGraph: {
       type: "website",
       siteName: siteConfig.name,
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       alternateLocale: languages.filter((l) => l !== language).map((l) => openGraphLocales[l]),
       title: t("meta.request.title"),
       description: t("meta.request.description"),
-      url: getAbsoluteUrl(localizeHref("/solicitar", language)),
+      url: getAbsoluteUrl(localizeHref("/request", language)),
     },
   };
 }

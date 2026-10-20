@@ -35,6 +35,17 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Rutas públicas renombradas al inglés: se conservan las URLs viejas ya indexadas.
+  async redirects() {
+    return [
+      { source: "/solicitar", destination: "/request", permanent: true },
+      { source: "/:lang(es|en)/solicitar", destination: "/:lang/request", permanent: true },
+      { source: "/invertir", destination: "/invest", permanent: true },
+      { source: "/:lang(es|en)/invertir", destination: "/:lang/invest", permanent: true },
+      { source: "/comercios", destination: "/merchants", permanent: true },
+      { source: "/:lang(es|en)/comercios", destination: "/:lang/merchants", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

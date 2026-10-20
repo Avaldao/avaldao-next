@@ -6,10 +6,10 @@ import { localizeHref } from "@/translations/locales";
 import { StaggerContainer, StaggerItem, FadeIn } from "@/components/ui/AnimatedSection";
 
 const audiences = [
-  { key: "merchant", icon: Store, href: "/auth/signup" },
-  { key: "applicant", icon: HeartHandshake, href: "/solicitar" },
+  { key: "merchant", icon: Store, href: "/merchants" },
+  { key: "applicant", icon: HeartHandshake, href: "/request" },
   { key: "guaranteed", icon: UserRound, href: "/auth/signup" },
-  { key: "contributor", icon: HandCoins, href: "/invertir" },
+  { key: "contributor", icon: HandCoins, href: "/invest" },
 ] as const;
 
 export default async function Audiences() {

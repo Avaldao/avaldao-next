@@ -4,8 +4,9 @@ import { languages, localizeHref } from "@/translations/locales";
 
 const pages: { path: string; changeFrequency: "weekly" | "monthly"; priority: number }[] = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
-  { path: "/solicitar", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/invertir", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/request", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/merchants", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/invest", changeFrequency: "monthly", priority: 0.6 },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

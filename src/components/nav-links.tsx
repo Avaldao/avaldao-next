@@ -61,7 +61,7 @@ export default function NavLinks({ language, chainIds }: { language: Language; c
       { href: "#que-es", label: t("nav.about"), anchor: true },
       { href: "#como-funciona", label: t("nav.how"), anchor: true },
       { href: "#dashboard", label: t("nav.dashboard"), anchor: true },
-      { href: localizeHref("/invertir", language), label: t("nav.invest") },
+      { href: localizeHref("/invest", language), label: t("nav.invest") },
       { href: "/avales/new", label: t("nav.request-aval") },
     ];
 

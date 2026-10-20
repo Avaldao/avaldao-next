@@ -37,6 +37,14 @@ export const translations: Translations = {
     es: 'Los pasos para solicitar un aval en AvalDAO: registrarte, validar tu perfil, crear la solicitud, la revisión de la plataforma y la firma del aval.',
     en: 'The steps to request a guarantee on AvalDAO: sign up, verify your profile, create the request, platform review, and signing the guarantee.'
   },
+  'meta.merchants.title': {
+    es: 'Avales para comercios: vendé en cuotas sin riesgo de impago',
+    en: 'Guarantees for merchants: sell in installments without default risk'
+  },
+  'meta.merchants.description': {
+    es: 'Cómo funciona un aval de AvalDAO para comercios: los fondos quedan reservados en un contrato y, si una cuota no se paga, abrís un reclamo y cobrás.',
+    en: 'How an AvalDAO guarantee works for merchants: funds are reserved in a contract and, if an installment goes unpaid, you open a claim and get paid.'
+  },
   'a11y.skip-to-content': {
     es: 'Saltar al contenido principal',
     en: 'Skip to main content'
@@ -572,6 +580,100 @@ export const translations: Translations = {
   "final-cta.request": {
     es: 'Solicitar un aval',
     en: 'Request a guarantee'
+  },
+
+  // ── Página pública: avales para comercios ──
+  "merchants.eyebrow": {
+    es: 'Para comercios',
+    en: 'For merchants'
+  },
+  "merchants.title": {
+    es: 'Vendé en cuotas sin asumir el riesgo de impago',
+    en: 'Sell in installments without taking on default risk'
+  },
+  "merchants.description": {
+    es: 'Un aval de AvalDAO reserva el dinero de tus ventas en un contrato inteligente. Si tu cliente no paga una cuota, la cobrás desde esos fondos.',
+    en: "An AvalDAO guarantee reserves the money for your sales in a smart contract. If your customer doesn't pay an installment, you collect it from those funds."
+  },
+  "merchants.steps.title": {
+    es: 'Cómo funciona para vos',
+    en: 'How it works for you'
+  },
+  "merchants.step1.title": {
+    es: 'Tu cliente solicita un aval',
+    en: 'Your customer requests a guarantee'
+  },
+  "merchants.step1.description": {
+    es: 'Acordás la venta en cuotas con tu cliente. Quien solicita el aval lo registra e indica tu wallet como comercio, junto con el monto y el plan de cuotas.',
+    en: 'You agree on the installment sale with your customer. The applicant registers the guarantee and enters your wallet as the merchant, along with the amount and installment plan.'
+  },
+  "merchants.step2.title": {
+    es: 'AvalDAO lo revisa y lo registra',
+    en: 'AvalDAO reviews and records it'
+  },
+  "merchants.step2.description": {
+    es: 'Si AvalDAO acepta el caso, crea el contrato del aval en blockchain con las cuotas y sus fechas.',
+    en: "If AvalDAO accepts the case, it creates the guarantee's contract on the blockchain with the installments and their dates."
+  },
+  "merchants.step3.title": {
+    es: 'Firmás y se reservan los fondos',
+    en: 'You sign and funds are reserved'
+  },
+  "merchants.step3.description": {
+    es: 'Revisás los términos y firmás con tu wallet, sin costo de gas. Cuando firman todos los participantes, el monto total queda reservado en el contrato del aval.',
+    en: "You review the terms and sign with your wallet, at no gas cost. Once every participant has signed, the full amount is reserved in the guarantee's contract."
+  },
+  "merchants.step4.title": {
+    es: 'Entregás y cobrás a tu cliente',
+    en: 'You deliver and collect from your customer'
+  },
+  "merchants.step4.description": {
+    es: 'Entregás el producto o servicio y tu cliente te paga cada cuota directamente a vos. Cada cuota cumplida se libera y el dinero vuelve al fondo.',
+    en: 'You deliver the product or service and your customer pays each installment directly to you. Each installment paid is released and the money returns to the fund.'
+  },
+  "merchants.step5.title": {
+    es: 'Si una cuota no se paga, reclamás',
+    en: "If an installment isn't paid, you claim"
+  },
+  "merchants.step5.description": {
+    es: 'Pasada la fecha de vencimiento, abrís un reclamo desde la plataforma. Al ejecutarse la garantía, recibís el monto de esa cuota desde los fondos reservados.',
+    en: "Once the due date has passed, you open a claim from the platform. When the guarantee is executed, you receive that installment's amount from the reserved funds."
+  },
+  "merchants.notes.title": {
+    es: 'Lo que tenés que saber',
+    en: 'Good to know'
+  },
+  "merchants.note1.title": {
+    es: 'Dos fechas por cuota',
+    en: 'Two dates per installment'
+  },
+  "merchants.note1.description": {
+    es: 'Desde el vencimiento podés abrir un reclamo. Si no hay reclamo hasta la fecha de desbloqueo, la cuota se da por pagada y sus fondos vuelven al fondo de garantía.',
+    en: 'From the due date you can open a claim. If there is no claim by the release date, the installment is considered paid and its funds return to the guarantee fund.'
+  },
+  "merchants.note2.title": {
+    es: 'Necesitás una wallet',
+    en: 'You need a wallet'
+  },
+  "merchants.note2.description": {
+    es: 'Firmar el aval y abrir reclamos se hace con una wallet. Crearla es gratis y lleva unos minutos; recomendamos MetaMask.',
+    en: 'Signing the guarantee and opening claims is done with a wallet. Creating one is free and takes a few minutes; we recommend MetaMask.'
+  },
+  "merchants.note3.title": {
+    es: 'Cobrás en DOC',
+    en: 'You get paid in DOC'
+  },
+  "merchants.note3.description": {
+    es: 'Los fondos de garantía están en DOC (Dollar on Chain), una stablecoin del ecosistema Rootstock.',
+    en: 'Guarantee funds are held in DOC (Dollar on Chain), a stablecoin of the Rootstock ecosystem.'
+  },
+  "merchants.cta.signup": {
+    es: 'Crear cuenta de comercio',
+    en: 'Create a merchant account'
+  },
+  "merchants.cta.how": {
+    es: 'Ver el proceso completo',
+    en: 'See the full process'
   },
 
   // ── Página pública: pasos para solicitar un aval ──

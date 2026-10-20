@@ -21,9 +21,9 @@ export const languageCookieOptions = {
 // Header que el proxy agrega a la request con el idioma resuelto para esa request.
 export const LANGUAGE_HEADER = 'x-language';
 
-// Páginas públicas e indexables. Se sirven con el idioma como prefijo de la URL (/es, /en/invertir)
+// Páginas públicas e indexables. Se sirven con el idioma como prefijo de la URL (/es, /en/invest)
 // para que cada versión tenga su propia URL indexable, con hreflang y canonical.
-export const localizedPaths = ['/', '/invertir', '/solicitar'] as const;
+export const localizedPaths = ['/', '/invest', '/request', '/merchants'] as const;
 
 export function isLanguage(value: unknown): value is Language {
   return typeof value === 'string' && (languages as readonly string[]).includes(value);
@@ -33,7 +33,7 @@ export function isLocalizedPath(pathname: string): boolean {
   return (localizedPaths as readonly string[]).includes(pathname);
 }
 
-/** Idioma presente como primer segmento de la URL (`/en/invertir` → `en`), o null. */
+/** Idioma presente como primer segmento de la URL (`/en/invest` → `en`), o null. */
 export function getPathLanguage(pathname: string): Language | null {
   const segment = pathname.split('/')[1];
   return isLanguage(segment) ? segment : null;
@@ -45,7 +45,7 @@ export function localizeHref(href: string, language: Language): string {
   return href === '/' ? `/${language}` : `/${language}${href}`;
 }
 
-/** Cambia el prefijo de idioma de una URL localizada (`/es/invertir` → `/en/invertir`). */
+/** Cambia el prefijo de idioma de una URL localizada (`/es/invest` → `/en/invest`). */
 export function switchPathLanguage(pathname: string, language: Language): string {
   const rest = getPathLanguage(pathname) ? pathname.split('/').slice(2).join('/') : pathname.slice(1);
   return rest ? `/${language}/${rest}` : `/${language}`;

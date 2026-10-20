@@ -22,7 +22,7 @@ export default async function FinalCTA() {
               {t("final-cta.signup")}
             </Link>
             <Link
-              href={localizeHref("/solicitar", language)}
+              href={localizeHref("/request", language)}
               className="inline-flex items-center justify-center rounded-full border border-white/60 px-8 py-3.5 font-heading text-sm font-semibold uppercase tracking-wide text-white transition-all duration-300 hover:bg-white/10 sm:text-base"
             >
               {t("final-cta.request")}
