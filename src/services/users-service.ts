@@ -3,7 +3,7 @@ import 'server-only';
 import getDb from '@/lib/mongodb';
 import { PaginatedResult, UserInfo, UserUpsert } from '@/types';
 import { ObjectId } from 'mongodb';
-import { getCurrentUser, requireRoles } from '@/lib/auth/authorization';
+import { getCurrentUser, requirePermission } from '@/lib/auth/authorization';
 import OnChainAuthorizationService from './onchain-authorization-service';
 import UsersModel, { IUser, UserStatus } from '@/lib/db/models/user-model';
 import NotificationsService from './notifications-service';
@@ -17,6 +17,7 @@ import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
 import { translations } from '@/translations';
+import { isStaffRole, STAFF_ROLES, StaffRole } from '@/lib/auth/staff-roles';
 
 export interface ProfileUser {
   id: string;
@@ -172,7 +173,7 @@ export default class UsersService {
    * mail de activación para definir su método de acceso.
    */
   async createByAdmin(data: AdminCreateUserData) {
-    const session = await requireRoles("ADMIN_ROLE");
+    const session = await requirePermission("users:manage");
 
     const email = data.email?.trim().toLowerCase();
     if (!email || !EMAIL_REGEX.test(email)) throw new Error("Invalid email");
@@ -243,7 +244,7 @@ export default class UsersService {
 
   /** Reenvía el mail de activación (con un token nuevo) a una cuenta que todavía no se activó. */
   async resendActivation(userId: string) {
-    await requireRoles("ADMIN_ROLE");
+    await requirePermission("users:manage");
 
     const user = await UsersModel.findById(userId);
     if (!user) throw new Error("User not found");
@@ -396,7 +397,7 @@ export default class UsersService {
 
 
   async getAll(filter: GetAllUsersFilter = {}): Promise<PaginatedResult<UserInfo>> {
-    await requireRoles(["ADMIN_ROLE", "AVALDAO_ROLE"]);
+    await requirePermission("users:read");
 
     const db = await getDb();
     const query = filter.status ? { status: filter.status } : {};
@@ -670,7 +671,7 @@ export default class UsersService {
    * nombre de la cuenta corresponde a quien controla la address.
    */
   async setVerification(userId: string, action: VerificationAction, note?: string) {
-    const session = await requireRoles("ADMIN_ROLE");
+    const session = await requirePermission("users:review");
     const target = VERIFICATION_TARGET[action];
     if (!target) throw new Error("Invalid verification action");
 
@@ -705,6 +706,35 @@ export default class UsersService {
 
 
 
+
+  /**
+   * Reemplaza los roles offchain de un usuario. Solo con permiso `users:roles`, y nadie puede
+   * modificar los suyos (evita quedarse sin acceso o escalar privilegios por error).
+   */
+  async setStaffRoles(userId: string, roles: unknown) {
+    const session = await requirePermission("users:roles");
+
+    if (!Array.isArray(roles) || !roles.every(isStaffRole)) throw new Error("Invalid staff roles");
+    if (session.user.id === userId) throw new Error("You cannot change your own staff roles");
+
+    const user = await UsersModel.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    const next = STAFF_ROLES.filter(r => roles.includes(r));
+    const current: StaffRole[] = [...(user.staffRoles ?? [])];
+    const added = next.filter(r => !current.includes(r));
+    const removed = current.filter(r => !next.includes(r));
+    if (!added.length && !removed.length) return { id: userId, staffRoles: current };
+
+    user.staffRoles = next;
+    user.staffRolesHistory = [
+      ...(user.staffRolesHistory ?? []),
+      { byUserId: session.user.id, byAddress: session.user.address, at: new Date(), added, removed },
+    ];
+    await user.save();
+
+    return { id: userId, staffRoles: next };
+  }
 
   async updateProfile(data: UserUpsert) {
 

@@ -3,6 +3,8 @@ import "server-only";
 import { Role } from "@/roles";
 import { getServerSession, Session } from "next-auth";
 import { authOptions } from ".";
+import UsersModel from "@/lib/db/models/user-model";
+import { Permission, resolvePermissions, STAFF_CHAIN_ID } from "./staff-roles";
 
 export class UnauthenticatedError extends Error {
   constructor(message: string) {
@@ -47,6 +49,33 @@ export async function requireRoles(requiredRoles: Role | Role[]) {
 
   if (!hasRequiredRole) {
     throw new UnauthorizedError("The current user doesn't have any of the required roles: " + requiredRolesArray.join(", "));
+  }
+
+  return session;
+}
+
+
+/**
+ * Permisos de backoffice del usuario de la sesión. Los roles offchain se leen de la DB en cada
+ * llamada (no del JWT) para que revocar un rol tenga efecto inmediato.
+ */
+export async function getPermissions(session: Session): Promise<Permission[]> {
+  const user = await UsersModel.findById(session.user.id).select("staffRoles").lean();
+  const mainnetRoles = session.user.nroles?.[STAFF_CHAIN_ID] || [];
+  return resolvePermissions(user?.staffRoles ?? [], mainnetRoles);
+}
+
+/** Como `requireRoles`, pero chequea un permiso de backoffice (roles offchain u onchain en mainnet). */
+export async function requirePermission(permission: Permission) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user) {
+    throw new UnauthenticatedError("No user session found");
+  }
+
+  const permissions = await getPermissions(session);
+  if (!permissions.includes(permission)) {
+    throw new UnauthorizedError("The current user doesn't have the required permission: " + permission);
   }
 
   return session;

@@ -1,5 +1,6 @@
 import type { UserStatus, UserVerification } from "./lib/db/models/user-model";
 import { Role } from "./roles";
+import type { StaffRole } from "./lib/auth/staff-roles";
 
 export interface PaginatedResult<T> {
   items: T[];
@@ -80,6 +81,7 @@ export interface UserInfo {
   url?: string; //deprecated
   website?: string;
   platformRoles: string[];
+  staffRoles?: StaffRole[];
   password?: string;
   emailVerified?: boolean;
 }

@@ -1,5 +1,6 @@
 import mongoose, { Document } from 'mongoose';
 import { usersMongooseConnection } from '@/lib/mongodb';
+import { STAFF_ROLES, StaffRole } from '@/lib/auth/staff-roles';
 const { Schema } = mongoose;
 
 type AuthMethod = "email" | "web3";
@@ -17,6 +18,15 @@ export type Role =
  * nombre es solo declarado.
  */
 export type UserStatus = "pending" | "active" | "rejected" | "suspended";
+
+/** Cambio de roles offchain de un usuario, para auditoría. */
+export interface StaffRolesChange {
+  byUserId: string;
+  byAddress?: string;
+  at: Date;
+  added: StaffRole[];
+  removed: StaffRole[];
+}
 
 /** Última decisión de un admin sobre el estado del usuario. */
 export interface UserVerification {
@@ -40,6 +50,9 @@ export interface IUser extends Document {
   country?: string;
   location?: string;
   platformRoles?: string[];
+  /** Roles offchain de backoffice (ver `@/lib/auth/staff-roles`). */
+  staffRoles?: StaffRole[];
+  staffRolesHistory?: StaffRolesChange[];
   acceptTyC?: boolean;
   acceptPrivacy?: boolean;
   status?: UserStatus;
@@ -118,6 +131,26 @@ export const userSchema = new Schema<IUser>(
     },
     platformRoles: {
       type: [String],
+      default: [],
+    },
+    staffRoles: {
+      type: [String],
+      enum: STAFF_ROLES,
+      default: [],
+    },
+    staffRolesHistory: {
+      type: [
+        new Schema(
+          {
+            byUserId: String,
+            byAddress: String,
+            at: Date,
+            added: [String],
+            removed: [String],
+          },
+          { _id: false }
+        ),
+      ],
       default: [],
     },
     acceptTyC: {

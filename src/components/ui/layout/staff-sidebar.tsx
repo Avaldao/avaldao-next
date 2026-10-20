@@ -25,6 +25,7 @@ import {
 
 import { useLanguage } from "@/context/LanguageContext";
 import { Language, translations } from "@/translations";
+import type { Permission } from "@/lib/auth/staff-roles";
 import NetworkRoles, { enabledNetworks } from "@/components/ui/layout/network-roles";
 
 interface SidebarItem {
@@ -32,7 +33,8 @@ interface SidebarItem {
   labelKey: string;
   icon: React.ReactNode;
   href: string;
-  roles?: string[];
+  /** Permiso de backoffice requerido para ver el item. */
+  permission?: Permission;
 }
 
 const items: SidebarItem[] = [
@@ -53,7 +55,7 @@ const items: SidebarItem[] = [
     labelKey: "sidebar.users",
     icon: <Users className="h-5 w-5" />,
     href: "/staff/users",
-    roles: ["ADMIN_ROLE"],
+    permission: "users:read",
   },
 ];
 
@@ -65,11 +67,12 @@ interface StaffSidebarProps {
   };
   /** Redes habilitadas (AVAL_CHAIN_IDS). */
   chainIds: number[];
+  permissions: Permission[];
   badges?: Record<string, number>;
   language: Language;
 }
 
-export default function StaffSidebar({ userName, nroles, chainIds, badges, language }: StaffSidebarProps) {
+export default function StaffSidebar({ userName, nroles, chainIds, permissions, badges, language }: StaffSidebarProps) {
   const t = (key: string) => translations[key]?.[language] ?? key;
 
   const pathname = usePathname();
@@ -144,11 +147,7 @@ export default function StaffSidebar({ userName, nroles, chainIds, badges, langu
       <nav className="flex flex-col gap-1 px-2 pt-2">
         {items
           .filter(
-            (item) =>
-              !item.roles ||
-              item.roles.some((r) =>
-                chainIds.some((chainId) => nroles[String(chainId) as "30" | "31"]?.includes(r))
-              )
+            (item) => !item.permission || permissions.includes(item.permission)
           )
           .map((item) => {
             const active = isActive(item.href);

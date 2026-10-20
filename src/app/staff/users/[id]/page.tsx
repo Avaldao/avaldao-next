@@ -3,12 +3,13 @@ import CopyAddress from "@/components/copy-address";
 import PageHeader from "@/components/ui/layout/page-header";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { requireRoles } from "@/lib/auth/authorization";
+import { getPermissions, requireRoles, requirePermission } from "@/lib/auth/authorization";
 import { handleError } from "@/lib/auth/page-guards";
 import UsersService from "@/services/users-service";
 import { ShieldCheck, UserIcon } from "lucide-react";
 import Image from "next/image";
 import UserRolesEditor from "./user-roles-editor";
+import UserStaffRoles from "./user-staff-roles";
 import UserVerification from "./user-verification";
 import ResendActivation from "./resend-activation";
 import roles from "@/roles";
@@ -23,16 +24,22 @@ interface UersDetailsPageProps {
 export default async function UserDetailsPage({ params }: UersDetailsPageProps) {
   const { id } = await params;
 
+  let session;
   try {
-    await requireRoles(["ADMIN_ROLE", "AVALDAO_ROLE"]);
+    session = await requirePermission("users:read");
   } catch (err) {
     handleError(err);
   }
-  let isAdmin = true;
+  const permissions = session ? await getPermissions(session) : [];
+  const canManage = permissions.includes("users:manage");
+  const canReview = permissions.includes("users:review");
+  const canAssignStaffRoles = permissions.includes("users:roles");
+  // Los roles onchain se asignan con una transacción que firma quien tenga ADMIN_ROLE en esa red.
+  let isOnchainAdmin = true;
   try {
     await requireRoles("ADMIN_ROLE");
   } catch {
-    isAdmin = false;
+    isOnchainAdmin = false;
   }
   const language = await getLanguage();
   const t = createT(language);
@@ -129,7 +136,7 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
           )}
         </div>
 
-        {isAdmin && !user.emailVerified && (
+        {canManage && !user.emailVerified && (
           <ResendActivation userId={user.id} language={language} />
         )}
 
@@ -138,7 +145,14 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
           status={user.status ?? "pending"}
           verification={user.verification ? JSON.parse(JSON.stringify(user.verification)) : undefined}
           hasAddress={!!user.address}
-          canEdit={isAdmin}
+          canEdit={canReview}
+          language={language}
+        />
+
+        <UserStaffRoles
+          userId={user.id}
+          currentRoles={user.staffRoles ?? []}
+          canEdit={canAssignStaffRoles && session?.user.id !== user.id}
           language={language}
         />
 
@@ -172,7 +186,7 @@ export default async function UserDetailsPage({ params }: UersDetailsPageProps) 
               );
             })}
           </div>
-          {isAdmin && user.address && (
+          {isOnchainAdmin && user.address && (
             <UserRolesEditor
               userAddress={user.address}
               language={language}
