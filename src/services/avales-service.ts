@@ -4,7 +4,9 @@ import { Aval, AvalRequest } from "@/types";
 import AvalModel from "@/lib/db/models/aval-model";
 import UserModel from "@/lib/db/models/user-model";
 import { Contract, getAddress, id, JsonRpcProvider, SignatureLike, verifyTypedData } from "ethers";
-import { getCurrentUser } from "@/lib/auth/authorization";
+import { getCurrentUser, hasPermission } from "@/lib/auth/authorization";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { use } from "react";
 import { pinata } from "@/lib/pinata";
 import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
@@ -68,12 +70,18 @@ export default class AvalesService {
       .map(([chainId]) => Number(chainId));
   }
 
+  /** Permiso offchain `avales:read`: ve todos los avales, de cualquier red. */
+  private async _canReadAllAvales(): Promise<boolean> {
+    const session = await getServerSession(authOptions);
+    return !!session?.user && (await hasPermission(session, "avales:read"));
+  }
+
   async getAvales() {
     const user = await getCurrentUser();
 
     const adminChainIds = this._adminChainIds(user);
 
-    const filter = {
+    const filter = (await this._canReadAllAvales()) ? {} : {
       $or: [
         { chainId: { $in: adminChainIds } },
         ...(user.address ? [
@@ -104,8 +112,9 @@ export default class AvalesService {
     const adminChainIds = this._adminChainIds(user);
 
     const isOwner = user.address?.toLowerCase() === address.toLowerCase();
+    const canReadAll = await this._canReadAllAvales();
 
-    if (adminChainIds.length === 0 && !isOwner) {
+    if (adminChainIds.length === 0 && !isOwner && !canReadAll) {
       throw new Error("Unauthorized");
     }
 
@@ -117,7 +126,7 @@ export default class AvalesService {
         { avaladoAddress: address },
       ],
       // Un admin que no es el dueño solo ve los avales de las redes donde es admin.
-      ...(isOwner ? {} : { chainId: { $in: adminChainIds } }),
+      ...(isOwner || canReadAll ? {} : { chainId: { $in: adminChainIds } }),
     })
       .collation(CASE_INSENSITIVE)
       .sort({ createdAt: -1 })

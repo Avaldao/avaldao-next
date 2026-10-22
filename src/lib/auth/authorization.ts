@@ -80,3 +80,8 @@ export async function requirePermission(permission: Permission) {
 
   return session;
 }
+
+/** Si el usuario de la sesión tiene un permiso de backoffice, sin lanzar errores. */
+export async function hasPermission(session: Session, permission: Permission) {
+  return (await getPermissions(session)).includes(permission);
+}

@@ -1757,6 +1757,8 @@ export const translations: Translations = {
   "staff.platform-roles.USER_REVIEWER.description": { es: "Además de ver, verificar, rechazar o suspender la identidad de los usuarios.", en: "In addition to viewing, verify, reject or suspend users' identity." },
   "staff.platform-roles.USER_ADMIN": { es: "Usuarios: administrador", en: "Users: admin" },
   "staff.platform-roles.USER_ADMIN.description": { es: "Además de revisar, crear usuarios, reenviar activaciones y asignar estos permisos a otros.", en: "In addition to reviewing, create users, resend activations and assign these permissions to others." },
+  "staff.platform-roles.AVAL_VIEWER": { es: "Avales: lectura", en: "Guarantees: viewer" },
+  "staff.platform-roles.AVAL_VIEWER.description": { es: "Ver todos los avales de la plataforma, en todas las redes.", en: "View all the platform's guarantees, on every network." },
   "staff.platform-roles.save": { es: "Guardar permisos", en: "Save permissions" },
   "staff.platform-roles.success": { es: "Permisos actualizados", en: "Permissions updated" },
   "staff.platform-roles.error": { es: "No se pudieron actualizar los permisos", en: "Could not update the permissions" },
