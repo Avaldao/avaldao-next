@@ -59,7 +59,7 @@ export const translations: Translations = {
   },
   "nav.avales": {
     es: 'Avales',
-    en: 'Avals'
+    en: 'Guarantees'
   },
   "nav.about": {
     es: 'Qué es',
@@ -83,7 +83,7 @@ export const translations: Translations = {
   },
   "nav.request-aval": {
     es: 'Solicitar Aval',
-    en: 'Request Aval'
+    en: 'Request Guarantee'
   },
   "nav.menu.open": {
     es: 'Abrir menú',
@@ -903,11 +903,11 @@ export const translations: Translations = {
 
   "aval-not-found.title": {
     es: 'Aval No Encontrado',
-    en: 'Aval Not Found'
+    en: 'Guarantee Not Found'
   },
   "aval-not-found.description": {
     es: 'El aval con ID {id} no existe o no pudo ser cargado.',
-    en: 'The aval with ID {id} does not exist or could not be loaded.'
+    en: 'The guarantee with ID {id} does not exist or could not be loaded.'
   },
   "aval.details.objective": {
     es: 'Objetivo del Proyecto',
@@ -1079,7 +1079,7 @@ export const translations: Translations = {
   },
   "aval.details.claim-messages.placeholder": {
     es: 'Escribí un mensaje para los participantes del aval…',
-    en: 'Write a message for the aval participants…'
+    en: 'Write a message for the guarantee participants…'
   },
   "aval.details.claim-messages.send": {
     es: 'Enviar mensaje',
@@ -1095,7 +1095,7 @@ export const translations: Translations = {
   },
   "aval.details.open-claim.hint": {
     es: 'Al confirmar esta transacción se registra un reclamo en el contrato del aval. Mientras esté vigente, el solicitante podrá ejecutar la garantía y transferirte el monto de las cuotas vencidas. Solo puede haber un reclamo vigente a la vez.',
-    en: 'By confirming this transaction a claim is registered on the aval contract. While it is active, the applicant can execute the guarantee and transfer you the amount of the overdue installments. Only one claim can be active at a time.'
+    en: 'By confirming this transaction a claim is registered on the guarantee contract. While it is active, the applicant can execute the guarantee and transfer you the amount of the overdue installments. Only one claim can be active at a time.'
   },
   "aval.details.execute-guarantee.title": {
     es: 'Reclamo vigente del comerciante',
@@ -1103,7 +1103,7 @@ export const translations: Translations = {
   },
   "aval.details.execute-guarantee.description": {
     es: 'Ejecutar la garantía transfiere {amount} del aval al comerciante por la(s) cuota(s) vencida(s) {cuotas} y cierra el reclamo.',
-    en: 'Executing the guarantee transfers {amount} from the aval to the merchant for overdue installment(s) {cuotas} and closes the claim.'
+    en: 'Executing the guarantee transfers {amount} from the guarantee to the merchant for overdue installment(s) {cuotas} and closes the claim.'
   },
   "aval.details.execute-guarantee.button": {
     es: 'Ejecutar garantía',
@@ -1394,11 +1394,11 @@ export const translations: Translations = {
   },
   "avals.new-aval": {
     es: 'Nuevo Aval',
-    en: 'New Aval'
+    en: 'New Guarantee'
   },
   "avals.new.title": {
     es: 'Nuevo Aval',
-    en: 'New Aval'
+    en: 'New Guarantee'
   },
   "avals.new.description": {
     es: 'Completá el formulario para solicitar un nuevo aval',
@@ -1438,11 +1438,11 @@ export const translations: Translations = {
   },
   "aval.loading.error": {
     es: 'Error al Cargar Aval',
-    en: 'Error Loading Aval'
+    en: 'Error Loading Guarantee'
   },
   "aval.loading.error-description": {
     es: 'No se pudo cargar la información del aval. Por favor, intenta recargar la página o vuelve más tarde.',
-    en: 'Could not load the aval information. Please try refreshing the page or come back later.'
+    en: 'Could not load the guarantee information. Please try refreshing the page or come back later.'
   },
   "aval.error.badge": {
     es: 'Error del sistema',
@@ -1464,73 +1464,73 @@ export const translations: Translations = {
   "aval.address": { es: "Dirección", en: "Address" },
 
   // Aval actions panel
-  "aval.actions.pending-review.title": { es: "Solicitud de aval a revisar", en: "Aval request to review" },
-  "aval.actions.pending-review.description": { es: "Se solicita un aval por US$ {{amount}} en {{cuotas}} cuotas sobre {{network}}. Revisá los participantes, el objetivo y el cronograma antes de decidir.", en: "An aval of US$ {{amount}} in {{cuotas}} installments on {{network}} has been requested. Review the participants, objective and schedule before deciding." },
+  "aval.actions.pending-review.title": { es: "Solicitud de aval a revisar", en: "Guarantee request to review" },
+  "aval.actions.pending-review.description": { es: "Se solicita un aval por US$ {{amount}} en {{cuotas}} cuotas sobre {{network}}. Revisá los participantes, el objetivo y el cronograma antes de decidir.", en: "A guarantee of US$ {{amount}} in {{cuotas}} installments on {{network}} has been requested. Review the participants, objective and schedule before deciding." },
   "aval.actions.pending-review.steps.title": { es: "Qué pasa si lo aceptás", en: "What happens if you accept" },
   "aval.actions.pending-review.step1.title": { es: "Aprobás una transacción en tu wallet", en: "You approve a transaction in your wallet" },
-  "aval.actions.pending-review.step1.description": { es: "El aval se registra en la blockchain y se crea su contrato. La transacción requiere gas en RBTC.", en: "The aval is registered on the blockchain and its contract is created. The transaction requires RBTC for gas." },
+  "aval.actions.pending-review.step1.description": { es: "El aval se registra en la blockchain y se crea su contrato. La transacción requiere gas en RBTC.", en: "The guarantee is registered on the blockchain and its contract is created. The transaction requires RBTC for gas." },
   "aval.actions.pending-review.step2.title": { es: "Los participantes lo firman", en: "Participants sign it" },
   "aval.actions.pending-review.step2.description": { es: "Solicitante, comerciante, avalado y Avaldao firman los términos desde su wallet, sin costo de gas.", en: "Applicant, merchant, avalado and Avaldao sign the terms from their wallets, at no gas cost." },
-  "aval.actions.pending-review.step3.title": { es: "El aval entra en vigencia", en: "The aval becomes active" },
+  "aval.actions.pending-review.step3.title": { es: "El aval entra en vigencia", en: "The guarantee becomes active" },
   "aval.actions.pending-review.step3.description": { es: "Con todas las firmas, Avaldao lo inicia en el contrato y se bloquean los fondos de garantía.", en: "Once all signatures are collected, Avaldao starts it on the contract and the guarantee funds are locked." },
-  "aval.actions.pending-review.not-binding": { es: "Aceptar el aval no lo hace vigente. Hasta que todos los participantes lo firmen, no tiene validez contractual ni compromete fondos del fondo de garantía.", en: "Accepting the aval does not make it active. Until all participants sign it, it is not contractually binding and does not commit any guarantee funds." },
+  "aval.actions.pending-review.not-binding": { es: "Aceptar el aval no lo hace vigente. Hasta que todos los participantes lo firmen, no tiene validez contractual ni compromete fondos del fondo de garantía.", en: "Accepting the guarantee does not make it active. Until all participants sign it, it is not contractually binding and does not commit any guarantee funds." },
   "aval.actions.sign.role-label": { es: "Rol con el que vas a firmar", en: "Role you are signing as" },
-  "aval.actions.sign.multiple-roles": { es: "Tu wallet ocupa más de un rol en este aval. Tenés que firmar una vez por cada rol.", en: "Your wallet holds more than one role in this aval. You need to sign once for each role." },
-  "aval.actions.sign.single-role": { es: "Vas a firmar este aval bajo el rol de", en: "You are signing this aval as" },
-  "aval.actions.sign.terms-agreement": { es: "Al firmar manifestás tu conformidad con los términos y condiciones del aval. Vas a poder leerlos completos antes de confirmar la firma.", en: "By signing you express your agreement with the aval's terms and conditions. You will be able to read them in full before confirming your signature." },
+  "aval.actions.sign.multiple-roles": { es: "Tu wallet ocupa más de un rol en este aval. Tenés que firmar una vez por cada rol.", en: "Your wallet holds more than one role in this guarantee. You need to sign once for each role." },
+  "aval.actions.sign.single-role": { es: "Vas a firmar este aval bajo el rol de", en: "You are signing this guarantee as" },
+  "aval.actions.sign.terms-agreement": { es: "Al firmar manifestás tu conformidad con los términos y condiciones del aval. Vas a poder leerlos completos antes de confirmar la firma.", en: "By signing you express your agreement with the guarantee's terms and conditions. You will be able to read them in full before confirming your signature." },
   "aval.actions.sign.no-cost": { es: "La firma no tiene costo: no es una transacción, solo un mensaje que firmás con tu wallet, así que no se paga gas.", en: "Signing is free: it is not a transaction, just a message you sign with your wallet, so no gas is paid." },
   "aval.details.signed":{ es: "Firmó", en: "Signed" },
   "aval.details.user-not-registered": { es: "Sin usuario registrado", en: "No registered user" },
   "aval.actions.unverified.title": { es: "Hay participantes sin identidad verificada", en: "Some participants don't have a verified identity" },
-  "aval.actions.unverified.description": { es: "No se puede aceptar el aval hasta que todas las addresses pertenezcan a usuarios registrados y con identidad verificada. Faltan: {{roles}}.", en: "The aval can't be accepted until every address belongs to a registered user with a verified identity. Missing: {{roles}}." },
+  "aval.actions.unverified.description": { es: "No se puede aceptar el aval hasta que todas las addresses pertenezcan a usuarios registrados y con identidad verificada. Faltan: {{roles}}.", en: "The guarantee can't be accepted until every address belongs to a registered user with a verified identity. Missing: {{roles}}." },
   "aval.details.signature-pending": { es: "Firma pendiente", en: "Signature pending" },
   "aval.actions.reject.reason.label":{ es: "Motivo del rechazo", en: "Reason for rejection" },
-  "aval.actions.accept": { es: "Aceptar aval", en: "Accept aval" },
+  "aval.actions.accept": { es: "Aceptar aval", en: "Accept guarantee" },
   "aval.actions.reject": { es: "Rechazar", en: "Reject" },
   "aval.actions.reject.reason.placeholder": { es: "Motivo del rechazo…", en: "Reason for rejection…" },
   "aval.actions.reject.confirm": { es: "Confirmar rechazo", en: "Confirm rejection" },
   "aval.actions.cancel": { es: "Cancelar", en: "Cancel" },
-  "aval.actions.evaluation.title": { es: "Aval en evaluación", en: "Aval under review" },
-  "aval.actions.evaluation.description": { es: "El equipo de AvalDAO está revisando este aval. Serás notificado cuando haya cambios.", en: "The AvalDAO team is reviewing this aval. You will be notified when there are changes." },
-  "aval.actions.rejected.title": { es: "Aval rechazado", en: "Aval rejected" },
+  "aval.actions.evaluation.title": { es: "Aval en evaluación", en: "Guarantee under review" },
+  "aval.actions.evaluation.description": { es: "El equipo de AvalDAO está revisando este aval. Serás notificado cuando haya cambios.", en: "The AvalDAO team is reviewing this guarantee. You will be notified when there are changes." },
+  "aval.actions.rejected.title": { es: "Aval rechazado", en: "Guarantee rejected" },
   "aval.actions.rejected.reason": { es: "Motivo: {{reason}}", en: "Reason: {{reason}}" },
-  "aval.sign.badge": { es: "Firma del aval", en: "Aval signature" },
-  "aval.sign.idle.title": { es: "Firmá los datos del aval", en: "Sign the aval data" },
-  "aval.sign.idle.description": { es: "Tu firma confirma que estás de acuerdo con los términos del aval. No tiene ningún costo en gas.", en: "Your signature confirms you agree with the aval terms. There is no gas cost." },
+  "aval.sign.badge": { es: "Firma del aval", en: "Guarantee signature" },
+  "aval.sign.idle.title": { es: "Firmá los datos del aval", en: "Sign the guarantee data" },
+  "aval.sign.idle.description": { es: "Tu firma confirma que estás de acuerdo con los términos del aval. No tiene ningún costo en gas.", en: "Your signature confirms you agree with the guarantee terms. There is no gas cost." },
 
   "aval.actions.signatures.title": { es: "Firmas recolectadas", en: "Collected signatures" },
-  "aval.actions.signatures.description": { es: "El aval ya está desplegado en la blockchain. Para que pueda iniciarse, todos los participantes deben firmarlo.", en: "The aval is already deployed on the blockchain. For it to start, all participants must sign it." },
+  "aval.actions.signatures.description": { es: "El aval ya está desplegado en la blockchain. Para que pueda iniciarse, todos los participantes deben firmarlo.", en: "The guarantee is already deployed on the blockchain. For it to start, all participants must sign it." },
   "aval.actions.sign-as": { es: "Firmar como {{role}}", en: "Sign as {{role}}" },
   "aval.actions.already-signed": { es: "Ya registraste tu firma como {{role}}.", en: "You already registered your signature as {{role}}." },
-  "aval.actions.all-signed.description": { es: "Todas las firmas están registradas. Podés enviarlas al contrato para iniciar el aval.", en: "All signatures are registered. You can submit them to the contract to start the aval." },
-  "aval.actions.start-aval": { es: "Iniciar aval en blockchain", en: "Start aval on blockchain" },
-  "aval.actions.waiting-avaldao": { es: "Todas las firmas recolectadas. Esperando que AvalDAO inicie el aval.", en: "All signatures collected. Waiting for AvalDAO to start the aval." },
-  "aval.actions.active.title": { es: "Aval activo en blockchain", en: "Aval active on blockchain" },
-  "aval.actions.active.description": { es: "El aval está vigente y registrado en el contrato inteligente.", en: "The aval is active and registered in the smart contract." },
-  "aval.actions.finalized.title": { es: "Aval finalizado", en: "Aval finalized" },
-  "aval.actions.finalized.description": { es: "Este aval ha concluido exitosamente.", en: "This aval has concluded successfully." },
+  "aval.actions.all-signed.description": { es: "Todas las firmas están registradas. Podés enviarlas al contrato para iniciar el aval.", en: "All signatures are registered. You can submit them to the contract to start the guarantee." },
+  "aval.actions.start-aval": { es: "Iniciar aval en blockchain", en: "Start guarantee on blockchain" },
+  "aval.actions.waiting-avaldao": { es: "Todas las firmas recolectadas. Esperando que AvalDAO inicie el aval.", en: "All signatures collected. Waiting for AvalDAO to start the guarantee." },
+  "aval.actions.active.title": { es: "Aval activo en blockchain", en: "Guarantee active on blockchain" },
+  "aval.actions.active.description": { es: "El aval está vigente y registrado en el contrato inteligente.", en: "The guarantee is active and registered in the smart contract." },
+  "aval.actions.finalized.title": { es: "Aval finalizado", en: "Guarantee finalized" },
+  "aval.actions.finalized.description": { es: "Este aval ha concluido exitosamente.", en: "This guarantee has concluded successfully." },
   "aval.actions.reject.validation": { es: "Por favor ingresá un motivo de rechazo.", en: "Please enter a reason for rejection." },
-  "aval.actions.reject.success": { es: "Aval rechazado.", en: "Aval rejected." },
+  "aval.actions.reject.success": { es: "Aval rechazado.", en: "Guarantee rejected." },
   "aval.actions.sign.success": { es: "Firma registrada exitosamente", en: "Signature registered successfully" },
   "aval.actions.sign.error": { es: "Error al firmar: {{error}}", en: "Error signing: {{error}}" },
   "aval.actions.wrong-network": { es: "Por favor cambiá a la red correcta. Chain ID requerido: {{chainId}}", en: "Please switch to the correct network. Required Chain ID: {{chainId}}" },
-  "aval.actions.aval-address-not-found": { es: "Dirección del aval no encontrada para {{id}}", en: "Aval address not found for {{id}}" },
-  "aval.actions.contract-not-found": { es: "Contrato del aval no encontrado", en: "Aval contract not found" },
+  "aval.actions.aval-address-not-found": { es: "Dirección del aval no encontrada para {{id}}", en: "Guarantee address not found for {{id}}" },
+  "aval.actions.contract-not-found": { es: "Contrato del aval no encontrado", en: "Guarantee contract not found" },
   "aval.actions.incomplete-signatures": { es: "Firmas incompletas", en: "Incomplete signatures" },
   "aval.actions.unknown-error": { es: "Error desconocido", en: "Unknown error" },
-  "aval.actions.reject-aval-error": { es: "Error al rechazar el aval", en: "Error rejecting the aval" },
-  "aval.actions.missing-info-cid": { es: "Este aval todavía no tiene su información publicada en IPFS (infoCid).", en: "This aval does not have its information published on IPFS yet (infoCid)." },
-  "aval.actions.missing-info-cid.title": { es: "Información del aval no publicada", en: "Aval information not published" },
-  "aval.actions.missing-info-cid.description": { es: "No se pudo publicar el JSON del aval en IPFS, así que no hay términos comprometidos por la firma. Hasta resolverlo, el aval no puede aceptarse ni firmarse.", en: "The aval JSON could not be published to IPFS, so there are no terms committed by the signature. Until this is fixed, the aval cannot be accepted or signed." },
+  "aval.actions.reject-aval-error": { es: "Error al rechazar el aval", en: "Error rejecting the guarantee" },
+  "aval.actions.missing-info-cid": { es: "Este aval todavía no tiene su información publicada en IPFS (infoCid).", en: "This guarantee does not have its information published on IPFS yet (infoCid)." },
+  "aval.actions.missing-info-cid.title": { es: "Información del aval no publicada", en: "Guarantee information not published" },
+  "aval.actions.missing-info-cid.description": { es: "No se pudo publicar el JSON del aval en IPFS, así que no hay términos comprometidos por la firma. Hasta resolverlo, el aval no puede aceptarse ni firmarse.", en: "The guarantee JSON could not be published to IPFS, so there are no terms committed by the signature. Until this is fixed, the guarantee cannot be accepted or signed." },
   "aval.actions.repin": { es: "Reintentar publicación en IPFS", en: "Retry IPFS publication" },
-  "aval.actions.repin.success": { es: "Información del aval publicada en IPFS.", en: "Aval information published to IPFS." },
+  "aval.actions.repin.success": { es: "Información del aval publicada en IPFS.", en: "Guarantee information published to IPFS." },
   "aval.actions.repin.error": { es: "No se pudo publicar la información en IPFS.", en: "Could not publish the information to IPFS." },
 
   // Términos y condiciones mostrados al firmar
   "sign.terms.label": { es: "Términos que estás firmando", en: "Terms you are signing" },
   "sign.terms.cid": { es: "CID del documento (infoCid)", en: "Document CID (infoCid)" },
   "sign.terms.accept": { es: "Leí y acepto estos términos y condiciones.", en: "I have read and accept these terms and conditions." },
-  "aval.sign.terms.not-committed": { es: "Atención: este aval fue creado antes de que los términos se incluyeran en el documento de IPFS. El texto que ves se generó localmente y no está comprometido por el infoCid que vas a firmar.", en: "Warning: this aval was created before terms were included in the IPFS document. The text shown was generated locally and is not committed by the infoCid you are about to sign." },
+  "aval.sign.terms.not-committed": { es: "Atención: este aval fue creado antes de que los términos se incluyeran en el documento de IPFS. El texto que ves se generó localmente y no está comprometido por el infoCid que vas a firmar.", en: "Warning: this guarantee was created before terms were included in the IPFS document. The text shown was generated locally and is not committed by the infoCid you are about to sign." },
 
   // Platform status dashboard
   "dashboard.platform.network": { es: "Red", en: "Network" },
@@ -1543,19 +1543,19 @@ export const translations: Translations = {
   "dashboard.platform.vigentes": { es: "Vigentes", en: "Active" },
   "dashboard.platform.finalizados": { es: "Finalizados", en: "Finalized" },
   "dashboard.platform.unlockable": { es: "Desbloqueables", en: "Unlockable" },
-  "dashboard.platform.avales": { es: "avales", en: "avales" },
+  "dashboard.platform.avales": { es: "avales", en: "guarantees" },
   "dashboard.platform.cuotas": { es: "cuotas", en: "installments" },
   "dashboard.platform.cuota-singular": { es: "cuota disponible", en: "installment available" },
   "dashboard.platform.cuotas-plural": { es: "cuotas disponibles", en: "installments available" },
   "dashboard.platform.ready-to-unlock": { es: "para desbloquear", en: "to unlock" },
   "dashboard.platform.unlock-description": { es: "Existen cuotas cuyo período de desbloqueo ha vencido.", en: "There are installments whose unlock period has expired." },
-  "dashboard.platform.unlock-solicitante-hint": { es: "El desbloqueo automático no está disponible. Cada solicitante debe ingresar al aval correspondiente y desbloquear las cuotas manualmente.", en: "Automatic unlock is not available. Each solicitante must open the corresponding aval and unlock the installments manually." },
+  "dashboard.platform.unlock-solicitante-hint": { es: "El desbloqueo automático no está disponible. Cada solicitante debe ingresar al aval correspondiente y desbloquear las cuotas manualmente.", en: "Automatic unlock is not available. Each solicitante must open the corresponding guarantee and unlock the installments manually." },
   "dashboard.platform.unlock-btn": { es: "Desbloquear", en: "Unlock" },
-  "dashboard.platform.unlock-manual-hint": { es: "Desbloqueando cuotas del aval como solicitante.", en: "Unlocking installments for this aval as solicitante." },
-  "dashboard.platform.unlock-hint": { es: "Desbloqueando cuotas disponibles en todos los avales vigentes.", en: "Unlocking available installments across all active avales." },
-  "dashboard.platform.avales-onchain": { es: "Avales On-Chain", en: "On-Chain Avales" },
-  "dashboard.platform.no-vigentes": { es: "No hay avales vigentes.", en: "No active avales." },
-  "dashboard.platform.no-finalizados": { es: "No hay avales finalizados.", en: "No finalized avales." },
+  "dashboard.platform.unlock-manual-hint": { es: "Desbloqueando cuotas del aval como solicitante.", en: "Unlocking installments for this guarantee as solicitante." },
+  "dashboard.platform.unlock-hint": { es: "Desbloqueando cuotas disponibles en todos los avales vigentes.", en: "Unlocking available installments across all active guarantees." },
+  "dashboard.platform.avales-onchain": { es: "Avales On-Chain", en: "On-Chain Guarantees" },
+  "dashboard.platform.no-vigentes": { es: "No hay avales vigentes.", en: "No active guarantees." },
+  "dashboard.platform.no-finalizados": { es: "No hay avales finalizados.", en: "No finalized guarantees." },
   "dashboard.platform.col-address": { es: "Dirección", en: "Address" },
   "dashboard.platform.col-solicitante": { es: "Solicitante", en: "Solicitante" },
   "dashboard.platform.col-status": { es: "Estado", en: "Status" },
@@ -1650,11 +1650,11 @@ export const translations: Translations = {
   "dashboard.greeting.evening": { es: "Buenas noches", en: "Good evening" },
   "dashboard.subtitle.user": { es: "Plataforma Avaldao · Tu panel personal", en: "Avaldao Platform · Your personal dashboard" },
   "dashboard.subtitle.admin": { es: "Plataforma Avaldao · Panel de administración", en: "Avaldao Platform · Admin panel" },
-  "dashboard.my-avales": { es: "Mis Avales", en: "My Avales" },
-  "dashboard.avales-count.one": { es: "{{n}} aval", en: "{{n}} aval" },
-  "dashboard.avales-count.other": { es: "{{n}} avales", en: "{{n}} avales" },
-  "dashboard.empty.title": { es: "No participás en ningún aval todavía", en: "You are not part of any aval yet" },
-  "dashboard.empty.description": { es: "Cuando participes en un aval, aparecerá aquí", en: "When you take part in an aval, it will show up here" },
+  "dashboard.my-avales": { es: "Mis Avales", en: "My Guarantees" },
+  "dashboard.avales-count.one": { es: "{{n}} aval", en: "{{n}} guarantee" },
+  "dashboard.avales-count.other": { es: "{{n}} avales", en: "{{n}} guarantees" },
+  "dashboard.empty.title": { es: "No participás en ningún aval todavía", en: "You are not part of any guarantee yet" },
+  "dashboard.empty.description": { es: "Cuando participes en un aval, aparecerá aquí", en: "When you take part in a guarantee, it will show up here" },
   "dashboard.col.date": { es: "Fecha", en: "Date" },
   "dashboard.col.project": { es: "Proyecto", en: "Project" },
   "dashboard.col.network": { es: "Red", en: "Network" },
@@ -1670,7 +1670,7 @@ export const translations: Translations = {
   "avales-table.col.status": { es: "Estado", en: "Status" },
   "avales-table.col.actions": { es: "Acciones", en: "Actions" },
   "avales-table.empty": { es: "No hay avales para mostrar", en: "No guarantees to show" },
-  "avales-table.view-details": { es: "Ver detalles del aval", en: "View aval details" },
+  "avales-table.view-details": { es: "Ver detalles del aval", en: "View guarantee details" },
   "avales-table.range": { es: "{{from}}-{{to}} de {{total}}", en: "{{from}}-{{to}} of {{total}}" },
   "avales-table.pagination": { es: "Paginación de la tabla", en: "Table pagination" },
   "avales-table.role.solicitante": { es: "Solicitante", en: "Applicant" },
@@ -1855,13 +1855,13 @@ export const translations: Translations = {
   "aval.form.merchant": { es: "Comerciante", en: "Merchant" },
   "aval.form.endorsed": { es: "Avalado", en: "Guaranteed party" },
   "aval.form.validation.invalid-address": { es: "Por favor ingresá un address válido", en: "Please enter a valid address" },
-  "aval.form.user-not-found": { es: "Aún no hay un usuario registrado con esa dirección. Podés enviar la solicitud, pero Avaldao no podrá aceptar el aval hasta que esa persona cree su cuenta con esta wallet y su identidad sea verificada.", en: "There is no registered user with that address yet. You can submit the request, but Avaldao won't be able to accept the aval until that person creates an account with this wallet and their identity is verified." },
+  "aval.form.user-not-found": { es: "Aún no hay un usuario registrado con esa dirección. Podés enviar la solicitud, pero Avaldao no podrá aceptar el aval hasta que esa persona cree su cuenta con esta wallet y su identidad sea verificada.", en: "There is no registered user with that address yet. You can submit the request, but Avaldao won't be able to accept the guarantee until that person creates an account with this wallet and their identity is verified." },
   "aval.form.loading": { es: "Cargando...", en: "Loading..." },
   "aval.form.cancel": { es: "Cancelar", en: "Cancel" },
-  "aval.form.submit": { es: "Crear Aval", en: "Create Aval" },
+  "aval.form.submit": { es: "Crear Aval", en: "Create Guarantee" },
   "aval.form.submit.loading": { es: "Creando...", en: "Creating..." },
-  "aval.form.success": { es: "Aval creado correctamente", en: "Aval created successfully" },
-  "aval.form.error": { es: "Error al crear el aval. Por favor intenta nuevamente.", en: "Error creating the aval. Please try again." },
+  "aval.form.success": { es: "Aval creado correctamente", en: "Guarantee created successfully" },
+  "aval.form.error": { es: "Error al crear el aval. Por favor intenta nuevamente.", en: "Error creating the guarantee. Please try again." },
 
   // 404 page
   "not-found.badge": { es: "Página no encontrada", en: "Page not found" },
@@ -1904,7 +1904,7 @@ export const translations: Translations = {
   "wallet.banner.close": { es: "Cerrar", en: "Close" },
   "wallet.banner.title.idle": { es: "Vinculá tu billetera", en: "Link your wallet" },
   "wallet.banner.title.done": { es: "Billetera vinculada", en: "Wallet linked" },
-  "wallet.banner.description.idle": { es: "Para participar en avales necesitás vincular una billetera. No tiene costo, solo tenés que firmar un mensaje.", en: "To participate in avales you need to link a wallet. It's free, you just need to sign a message." },
+  "wallet.banner.description.idle": { es: "Para participar en avales necesitás vincular una billetera. No tiene costo, solo tenés que firmar un mensaje.", en: "To participate in guarantees you need to link a wallet. It's free, you just need to sign a message." },
   "wallet.banner.description.done": { es: "Tu billetera fue asociada exitosamente a tu cuenta.", en: "Your wallet was successfully linked to your account." },
   "wallet.banner.step.idle": { es: "Conectar billetera", en: "Connect wallet" },
   "wallet.banner.step.connecting": { es: "Conectando...", en: "Connecting..." },
