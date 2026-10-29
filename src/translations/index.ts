@@ -1502,6 +1502,7 @@ export const translations: Translations = {
   "aval.actions.signatures.description": { es: "El aval ya está desplegado en la blockchain. Para que pueda iniciarse, todos los participantes deben firmarlo.", en: "The guarantee is already deployed on the blockchain. For it to start, all participants must sign it." },
   "aval.actions.sign-as": { es: "Firmar como {{role}}", en: "Sign as {{role}}" },
   "aval.actions.already-signed": { es: "Ya registraste tu firma como {{role}}.", en: "You already registered your signature as {{role}}." },
+  "aval.actions.signature-received": { es: "{{role}} firmó el aval.", en: "{{role}} signed the guarantee." },
   "aval.actions.all-signed.description": { es: "Todas las firmas están registradas. Podés enviarlas al contrato para iniciar el aval.", en: "All signatures are registered. You can submit them to the contract to start the guarantee." },
   "aval.actions.start-aval": { es: "Iniciar aval en blockchain", en: "Start guarantee on blockchain" },
   "aval.actions.waiting-avaldao": { es: "Todas las firmas recolectadas. Esperando que AvalDAO inicie el aval.", en: "All signatures collected. Waiting for AvalDAO to start the guarantee." },

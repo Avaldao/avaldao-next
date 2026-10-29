@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
 import { Button } from "@/components/ui/button";
 import { Aval, AvalState } from "@/types";
@@ -92,6 +92,35 @@ export default function AvalActions({ aval, unverifiedRoles }: { aval: Aval; unv
   }, [aval, language, t]);
 
   const { run, estimateCost, estimatedCost, txState, clearTxState } = useBlockchainTransaction(provider);
+
+  // Firmas de otros participantes en vivo: mientras se recolectan firmas, escuchamos
+  // el stream SSE y refrescamos la página (que trae las firmas desde MongoDB).
+  // El handler va en un ref para no reconectar en cada render (t no es estable).
+  const onSignatureRef = useRef<(role: AvalRoleEnum) => void>(() => {});
+  useEffect(() => {
+    onSignatureRef.current = (role) => {
+      // La firma propia ya se confirma en el modal de firma.
+      const own = address && aval[`${role}Address`]?.toLowerCase() === address.toLowerCase();
+      if (!own) toast.success(t("aval.actions.signature-received", { role: t(ROLE_LABEL_KEYS[role]) }));
+      router.refresh();
+    };
+  });
+
+  const listenSignatures = aval.status === AvalState.ACEPTADO && !!session?.user;
+  useEffect(() => {
+    if (!listenSignatures || !aval._id) return;
+    const source = new EventSource(`/api/avales/${aval._id}/signatures/stream`);
+    source.addEventListener("signature", (e) => {
+      onSignatureRef.current(JSON.parse(e.data).role);
+    });
+    // EventSource reconecta solo; tras una reconexión refrescamos por si se perdió algún evento.
+    let opened = false;
+    source.onopen = () => {
+      if (opened) router.refresh();
+      opened = true;
+    };
+    return () => source.close();
+  }, [listenSignatures, aval._id, router]);
 
   if (!session?.user) return null;
 

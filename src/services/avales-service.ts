@@ -13,6 +13,7 @@ import avaldaoAbi from "@/blockchain/contracts/avaldao/avaldao.abi";
 import { contractsAddress } from "@/blockchain/contracts";
 import avalAbi from "@/blockchain/contracts/avaldao/aval.abi";
 import NotificationsService from "@/services/notifications-service";
+import { emitSignature } from "@/lib/aval-events";
 import { AvalTerminos, generateTerminos } from "@/app/entities/aval-terms.entity";
 import { DEFAULT_DESBLOQUEO_SECONDS, isValidDesbloqueo } from "@/app/entities/aval.entity";
 
@@ -347,6 +348,9 @@ export default class AvalesService {
     await this._updateAval(avalId, {
       [`${role}Signature`]: signature,
     });
+
+    // Refresca en vivo la pantalla de los demás participantes.
+    emitSignature(avalId, role);
 
     if (role !== "avaldao" && !wasComplete && !aval.avaldaoSignature) {
       const updated = await AvalModel.findById(avalId);
