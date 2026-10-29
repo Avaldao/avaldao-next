@@ -1855,6 +1855,7 @@ export const translations: Translations = {
   "aval.form.network": { es: "Red", en: "Network" },
   "aval.form.participants": { es: "Participantes", en: "Participants" },
   "aval.form.applicant": { es: "Solicitante", en: "Applicant" },
+  "aval.form.you": { es: "Vos", en: "You" },
   "aval.form.avaldao": { es: "AvalDAO", en: "AvalDAO" },
   "aval.form.merchant": { es: "Comerciante", en: "Merchant" },
   "aval.form.endorsed": { es: "Avalado", en: "Guaranteed party" },

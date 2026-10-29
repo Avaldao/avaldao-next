@@ -575,8 +575,19 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <Label>{t("aval.form.applicant")}</Label>
+          <Label className="flex items-center gap-2">
+            {t("aval.form.applicant")}
+            <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700">
+              {t("aval.form.you")}
+            </span>
+          </Label>
           <ReadOnlyAddress name="solicitanteAddress" value={form.solicitanteAddress || (needsWallet ? connectedAddress : undefined)} />
+          {user?.name && (
+            <div className="mt-1 text-primary italic text-sm">
+              <span className="block truncate">{user.name}</span>
+              {user.email && <span className="block truncate">&lt;{user.email}&gt;</span>}
+            </div>
+          )}
         </div>
 
         <div>
