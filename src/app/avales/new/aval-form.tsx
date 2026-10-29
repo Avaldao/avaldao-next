@@ -5,6 +5,8 @@ import { CalendarDays, ChevronDown, Info, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textarea";
 import { useSession } from "next-auth/react";
+import { useAppKit, useAppKitAccount, useAppKitProvider, useDisconnect } from "@reown/appkit/react";
+import { BrowserProvider, Eip1193Provider } from "ethers";
 import { UserInfo } from "@/types";
 import Spinner from "@/components/ui/spinner";
 import { Label } from "@/components/ui/label";
@@ -70,9 +72,15 @@ interface AvalFormProps {
 
 
 export default function AvalForm({ networkOptions, initialChainId, language }: AvalFormProps) {
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const user = session?.user;
   const router = useRouter();
+  const { open: openWalletModal } = useAppKit();
+  const { disconnect } = useDisconnect();
+  const { isConnected, address: connectedAddress } = useAppKitAccount();
+  const { walletProvider } = useAppKitProvider<Eip1193Provider>("eip155");
+  // Sin address en la cuenta, la wallet se vincula al enviar el formulario (ver handleSubmit).
+  const needsWallet = !user?.address;
 
   const t = useMemo(() => (key: string) => translations[key]?.[language] ?? key, [language]);
 
@@ -237,6 +245,16 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
 
   }
 
+  // Firma el challenge con la wallet conectada para demostrar que el usuario controla la address.
+  async function signWalletProof(address: string) {
+    const res = await fetch(`/api/challenges?address=${address}&lang=${language}`);
+    if (!res.ok) throw new Error(t("aval.form.error"));
+    const { message } = await res.json();
+    const signer = await new BrowserProvider(walletProvider).getSigner();
+    const signature = await signer.signMessage(message);
+    return { message: message as string, signature };
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (loading) return;
@@ -247,12 +265,27 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
       return;
     }
 
+    if (needsWallet && (!isConnected || !connectedAddress)) {
+      toast.error(t("aval.form.wallet.connect-first"));
+      await openWalletModal({ view: "Connect" });
+      return;
+    }
 
     try {
       setLoading(true);
 
+      let walletProof: { message: string; signature: string } | undefined;
+      if (needsWallet && connectedAddress) {
+        try {
+          walletProof = await signWalletProof(connectedAddress);
+        } catch {
+          toast.error(t("aval.form.wallet.sign-error"));
+          return;
+        }
+      }
+
       // JSON.stringify serializa fechaInicio (Date) como ISO string.
-      const data = JSON.stringify({ ...form, fechaInicio, desbloqueoDias });
+      const data = JSON.stringify({ ...form, fechaInicio, desbloqueoDias, walletProof });
 
       const res = await fetch("/api/avales", {
         method: "POST",
@@ -262,6 +295,8 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
 
       if (res.ok) {
         toast.success(t("aval.form.success"));
+        // Refresca la sesión para que incluya la address recién vinculada.
+        if (walletProof) await updateSession();
         setForm({
           chainId: initialChainId,
           proyecto: "",
@@ -284,6 +319,7 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
         // setSuccess(true);  
       } else {
         const errorData = await res.json();
+        if (errorData.message === "Esta billetera ya está asociada a otra cuenta") await disconnect();
         toast.error(`${t("aval.form.error")}${errorData.message ? `: ${errorData.message}` : ""}`);
       }
     } catch (err) {
@@ -322,6 +358,30 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
           </div>
         </div>
       </div>
+
+      {needsWallet && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 mb-4 flex flex-col sm:flex-row sm:items-center gap-3">
+          <Wallet className="w-5 h-5 text-amber-600 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-amber-800">{t("aval.form.wallet.title")}</p>
+            <p className="mt-0.5 text-xs text-amber-700">{t("aval.form.wallet.description")}</p>
+            {isConnected && connectedAddress && (
+              <p className="mt-1 text-xs font-medium text-emerald-700 break-all">
+                {t("aval.form.wallet.connected")}: {connectedAddress}
+              </p>
+            )}
+          </div>
+          {!isConnected && (
+            <button
+              type="button"
+              onClick={() => openWalletModal({ view: "Connect" })}
+              className="shrink-0 rounded-lg bg-violet-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-violet-700 cursor-pointer"
+            >
+              {t("aval.form.wallet.connect")}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Proyecto */}
       <fieldset className="rounded-xl border border-slate-200 px-3 sm:px-4 pb-4 pt-2 space-y-3">
@@ -516,7 +576,7 @@ export default function AvalForm({ networkOptions, initialChainId, language }: A
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label>{t("aval.form.applicant")}</Label>
-          <ReadOnlyAddress name="solicitanteAddress" value={form.solicitanteAddress} />
+          <ReadOnlyAddress name="solicitanteAddress" value={form.solicitanteAddress || (needsWallet ? connectedAddress : undefined)} />
         </div>
 
         <div>

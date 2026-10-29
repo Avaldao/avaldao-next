@@ -2,6 +2,7 @@
 import { SessionProvider, useSession } from "next-auth/react";
 import AvalForm, { AvalNetworkOption } from "./aval-form";
 import { Language } from "@/translations";
+import AppkitContextProvider from "@/context/appkit-context";
 
 interface AvalFormWrapperProps {
   networkOptions: AvalNetworkOption[];
@@ -12,9 +13,11 @@ interface AvalFormWrapperProps {
 export default function AvalFormWrapper(props: AvalFormWrapperProps) {
   return (
     <div className="mb-15">
-      <SessionProvider>
-        <W_ {...props} />
-      </SessionProvider>
+      <AppkitContextProvider>
+        <SessionProvider>
+          <W_ {...props} />
+        </SessionProvider>
+      </AppkitContextProvider>
     </div>
   )
 }

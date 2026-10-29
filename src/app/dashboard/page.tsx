@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { translations } from "@/translations";
 import { getAvalChainIds } from "@/blockchain/contracts";
+import { hasPermission } from "@/lib/auth/authorization";
 
 export default async function DashboardPage() {
   const [session, language] = await Promise.all([
@@ -16,17 +17,16 @@ export default async function DashboardPage() {
   ]);
 
   const nroles = session?.user?.nroles ?? {};
-  const isAdmin =
-    nroles[30]?.includes("ADMIN_ROLE") ||
-    nroles[31]?.includes("ADMIN_ROLE") ||
-    false;
+  const [canReadDashboard, canCreateAval] = session
+    ? await Promise.all([hasPermission(session, "dashboard:read"), hasPermission(session, "avales:create")])
+    : [false, false];
 
   const chainIds = getAvalChainIds();
   const defaultChainId = Number(process.env.DEFAULT_CHAIN_ID);
 
   const newAvalLabel = translations["dashboard.new-aval"]?.[language] ?? "dashboard.new-aval";
 
-  if (!isAdmin) {
+  if (!canReadDashboard) {
     return <CommonUserDashboard />;
   }
 
@@ -39,7 +39,7 @@ export default async function DashboardPage() {
         chainIds={chainIds}
         initialChainId={chainIds.includes(defaultChainId) ? defaultChainId : chainIds[0]}
       />
-      <Link
+      {canCreateAval && <Link
         href="/avales/new"
         aria-label={newAvalLabel}
         title={newAvalLabel}
@@ -47,7 +47,7 @@ export default async function DashboardPage() {
       >
         <Plus className="h-6 w-6 shrink-0" />
         <span className="max-sm:hidden">{newAvalLabel}</span>
-      </Link>
+      </Link>}
     </div>
   );
 }

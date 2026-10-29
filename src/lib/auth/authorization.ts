@@ -60,9 +60,9 @@ export async function requireRoles(requiredRoles: Role | Role[]) {
  * llamada (no del JWT) para que revocar un rol tenga efecto inmediato.
  */
 export async function getPermissions(session: Session): Promise<Permission[]> {
-  const user = await UsersModel.findById(session.user.id).select("staffRoles").lean();
+  const user = await UsersModel.findById(session.user.id).select("staffRoles platformRoles").lean();
   const mainnetRoles = session.user.nroles?.[STAFF_CHAIN_ID] || [];
-  return resolvePermissions(user?.staffRoles ?? [], mainnetRoles);
+  return resolvePermissions(user?.staffRoles ?? [], mainnetRoles, user?.platformRoles ?? []);
 }
 
 /** Como `requireRoles`, pero chequea un permiso de backoffice (roles offchain u onchain en mainnet). */

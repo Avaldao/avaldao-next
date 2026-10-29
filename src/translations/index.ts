@@ -1759,6 +1759,10 @@ export const translations: Translations = {
   "staff.platform-roles.USER_ADMIN.description": { es: "Además de revisar, crear usuarios, reenviar activaciones y asignar estos permisos a otros.", en: "In addition to reviewing, create users, resend activations and assign these permissions to others." },
   "staff.platform-roles.AVAL_VIEWER": { es: "Avales: lectura", en: "Guarantees: viewer" },
   "staff.platform-roles.AVAL_VIEWER.description": { es: "Ver todos los avales de la plataforma, en todas las redes.", en: "View all the platform's guarantees, on every network." },
+  "staff.platform-roles.AVAL_CREATOR": { es: "Avales: creación", en: "Guarantees: creator" },
+  "staff.platform-roles.AVAL_CREATOR.description": { es: "Crear avales. Los usuarios registrados como solicitantes ya tienen este permiso por defecto.", en: "Create guarantees. Users registered as applicants already have this permission by default." },
+  "staff.platform-roles.DASHBOARD_VIEWER": { es: "Dashboard: lectura", en: "Dashboard: viewer" },
+  "staff.platform-roles.DASHBOARD_VIEWER.description": { es: "Ver el dashboard de la plataforma: estado del fondo de garantías y de los avales.", en: "View the platform dashboard: guarantee fund and guarantees status." },
   "staff.platform-roles.save": { es: "Guardar permisos", en: "Save permissions" },
   "staff.platform-roles.success": { es: "Permisos actualizados", en: "Permissions updated" },
   "staff.platform-roles.error": { es: "No se pudieron actualizar los permisos", en: "Could not update the permissions" },
@@ -1915,6 +1919,14 @@ export const translations: Translations = {
   "wallet.banner.error.connect": { es: "No se pudo conectar la billetera", en: "Could not connect wallet" },
   "wallet.banner.error.save": { es: "Error al guardar la billetera", en: "Error saving wallet" },
   "wallet.banner.error.generic": { es: "Ocurrió un error", en: "An error occurred" },
+
+  // Wallet requerida para crear un aval
+  "aval.form.wallet.title": { es: "Necesitás conectar una billetera", en: "You need to connect a wallet" },
+  "aval.form.wallet.description": { es: "Para crear un aval tu cuenta necesita una billetera asociada. Conectala y, al enviar el formulario, te vamos a pedir que firmes un mensaje (sin costo) para demostrar que tenés acceso a esa cuenta. La billetera quedará asociada a tu usuario.", en: "To create a guarantee your account needs a linked wallet. Connect it and, when you submit the form, we'll ask you to sign a message (free of charge) to prove you have access to that account. The wallet will be linked to your user." },
+  "aval.form.wallet.connect": { es: "Conectar billetera", en: "Connect wallet" },
+  "aval.form.wallet.connected": { es: "Billetera conectada", en: "Wallet connected" },
+  "aval.form.wallet.connect-first": { es: "Conectá tu billetera para poder enviar el aval", en: "Connect your wallet to submit the guarantee" },
+  "aval.form.wallet.sign-error": { es: "No se pudo firmar el mensaje con tu billetera", en: "Could not sign the message with your wallet" },
 
   "user.profile": { es: "Perfil de Usuario", en: "User Profile" },
   "profile.avatar.upload-text": { es: "Subir Avatar", en: "Upload Avatar" },

@@ -9,7 +9,9 @@ if (!projectId) {
   throw new Error('Project ID is not defined')
 }
 
-// Set up metadata
+// Set up metadataAppKit ethers Next.js App Router Example
+
+
 const metadata = {
   name: 'Avaldao Dapp',
   description: 'Avaldao Dapp - Garantias descentralizadas',
@@ -17,7 +19,7 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
 
-// Create the modal
+// Create the modal 
 export const modal = createAppKit({
   adapters: [],
   projectId,
